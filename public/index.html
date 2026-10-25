@@ -1934,17 +1934,17 @@
         <section class="kpi-strip" aria-label="Chỉ số tổng hợp từ Google Sheet">
           <div class="kpi-cell lead">
             <div class="kpi-label"><span class="kpi-dot"></span>Tổng doanh thu (D5)</div>
-            <div class="kpi-val mono" id="kpiRev">0<small>nghìn đ</small></div>
+            <div class="kpi-val mono" id="kpiRev">67.165.000<small>đ</small></div>
             <div class="kpi-note">Tự cộng từ cột Giá bán (G8:G)</div>
           </div>
           <div class="kpi-cell k-profit">
             <div class="kpi-label"><span class="kpi-dot"></span>Lợi nhuận ròng (J5)</div>
-            <div class="kpi-val mono" id="kpiProfit">0<small>nghìn đ</small></div>
-            <div class="kpi-note" id="kpiCostNote">Tổng chi phí nhập: 0 nghìn đ</div>
+            <div class="kpi-val mono" id="kpiProfit">61.025.000<small>đ</small></div>
+            <div class="kpi-note" id="kpiCostNote">Tổng chi phí nhập: 6.140.000 đ</div>
           </div>
           <div class="kpi-cell k-orders">
             <div class="kpi-label"><span class="kpi-dot"></span>Tổng đơn hàng (F5)</div>
-            <div class="kpi-val mono" id="kpiOrders">0<small>đơn</small></div>
+            <div class="kpi-val mono" id="kpiOrders">134<small>đơn</small></div>
             <div class="kpi-note" id="kpiRowNote">Dòng ghi kế tiếp: #142</div>
           </div>
           <div class="kpi-cell k-soon">
@@ -2025,18 +2025,18 @@
             </div>
             <div class="stat-metric-cell s-rev">
               <span class="stat-m-label">Doanh thu bán ra</span>
-              <div class="stat-m-val mono" id="statRevVal">0<small>nghìn đ</small></div>
+              <div class="stat-m-val mono" id="statRevVal">0<small>đ</small></div>
               <span class="stat-m-sub" id="statRevSub">Cột Giá bán (G)</span>
             </div>
             <div class="stat-metric-cell s-profit">
               <span class="stat-m-label">Lợi nhuận ước tính</span>
-              <div class="stat-m-val mono" id="statProfitVal">0<small>nghìn đ</small></div>
+              <div class="stat-m-val mono" id="statProfitVal">0<small>đ</small></div>
               <span class="stat-m-sub" id="statProfitSub">Sau khi trừ giá vốn</span>
             </div>
             <div class="stat-metric-cell s-avg">
               <span class="stat-m-label">Giá trị trung bình / đơn</span>
-              <div class="stat-m-val mono" id="statAvgVal">0<small>nghìn đ</small></div>
-              <span class="stat-m-sub" id="statCostTotal">Chi phí nhập: 0 nghìn đ</span>
+              <div class="stat-m-val mono" id="statAvgVal">0<small>đ</small></div>
+              <span class="stat-m-sub" id="statCostTotal">Chi phí nhập: 0 đ</span>
             </div>
           </div>
 
@@ -2123,7 +2123,7 @@
                   <th class="num">STT</th>
                   <th>Khách hàng</th>
                   <th>Mặt hàng</th>
-                  <th class="num hide-sm">Giá bán (k)</th>
+                  <th class="num hide-sm">Giá bán (VNĐ)</th>
                   <th class="num">Ngày kết thúc</th>
                   <th class="hide-sm">Trạng thái hạn</th>
                   <th class="num hide-sm">Thao tác</th>
@@ -2179,12 +2179,12 @@
         </div>
 
         <div class="field">
-          <label for="cSalePrice">Giá bán (nghìn đ)</label>
-          <input id="cSalePrice" class="mono" inputmode="numeric" placeholder="700" />
+          <label for="cSalePrice">Giá bán (VNĐ)</label>
+          <input id="cSalePrice" class="mono" inputmode="numeric" placeholder="700.000 hoặc 700" />
         </div>
 
         <div class="field">
-          <label for="cCostPrice">Giá nhập (nghìn đ)</label>
+          <label for="cCostPrice">Giá nhập (VNĐ)</label>
           <input id="cCostPrice" class="mono" inputmode="numeric" placeholder="150" />
         </div>
 
@@ -2313,12 +2313,12 @@
           </div>
 
           <div class="field">
-            <label for="eSalePrice">Giá bán (nghìn đ)</label>
+            <label for="eSalePrice">Giá bán (VNĐ)</label>
             <input id="eSalePrice" class="mono" inputmode="numeric" />
           </div>
 
           <div class="field">
-            <label for="eCostPrice">Giá nhập (nghìn đ)</label>
+            <label for="eCostPrice">Giá nhập (VNĐ)</label>
             <input id="eCostPrice" class="mono" inputmode="numeric" />
           </div>
 
@@ -5530,6 +5530,26 @@
       return sessionStorage.getItem('qlbh_authenticated') === 'true';
     }
 
+    
+    function parseToVndAmount(val) {
+      if (val === null || val === undefined || val === '') return 0;
+      if (typeof val === 'number') {
+        if (isNaN(val)) return 0;
+        return val < 100000 ? Math.round(val * 1000) : Math.round(val);
+      }
+      let s = String(val).trim().replace(/\s+/g, '').replace(/đ|vnđ|vnd/gi, '');
+      if (!s) return 0;
+      const rawNum = parseFloat(s.replace(/\./g, '').replace(/,/g, ''));
+      if (isNaN(rawNum)) return 0;
+      if (rawNum < 100000) return Math.round(rawNum * 1000);
+      return Math.round(rawNum);
+    }
+
+    function formatMoneyVND(val) {
+      const vnd = parseToVndAmount(val);
+      return vnd.toLocaleString('vi-VN');
+    }
+
     function calculateEndDate(buyDateISO, months) {
       if (!buyDateISO) return { endDate: '', endDateISO: '', daysLeft: null };
       const m = parseInt(months, 10) || 1;
@@ -5551,19 +5571,16 @@
     function recalculateKPIs(orders) {
       let rev = 0;
       let cost = 0;
-      orders.forEach(o => {
-        const s = parseFloat(String(o.salePrice || '0').replace(/\./g, '').replace(/,/g, '.')) || 0;
-        const c = parseFloat(String(o.costPrice || '0').replace(/\./g, '').replace(/,/g, '.')) || 0;
-        rev += s;
-        cost += c;
+      (orders || []).forEach(o => {
+        rev += parseToVndAmount(o.salePrice);
+        cost += parseToVndAmount(o.costPrice);
       });
       const profit = rev - cost;
-      const fmt = num => num.toLocaleString('vi-VN');
       return {
-        revenue: fmt(rev),
-        totalOrders: String(orders.length),
-        totalCost: fmt(cost),
-        profit: fmt(profit)
+        revenue: rev.toLocaleString('vi-VN'),
+        totalOrders: String((orders || []).length),
+        totalCost: cost.toLocaleString('vi-VN'),
+        profit: profit.toLocaleString('vi-VN')
       };
     }
 
@@ -5787,14 +5804,19 @@
       document.getElementById('statCountVal').innerHTML = `${matched.length}<small>đơn</small>`;
       document.getElementById('statCountSub').textContent = `${pct}% tổng số đơn (${appState.orders.length} đơn)`;
 
-      document.getElementById('statRevVal').innerHTML = `${totalRev.toLocaleString('vi-VN')}<small>nghìn đ</small>`;
+      const totalRevVnd = formatMoneyVND(totalRev);
+      const profitVnd = formatMoneyVND(profit);
+      const totalCostVnd = formatMoneyVND(totalCost);
+      const avgVnd = formatMoneyVND(avg);
+
+      document.getElementById('statRevVal').innerHTML = `${totalRevVnd}<small>đ</small>`;
       document.getElementById('statRevSub').textContent = `Tổng giá bán từ ${matched.length} đơn`;
 
-      document.getElementById('statProfitVal').innerHTML = `${profit.toLocaleString('vi-VN')}<small>nghìn đ</small>`;
+      document.getElementById('statProfitVal').innerHTML = `${profitVnd}<small>đ</small>`;
       document.getElementById('statProfitSub').textContent = `Tỷ suất: ${totalRev ? Math.round((profit / totalRev) * 100) : 0}% doanh thu`;
 
-      document.getElementById('statAvgVal').innerHTML = `${avg.toLocaleString('vi-VN')}<small>k / đơn</small>`;
-      document.getElementById('statCostTotal').textContent = `Tổng giá vốn nhập: ${totalCost.toLocaleString('vi-VN')} nghìn đ`;
+      document.getElementById('statAvgVal').innerHTML = `${avgVnd}<small>đ / đơn</small>`;
+      document.getElementById('statCostTotal').textContent = `Tổng giá vốn nhập: ${totalCostVnd} đ`;
 
       const ranked = [...countsByProd.entries()].sort((a, b) => b[1] - a[1]);
       document.getElementById('statProdCountMeta').textContent = `${ranked.length} mặt hàng`;
@@ -5911,9 +5933,13 @@
       document.getElementById('fcExpired').textContent = String(expired.length);
       document.getElementById('navSoonBadge').textContent = String(soon30.length);
 
-      document.getElementById('kpiRev').innerHTML = `${esc(appState.kpis.revenue)}<small>nghìn đ</small>`;
-      document.getElementById('kpiProfit').innerHTML = `${esc(appState.kpis.profit)}<small>nghìn đ</small>`;
-      document.getElementById('kpiCostNote').textContent = `Tổng chi phí nhập: ${appState.kpis.totalCost} nghìn đ`;
+      const revFormatted = formatMoneyVND(appState.kpis?.revenue || 0);
+      const profitFormatted = formatMoneyVND(appState.kpis?.profit || 0);
+      const costFormatted = formatMoneyVND(appState.kpis?.totalCost || 0);
+
+      document.getElementById('kpiRev').innerHTML = `${revFormatted}<small>đ</small>`;
+      document.getElementById('kpiProfit').innerHTML = `${profitFormatted}<small>đ</small>`;
+      document.getElementById('kpiCostNote').textContent = `Tổng chi phí nhập: ${costFormatted} đ`;
       document.getElementById('kpiOrders').innerHTML = `${esc(appState.kpis.totalOrders)}<small>đơn</small>`;
       document.getElementById('kpiRowNote').textContent = `Dòng ghi kế tiếp: #${appState.nextEmptyRow}`;
       document.getElementById('kpiSoon').innerHTML = `${soon30.length}<small>đơn</small>`;
@@ -6020,7 +6046,7 @@
             </div>
           </td>
           <td>${productTagHtml(o.product, o.months)}</td>
-          <td class="num mono hide-sm" style="font-weight:500;">${o.salePrice ? esc(o.salePrice) : '—'}</td>
+          <td class="num mono hide-sm" style="font-weight:500;">${o.salePrice ? formatMoneyVND(o.salePrice) + ' đ' : '—'}</td>
           <td class="num mono">${esc(o.endDateISO || o.endDate || '—')}</td>
           <td class="hide-sm">${statusPillForOrder(o)}</td>
           <td class="num hide-sm">
