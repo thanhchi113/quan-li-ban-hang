@@ -80,9 +80,11 @@
       --fs-body: 14px;
       --fs-small: 13px;
       --font: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+      color-scheme: light;
     }
 
     :root[data-theme="dark"] {
+      color-scheme: dark;
       --ground: #090d16;
       --surface: #111827;
       --raised: #1e293b;
@@ -604,15 +606,79 @@
       flex-wrap: wrap;
     }
 
-    /* Status Notice */
+    /* Floating Theme-Synchronized Notification Toast */
     #toast {
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      z-index: 125;
       display: none;
-      padding: 10px 14px;
-      border-radius: var(--radius-card);
+      min-width: 310px;
+      max-width: min(440px, calc(100vw - 32px));
+      padding: 13px 16px;
+      border-radius: 12px;
       font-size: 13px;
-      border: 1px solid var(--accent);
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      box-shadow: 0 16px 38px rgba(15, 23, 42, 0.28); /* taste-skill-ignore */
+      animation: fadeSlideUp 200ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    #toast.is-error {
+      border-left-color: var(--negative);
+    }
+    .toast-inner {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+    }
+    .toast-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
       background: var(--accent-tint);
-      animation: fadeSlideUp 200ms ease;
+      color: var(--accent);
+      display: grid;
+      place-items: center;
+      flex: none;
+      margin-top: 1px;
+    }
+    #toast.is-error .toast-icon {
+      background: var(--pill-negative-bg);
+      color: var(--negative);
+    }
+    .toast-content {
+      flex: 1;
+      min-width: 0;
+    }
+    .toast-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+    .toast-msg {
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .toast-close {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      font-size: 15px;
+      flex: none;
+    }
+    .toast-close:hover {
+      background: var(--active);
+      color: var(--text);
     }
 
     /* Section 1: Colorful Divided KPI Strip */
@@ -1315,66 +1381,119 @@
       border-top: 2px solid var(--border);
     }
 
-    /* Floating Compact Composer Window (Ghi đơn mới) */
+    /* Centered Executive Modal for "Ghi đơn mới" (Nằm chính giữa khung hình) */
+    .composer-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(9, 13, 22, 0.56);
+      backdrop-filter: blur(4px);
+      z-index: 75;
+      animation: fadeSlideUp 150ms ease;
+    }
+    .composer-backdrop[hidden] { display: none !important; }
+
     .composer-win {
       position: fixed;
-      right: 20px;
-      bottom: 20px;
-      width: 440px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 760px;
       max-width: calc(100vw - 24px);
+      max-height: calc(100vh - 24px);
       background: var(--surface);
-      border: 1px solid var(--accent);
-      border-radius: 12px;
-      box-shadow: 0 18px 42px rgba(15, 23, 42, 0.2); /* taste-skill-ignore */
-      z-index: 50;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 28px 70px rgba(0, 0, 0, 0.42); /* taste-skill-ignore */
+      z-index: 76;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      animation: fadeSlideUp 200ms ease;
     }
     .composer-win[hidden] { display: none !important; }
-    .composer-win.is-minimized .composer-body { display: none; }
-    .composer-win.is-minimized { width: 290px; }
+    .composer-win.is-minimized {
+      top: auto;
+      left: auto;
+      right: 20px;
+      bottom: 20px;
+      transform: none;
+      width: 330px;
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      box-shadow: 0 14px 32px rgba(15, 23, 42, 0.25); /* taste-skill-ignore */
+    }
+    .composer-win.is-minimized .composer-body,
+    .composer-win.is-minimized .composer-foot { display: none; }
 
     .composer-head {
-      height: 42px;
-      padding: 0 12px 0 14px;
-      background: var(--chart-1);
-      color: #ffffff;
+      padding: 15px 20px;
+      background: var(--raised);
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 12px;
       cursor: pointer;
       user-select: none;
     }
+    .composer-head-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+    .composer-head-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--accent-tint);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      display: grid;
+      place-items: center;
+      flex: none;
+    }
     .composer-title {
-      font-size: 13px;
-      font-weight: 600;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
       display: flex;
       align-items: center;
       gap: 8px;
+      line-height: 1.25;
+    }
+    .composer-subtitle {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
     }
     .win-controls {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
     }
     .win-btn {
-      width: 26px;
-      height: 26px;
-      border-radius: 6px;
-      border: 0;
-      background: rgba(255, 255, 255, 0.16);
-      color: inherit;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
       display: grid;
       place-items: center;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 15px;
+      transition: all 140ms ease;
     }
-    .win-btn:hover { background: rgba(255, 255, 255, 0.28); }
+    .win-btn:hover {
+      background: var(--active);
+      color: var(--text);
+      border-color: var(--accent);
+    }
     .drawer-head .win-btn, .brand-row .win-btn {
       background: transparent;
       color: var(--muted);
+      border: 0;
     }
     .drawer-head .win-btn:hover, .brand-row .win-btn:hover {
       background: var(--active);
@@ -1382,9 +1501,213 @@
     }
 
     .composer-body {
-      padding: 16px;
-      max-height: min(74vh, 560px);
+      padding: 14px 18px;
+      flex: 1;
       overflow-y: auto;
+    }
+    .composer-foot {
+      padding: 12px 18px;
+      background: var(--raised);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .composer-section {
+      padding: 12px 14px;
+      border-radius: 11px;
+      background: var(--ground);
+      border: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 14px;
+    }
+    .composer-sec-head {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2px;
+    }
+    .composer-sec-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--accent);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Segmented Duration Unit Switcher (Theo tháng / Theo ngày) */
+    .dur-unit-switch {
+      display: inline-flex;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 2px;
+      gap: 2px;
+    }
+    .dur-unit-btn {
+      height: 22px;
+      padding: 0 9px;
+      border-radius: 5px;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 130ms ease;
+    }
+    .dur-unit-btn.active {
+      background: var(--accent);
+      color: #ffffff;
+    }
+    .dur-input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .dur-input-wrap input {
+      padding-right: 58px !important;
+      font-weight: 600;
+    }
+    .dur-unit-suffix {
+      position: absolute;
+      right: 10px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--accent);
+      background: var(--accent-tint);
+      padding: 2px 7px;
+      border-radius: 5px;
+      pointer-events: none;
+    }
+
+    /* Custom Theme-Synchronized Combobox Dropdown (Thay thế native datalist) */
+    .combo-wrap {
+      position: relative;
+    }
+    .combo-wrap input {
+      padding-right: 30px !important;
+    }
+    .combo-chevron {
+      position: absolute;
+      right: 9px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--muted);
+      pointer-events: none;
+      transition: transform 150ms ease, color 150ms ease;
+    }
+    .combo-wrap.open .combo-chevron {
+      transform: translateY(-50%) rotate(180deg);
+      color: var(--accent);
+    }
+    .combo-menu {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      max-height: 210px;
+      overflow-y: auto;
+      background: var(--surface);
+      border: 1px solid var(--accent);
+      border-radius: 10px;
+      box-shadow: 0 14px 32px rgba(15, 23, 42, 0.25); /* taste-skill-ignore */
+      z-index: 95;
+      padding: 5px;
+      display: none;
+    }
+    .combo-wrap.open .combo-menu {
+      display: block;
+      animation: fadeSlideUp 140ms ease;
+    }
+    .combo-item {
+      width: 100%;
+      text-align: left;
+      padding: 7px 10px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: background-color 120ms ease;
+    }
+    .combo-item:hover, .combo-item.is-selected {
+      background: var(--accent-tint);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* Theme-Synchronized Confirm / Alert Dialog Modal */
+    .confirm-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(9, 13, 22, 0.58);
+      backdrop-filter: blur(4px);
+      z-index: 130;
+      display: grid;
+      place-items: center;
+      padding: 16px;
+      animation: fadeSlideUp 150ms ease;
+    }
+    .confirm-modal-backdrop[hidden] { display: none !important; }
+    .confirm-modal-card {
+      width: 440px;
+      max-width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 26px 60px rgba(0, 0, 0, 0.4); /* taste-skill-ignore */
+      overflow: hidden;
+    }
+    .confirm-modal-head {
+      padding: 16px 20px;
+      background: var(--raised);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .confirm-modal-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--pill-negative-bg);
+      color: var(--negative);
+      display: grid;
+      place-items: center;
+      flex: none;
+    }
+    .confirm-modal-body {
+      padding: 18px 20px;
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.55;
+      white-space: pre-line;
+    }
+    .confirm-modal-foot {
+      padding: 12px 20px;
+      background: var(--raised);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
     }
 
     /* Customer Detail & 2-Way Edit Slide-Over Drawer */
@@ -1773,42 +2096,58 @@
     }
     .f-full { grid-column: 1 / -1; }
     .field label {
-      display: block;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
       font-size: 12px;
-      font-weight: 500;
+      font-weight: 600;
       color: var(--muted);
       margin-bottom: 6px;
     }
     .field input, .field select, .field textarea {
       width: 100%;
-      height: 36px;
-      padding: 0 10px;
+      height: 38px;
+      padding: 0 11px;
       border: 1px solid var(--control);
-      border-radius: var(--radius-control);
+      border-radius: 8px;
       background: var(--surface);
       font-size: 13px;
+      transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-tint); /* taste-skill-ignore */
+      outline: none;
     }
     .field textarea {
       height: auto;
-      padding: 8px 10px;
+      padding: 8px 11px;
     }
     .chip-row {
       display: flex;
-      gap: 4px;
-      margin-top: 5px;
+      gap: 5px;
+      margin-top: 6px;
       flex-wrap: wrap;
     }
     .mini-chip {
-      height: 22px;
-      padding: 0 7px;
-      border-radius: 4px;
+      height: 24px;
+      padding: 0 9px;
+      border-radius: 6px;
       border: 1px solid var(--border);
-      background: var(--raised);
-      font-size: 11px;
+      background: var(--surface);
+      font-size: 11.5px;
+      font-weight: 500;
       color: var(--muted);
       cursor: pointer;
+      transition: all 130ms ease;
     }
-    .mini-chip:hover { border-color: var(--accent); color: var(--accent); }
+    .mini-chip:hover, .mini-chip.active {
+      border-color: var(--accent);
+      background: var(--accent-tint);
+      color: var(--accent);
+      font-weight: 600;
+    }
 
     .kv-well {
       background: var(--raised);
@@ -1890,10 +2229,11 @@
       col.c-end { width: 24%; }
       th.hide-sm, td.hide-sm, col.hide-sm { display: none; }
       .composer-win {
-        right: 12px;
-        left: 12px;
-        bottom: 12px;
-        width: auto;
+        width: calc(100vw - 16px);
+        max-height: calc(100vh - 16px);
+      }
+      .composer-section {
+        grid-template-columns: minmax(0, 1fr);
       }
     }
   </style>
@@ -2496,121 +2836,197 @@
     </div>
   </div>
 
-  <!-- FLOATING COMPACT COMPOSER WINDOW (Ghi đơn mới — Thu gọn / Bật tắt như cửa sổ nhỏ) -->
-  <section class="composer-win" id="composerWin" hidden aria-label="Cửa sổ ghi đơn mới">
+  <!-- CENTERED EXECUTIVE MODAL FOR NEW ORDER (Bảng ghi đơn mới nằm chính giữa khung hình) -->
+  <div class="composer-backdrop" id="composerBackdrop" hidden></div>
+  <section class="composer-win" id="composerWin" hidden role="dialog" aria-modal="true" aria-label="Bảng ghi đơn mới">
     <header class="composer-head" id="composerHeaderBar">
-      <span class="composer-title" id="composerTitleText">+ Ghi đơn mới (Dòng #142)</span>
+      <div class="composer-head-left">
+        <div class="composer-head-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:18px;height:18px;stroke-width:2.2;"><path d="M12 5v14M5 12h14"/></svg>
+        </div>
+        <div>
+          <div class="composer-title">
+            <span id="composerTitleText">+ Ghi đơn mới (Dòng #142)</span>
+            <span class="pill pos mono" id="cHeaderProfitBadge" style="font-size:11px;padding:2px 8px;">Lãi: 0 đ</span>
+          </div>
+          <div class="composer-subtitle">Đồng bộ 2 chiều Google Sheet &amp; tự tính hạn theo Tháng hoặc Ngày</div>
+        </div>
+      </div>
       <div class="win-controls">
-        <button type="button" class="win-btn" id="btnMinComposer" title="Thu gọn / Mở rộng cửa sổ">—</button>
-        <button type="button" class="win-btn" id="btnCloseComposer" title="Đóng cửa sổ">×</button>
+        <button type="button" class="win-btn" id="btnMinComposer" title="Thu gọn / Mở rộng bảng">—</button>
+        <button type="button" class="win-btn" id="btnCloseComposer" title="Đóng bảng (Esc)">×</button>
       </div>
     </header>
+
     <div class="composer-body">
-      <form id="createForm" class="f-grid">
-        <div class="field f-full">
-          <label for="cCustomerName">Tên khách hàng *</label>
-          <input id="cCustomerName" required placeholder="Nhập tên khách hàng" />
-        </div>
+      <datalist id="productDatalist"></datalist>
+      <datalist id="channelDatalist"></datalist>
+      <form id="createForm" style="display:grid;gap:14px;">
+        <!-- KHỐI 1: THÔNG TIN KHÁCH HÀNG & MẶT HÀNG -->
+        <div class="composer-section">
+          <div class="composer-sec-head">
+            <span class="composer-sec-title">1. Khách hàng &amp; Sản phẩm</span>
+            <span class="panel-meta" style="font-size:11.5px;">Bấm chọn nhanh hoặc tự gõ tên mới</span>
+          </div>
 
-        <div class="field">
-          <label for="cProduct">Mặt hàng *</label>
-          <input id="cProduct" list="productDatalist" required placeholder="gemini, netflix..." />
-          <datalist id="productDatalist"></datalist>
-          <div class="chip-row">
-            <button type="button" class="mini-chip" data-cprod="gemini">gemini</button>
-            <button type="button" class="mini-chip" data-cprod="chat gpt">chat gpt</button>
-            <button type="button" class="mini-chip" data-cprod="netflix">netflix</button>
-            <button type="button" class="mini-chip" data-cprod="office">office</button>
+          <div class="field">
+            <label for="cCustomerName"><span>Tên khách hàng *</span></label>
+            <input id="cCustomerName" required placeholder="Nhập họ tên hoặc biệt danh khách..." autocomplete="off" />
+          </div>
+
+          <div class="field">
+            <label for="cPhone"><span>Số điện thoại</span></label>
+            <input id="cPhone" class="mono" placeholder="090... (Tùy chọn)" autocomplete="off" />
+          </div>
+
+          <div class="field">
+            <label for="cProduct"><span>Mặt hàng *</span></label>
+            <div class="combo-wrap" id="cProdComboWrap">
+              <input id="cProduct" required placeholder="Chọn hoặc gõ mặt hàng (gemini, netflix...)" autocomplete="off" />
+              <svg class="combo-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              <div class="combo-menu" id="cProdComboMenu"></div>
+            </div>
+            <div class="chip-row">
+              <button type="button" class="mini-chip" data-cprod="gemini">gemini</button>
+              <button type="button" class="mini-chip" data-cprod="chat gpt">chat gpt</button>
+              <button type="button" class="mini-chip" data-cprod="netflix">netflix</button>
+              <button type="button" class="mini-chip" data-cprod="office">office</button>
+              <button type="button" class="mini-chip" data-cprod="canva">canva</button>
+              <button type="button" class="mini-chip" data-cprod="youtube">youtube</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="cChannel"><span>Kênh mua (chọn hoặc gõ thêm mới)</span></label>
+            <div class="combo-wrap" id="cChanComboWrap">
+              <input id="cChannel" placeholder="Chọn hoặc gõ kênh mua (Zalo, Facebook...)" autocomplete="off" />
+              <svg class="combo-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              <div class="combo-menu" id="cChanComboMenu"></div>
+            </div>
+            <div class="chip-row">
+              <button type="button" class="mini-chip" data-cchan="Zalo">Zalo</button>
+              <button type="button" class="mini-chip" data-cchan="Facebook">Facebook</button>
+              <button type="button" class="mini-chip" data-cchan="Telegram">Telegram</button>
+              <button type="button" class="mini-chip" data-cchan="TikTok">TikTok</button>
+              <button type="button" class="mini-chip" data-cchan="Shopee">Shopee</button>
+            </div>
           </div>
         </div>
 
-        <div class="field">
-          <label for="cChannel">Kênh mua (chọn hoặc gõ thêm kênh mới)</label>
-          <input id="cChannel" list="channelDatalist" placeholder="Zalo, Facebook, Telegram, Shopee..." />
-          <datalist id="channelDatalist"></datalist>
-          <div class="chip-row">
-            <button type="button" class="mini-chip" data-cchan="Zalo">Zalo</button>
-            <button type="button" class="mini-chip" data-cchan="Facebook">Facebook</button>
-            <button type="button" class="mini-chip" data-cchan="Telegram">Telegram</button>
-            <button type="button" class="mini-chip" data-cchan="TikTok">TikTok</button>
-            <button type="button" class="mini-chip" data-cchan="Shopee">Shopee</button>
+        <!-- KHỐI 2: TÀI CHÍNH & THỜI HẠN THEO THÁNG / NGÀY -->
+        <div class="composer-section">
+          <div class="composer-sec-head">
+            <span class="composer-sec-title">2. Giá tiền &amp; Thời hạn (Theo Tháng hoặc Theo Ngày)</span>
+            <div class="dur-unit-switch" role="group" aria-label="Chế độ tính thời hạn">
+              <button type="button" class="dur-unit-btn active" data-cdur-unit="months" id="cUnitMonthsBtn">Theo tháng</button>
+              <button type="button" class="dur-unit-btn" data-cdur-unit="days" id="cUnitDaysBtn">Theo ngày</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="cSalePrice">
+              <span>Giá bán (VNĐ)</span>
+              <span class="mono" id="cSalePricePreview" style="color:var(--accent);font-size:11px;">0 đ</span>
+            </label>
+            <input id="cSalePrice" class="mono" inputmode="numeric" placeholder="VD: 700 hoặc 700.000" />
+          </div>
+
+          <div class="field">
+            <label for="cCostPrice">
+              <span>Giá nhập (VNĐ)</span>
+              <span class="mono" id="cCostPricePreview" style="color:var(--muted);font-size:11px;">0 đ</span>
+            </label>
+            <input id="cCostPrice" class="mono" inputmode="numeric" placeholder="VD: 150 hoặc 150.000" />
+          </div>
+
+          <div class="field">
+            <label for="cBuyDate"><span>Ngày mua / Bắt đầu *</span></label>
+            <input id="cBuyDate" type="date" class="mono" required />
+          </div>
+
+          <div class="field">
+            <label for="cMonths">
+              <span id="cDurationLabelText">Thời hạn (Số tháng)</span>
+              <span class="mono" id="cDurationDaysHint" style="color:var(--accent);font-size:11px;">12 tháng</span>
+            </label>
+            <div class="dur-input-wrap">
+              <input id="cMonths" type="number" class="mono" min="1" max="3650" value="12" />
+              <span class="dur-unit-suffix" id="cDurUnitSuffix">tháng</span>
+            </div>
+            <!-- Chip chọn nhanh theo Tháng -->
+            <div class="chip-row" id="cMonthChips">
+              <button type="button" class="mini-chip" data-cm="1" data-cunit="months">1 tháng</button>
+              <button type="button" class="mini-chip" data-cm="3" data-cunit="months">3 tháng</button>
+              <button type="button" class="mini-chip" data-cm="6" data-cunit="months">6 tháng</button>
+              <button type="button" class="mini-chip active" data-cm="12" data-cunit="months">12 tháng</button>
+              <button type="button" class="mini-chip" data-cm="18" data-cunit="months">18 tháng</button>
+              <button type="button" class="mini-chip" data-cm="24" data-cunit="months">24 tháng</button>
+            </div>
+            <!-- Chip chọn nhanh theo Ngày -->
+            <div class="chip-row" id="cDayChips" style="display:none;">
+              <button type="button" class="mini-chip" data-cm="1" data-cunit="days">1 ngày</button>
+              <button type="button" class="mini-chip" data-cm="3" data-cunit="days">3 ngày</button>
+              <button type="button" class="mini-chip" data-cm="7" data-cunit="days">7 ngày</button>
+              <button type="button" class="mini-chip" data-cm="14" data-cunit="days">14 ngày</button>
+              <button type="button" class="mini-chip" data-cm="15" data-cunit="days">15 ngày</button>
+              <button type="button" class="mini-chip" data-cm="30" data-cunit="days">30 ngày</button>
+              <button type="button" class="mini-chip" data-cm="60" data-cunit="days">60 ngày</button>
+              <button type="button" class="mini-chip" data-cm="90" data-cunit="days">90 ngày</button>
+            </div>
+          </div>
+
+          <div class="field f-full">
+            <label for="cCustomEnd">
+              <span>Ngày kết thúc / Hết hạn (Tự tính theo Tháng/Ngày hoặc chọn ngày cụ thể)</span>
+              <span class="mono" style="color:var(--positive);font-weight:700;" id="cPreviewEnd">-</span>
+            </label>
+            <input id="cCustomEnd" type="date" class="mono" />
           </div>
         </div>
 
-        <div class="field">
-          <label for="cSalePrice">Giá bán (VNĐ)</label>
-          <input id="cSalePrice" class="mono" inputmode="numeric" placeholder="700.000 hoặc 700" />
-        </div>
-
-        <div class="field">
-          <label for="cCostPrice">Giá nhập (VNĐ)</label>
-          <input id="cCostPrice" class="mono" inputmode="numeric" placeholder="150" />
-        </div>
-
-        <div class="field">
-          <label for="cBuyDate">Ngày mua *</label>
-          <input id="cBuyDate" type="date" class="mono" required />
-        </div>
-
-        <div class="field">
-          <label for="cMonths">Thời hạn (tháng)</label>
-          <input id="cMonths" type="number" class="mono" min="1" max="240" value="12" />
-          <div class="chip-row">
-            <button type="button" class="mini-chip" data-cm="1">1T</button>
-            <button type="button" class="mini-chip" data-cm="3">3T</button>
-            <button type="button" class="mini-chip" data-cm="6">6T</button>
-            <button type="button" class="mini-chip" data-cm="12">12T</button>
-            <button type="button" class="mini-chip" data-cm="18">18T</button>
+        <!-- KHỐI 3: EMAIL & GHI CHÚ BỔ SUNG -->
+        <div class="composer-section">
+          <div class="composer-sec-head">
+            <span class="composer-sec-title">3. Tài khoản &amp; Ghi chú bổ sung (Tùy chọn)</span>
+            <span class="panel-meta" style="font-size:11.5px;">Mail Fam &amp; Nguồn gốc mặc định để trống</span>
           </div>
-        </div>
 
-        <div class="field">
-          <label for="cPhone">Số điện thoại</label>
-          <input id="cPhone" class="mono" placeholder="090..." />
-        </div>
-
-        <div class="field">
-          <label for="cSource">Nguồn gốc</label>
-          <input id="cSource" placeholder="(Để trống)" />
-        </div>
-
-        <div class="field">
-          <label for="cCustomerEmail">Mail khách</label>
-          <input id="cCustomerEmail" type="email" placeholder="khach@gmail.com" />
-        </div>
-
-        <div class="field">
-          <label for="cFamEmail">Mail Fam</label>
-          <input id="cFamEmail" placeholder="(Để trống)" />
-        </div>
-
-        <div class="field f-full">
-          <label for="cCustomEnd">Hoặc ngày kết thúc riêng (khi để trống số tháng)</label>
-          <input id="cCustomEnd" type="date" class="mono" />
-        </div>
-
-        <div class="field f-full">
-          <label for="cNote">Lưu ý</label>
-          <textarea id="cNote" rows="2" placeholder="Ghi chú đơn hàng..."></textarea>
-        </div>
-
-        <div class="kv-well f-full">
-          <div class="kv-line">
-            <span>Ngày kết thúc dự kiến (Cột K):</span>
-            <strong class="mono" id="cPreviewEnd">-</strong>
+          <div class="field">
+            <label for="cCustomerEmail"><span>Mail khách</span></label>
+            <input id="cCustomerEmail" type="email" placeholder="khach@gmail.com" />
           </div>
-          <label style="display:flex;align-items:center;gap:6px;margin:0;color:var(--text);">
-            <input type="checkbox" id="cSyncCal" checked style="width:auto;height:auto;" />
-            <span>Tự đặt 2 lịch nhắc ĐT (trước 3 ngày &amp; đúng hạn lúc 07:30)</span>
-          </label>
-        </div>
 
-        <div class="f-full" style="display:flex;gap:8px;">
-          <button type="submit" class="btn primary" id="btnCreateSubmit" style="flex:1;">Lưu vào Sheet</button>
-          <button type="button" class="btn" id="btnCreateClear">Xóa trắng</button>
+          <div class="field">
+            <label for="cFamEmail"><span>Mail Fam</span></label>
+            <input id="cFamEmail" placeholder="(Để trống)" />
+          </div>
+
+          <div class="field">
+            <label for="cSource"><span>Nguồn gốc</span></label>
+            <input id="cSource" placeholder="(Để trống)" />
+          </div>
+
+          <div class="field">
+            <label for="cNote"><span>Lưu ý / Ghi chú</span></label>
+            <input id="cNote" placeholder="Ghi chú đơn hàng..." />
+          </div>
         </div>
       </form>
     </div>
+
+    <footer class="composer-foot">
+      <label style="display:flex;align-items:center;gap:8px;margin:0;color:var(--text);font-size:12.5px;font-weight:500;cursor:pointer;">
+        <input type="checkbox" id="cSyncCal" form="createForm" checked style="width:16px;height:16px;accent-color:var(--accent);" />
+        <span>Tự đặt 2 lịch nhắc ĐT (trước 3 ngày &amp; đúng hạn lúc 07:30)</span>
+      </label>
+      <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+        <button type="button" class="btn" id="btnCreateClear" style="height:36px;">Làm mới</button>
+        <button type="button" class="btn" id="btnCloseComposerFoot" style="height:36px;">Đóng</button>
+        <button type="submit" form="createForm" class="btn primary" id="btnCreateSubmit" style="height:36px;padding:0 18px;font-weight:600;">
+          + Lưu đơn hàng vào Sheet
+        </button>
+      </div>
+    </footer>
   </section>
 
   <!-- CUSTOMER DETAIL & EDIT DRAWER (Xem đầy đủ thông tin & chỉnh sửa 2 chiều) -->
@@ -2640,74 +3056,100 @@
 
         <div class="f-grid">
           <div class="field f-full">
-            <label for="eCustomerName">Tên khách hàng *</label>
+            <label for="eCustomerName"><span>Tên khách hàng *</span></label>
             <input id="eCustomerName" required />
           </div>
 
           <div class="field">
-            <label for="eProduct">Mặt hàng *</label>
-            <input id="eProduct" list="productDatalist" required />
+            <label for="eProduct"><span>Mặt hàng *</span></label>
+            <div class="combo-wrap" id="eProdComboWrap">
+              <input id="eProduct" required autocomplete="off" />
+              <svg class="combo-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              <div class="combo-menu" id="eProdComboMenu"></div>
+            </div>
           </div>
 
           <div class="field">
-          <label for="eChannel">Kênh mua (chọn hoặc gõ thêm kênh mới)</label>
-          <input id="eChannel" list="channelDatalist" placeholder="Zalo, Facebook, Telegram, Shopee..." />
-          <div class="chip-row">
-            <button type="button" class="mini-chip" data-echan="Zalo">Zalo</button>
-            <button type="button" class="mini-chip" data-echan="Facebook">Facebook</button>
-            <button type="button" class="mini-chip" data-echan="Telegram">Telegram</button>
-            <button type="button" class="mini-chip" data-echan="TikTok">TikTok</button>
-            <button type="button" class="mini-chip" data-echan="Shopee">Shopee</button>
+            <label for="eChannel"><span>Kênh mua (chọn hoặc gõ thêm mới)</span></label>
+            <div class="combo-wrap" id="eChanComboWrap">
+              <input id="eChannel" placeholder="Zalo, Facebook, Telegram, Shopee..." autocomplete="off" />
+              <svg class="combo-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              <div class="combo-menu" id="eChanComboMenu"></div>
+            </div>
+            <div class="chip-row">
+              <button type="button" class="mini-chip" data-echan="Zalo">Zalo</button>
+              <button type="button" class="mini-chip" data-echan="Facebook">Facebook</button>
+              <button type="button" class="mini-chip" data-echan="Telegram">Telegram</button>
+              <button type="button" class="mini-chip" data-echan="TikTok">TikTok</button>
+              <button type="button" class="mini-chip" data-echan="Shopee">Shopee</button>
+            </div>
           </div>
-        </div>
 
           <div class="field">
-            <label for="ePhone">Số điện thoại</label>
+            <label for="ePhone"><span>Số điện thoại</span></label>
             <input id="ePhone" class="mono" placeholder="Chưa có SĐT" />
           </div>
 
           <div class="field">
-            <label for="eSource">Nguồn gốc</label>
+            <label for="eSource"><span>Nguồn gốc</span></label>
             <input id="eSource" placeholder="(Để trống)" />
           </div>
 
           <div class="field">
-            <label for="eSalePrice">Giá bán (VNĐ)</label>
+            <label for="eSalePrice"><span>Giá bán (VNĐ)</span></label>
             <input id="eSalePrice" class="mono" inputmode="numeric" />
           </div>
 
           <div class="field">
-            <label for="eCostPrice">Giá nhập (VNĐ)</label>
+            <label for="eCostPrice"><span>Giá nhập (VNĐ)</span></label>
             <input id="eCostPrice" class="mono" inputmode="numeric" />
           </div>
 
           <div class="field">
-            <label for="eBuyDate">Ngày mua *</label>
+            <label for="eBuyDate"><span>Ngày mua *</span></label>
             <input id="eBuyDate" type="date" class="mono" required />
           </div>
 
           <div class="field">
-            <label for="eMonths">Thời hạn (tháng)</label>
-            <input id="eMonths" type="number" class="mono" min="1" max="240" />
+            <label for="eMonths">
+              <span id="eDurationLabelText">Thời hạn</span>
+              <span class="dur-unit-switch" role="group" aria-label="Đơn vị thời hạn">
+                <button type="button" class="dur-unit-btn active" data-edur-unit="months" id="eUnitMonthsBtn">Tháng</button>
+                <button type="button" class="dur-unit-btn" data-edur-unit="days" id="eUnitDaysBtn">Ngày</button>
+              </span>
+            </label>
+            <div class="dur-input-wrap">
+              <input id="eMonths" type="number" class="mono" min="1" max="3650" />
+              <span class="dur-unit-suffix" id="eDurUnitSuffix">tháng</span>
+            </div>
+            <div class="chip-row" id="eDurQuickChips">
+              <button type="button" class="mini-chip" data-em="7" data-eunit="days">7N</button>
+              <button type="button" class="mini-chip" data-em="15" data-eunit="days">15N</button>
+              <button type="button" class="mini-chip" data-em="30" data-eunit="days">30N</button>
+              <button type="button" class="mini-chip" data-em="1" data-eunit="months">1T</button>
+              <button type="button" class="mini-chip" data-em="3" data-eunit="months">3T</button>
+              <button type="button" class="mini-chip" data-em="6" data-eunit="months">6T</button>
+              <button type="button" class="mini-chip" data-em="12" data-eunit="months">12T</button>
+            </div>
           </div>
 
           <div class="field f-full">
-            <label for="eCustomEnd">Ngày kết thúc (tự tính bằng EDATE nếu có số tháng)</label>
+            <label for="eCustomEnd"><span>Ngày kết thúc (tự tính theo Tháng/Ngày hoặc chọn ngày riêng)</span></label>
             <input id="eCustomEnd" type="date" class="mono" />
           </div>
 
           <div class="field f-full">
-            <label for="eCustomerEmail">Mail khách hàng</label>
+            <label for="eCustomerEmail"><span>Mail khách hàng</span></label>
             <input id="eCustomerEmail" type="email" placeholder="Chưa có email khách" />
           </div>
 
           <div class="field f-full">
-            <label for="eFamEmail">Mail Fam / Tài khoản cấp</label>
+            <label for="eFamEmail"><span>Mail Fam / Tài khoản cấp</span></label>
             <input id="eFamEmail" placeholder="(Để trống)" />
           </div>
 
           <div class="field f-full">
-            <label for="eNote">Lưu ý / Ghi chú nhắc hẹn</label>
+            <label for="eNote"><span>Lưu ý / Ghi chú nhắc hẹn</span></label>
             <textarea id="eNote" rows="3" placeholder="Ghi chú..."></textarea>
           </div>
         </div>
@@ -2728,6 +3170,26 @@
         </button>
       </footer>
     </aside>
+  </div>
+
+  <!-- THEME-SYNCHRONIZED CONFIRMATION / NOTIFICATION DIALOG MODAL -->
+  <div class="confirm-modal-backdrop" id="appConfirmBackdrop" hidden>
+    <div class="confirm-modal-card" role="alertdialog" aria-modal="true" aria-labelledby="appConfirmTitle" aria-describedby="appConfirmMessage">
+      <header class="confirm-modal-head">
+        <div class="confirm-modal-icon" id="appConfirmIcon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:18px;height:18px;stroke-width:2.2;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </div>
+        <div>
+          <h3 id="appConfirmTitle" style="font-size:16px;font-weight:700;color:var(--text);">Xác nhận thao tác</h3>
+          <p class="panel-meta" id="appConfirmSubtitle">Đồng bộ trực tiếp với Google Sheet</p>
+        </div>
+      </header>
+      <div class="confirm-modal-body" id="appConfirmMessage"></div>
+      <footer class="confirm-modal-foot">
+        <button type="button" class="btn" id="btnAppConfirmCancel">Hủy bỏ</button>
+        <button type="button" class="btn primary" id="btnAppConfirmOk" style="background:var(--negative);border-color:var(--negative);color:#fff;">Xác nhận xóa</button>
+      </footer>
+    </div>
   </div>
 
   <!-- SECURITY & PUBLIC WEB URL DRAWER (Link Web trực tiếp + Đổi mật khẩu + Đăng xuất) -->
@@ -5913,21 +6375,48 @@
       return vnd.toLocaleString('vi-VN');
     }
 
-    function calculateEndDate(buyDateISO, months) {
-      if (!buyDateISO) return { endDate: '', endDateISO: '', daysLeft: null };
-      const m = parseInt(months, 10) || 1;
-      const parts = String(buyDateISO).split('-');
-      if (parts.length !== 3) return { endDate: '', endDateISO: '', daysLeft: null };
-      const y = parseInt(parts[0], 10);
-      const mo = parseInt(parts[1], 10) - 1;
-      const d = parseInt(parts[2], 10);
-      const target = new Date(y, mo + m, d);
-      const targetISO = `${target.getFullYear()}-${String(target.getMonth() + 1).padStart(2, '0')}-${String(target.getDate()).padStart(2, '0')}`;
-      const targetVN = `${String(target.getDate()).padStart(2, '0')}-${String(target.getMonth() + 1).padStart(2, '0')}-${target.getFullYear()}`;
-      const now = new Date();
-      const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const targetMidnight = new Date(target.getFullYear(), target.getMonth(), target.getDate());
-      const diffDays = Math.round((targetMidnight - todayMidnight) / (86400000));
+    function parseDurationSpec(rawVal, explicitUnit = '') {
+      const s = String(rawVal ?? '').trim();
+      if (!s) return { value: 0, unit: explicitUnit || 'months', label: '' };
+      const dayMatch = s.match(/^(\d+)\s*(ngày|ngay|n|d)\b/i);
+      if (dayMatch || explicitUnit === 'days') {
+        const num = parseInt(dayMatch ? dayMatch[1] : s, 10) || 0;
+        return { value: num, unit: 'days', label: num > 0 ? `${num} ngày` : '' };
+      }
+      const num = parseInt(s, 10) || 0;
+      return { value: num, unit: 'months', label: num > 0 ? String(num) : '' };
+    }
+
+    function calculateEndDate(buyDateISO, durationRaw, customEndISO = '') {
+      if (!buyDateISO && !customEndISO) return { endDate: '', endDateISO: '', daysLeft: null };
+      let targetISO = '';
+      if (customEndISO && /^\d{4}-\d{2}-\d{2}$/.test(String(customEndISO).trim())) {
+        targetISO = String(customEndISO).trim();
+      } else if (buyDateISO) {
+        const parts = String(buyDateISO).split('-');
+        if (parts.length !== 3) return { endDate: '', endDateISO: '', daysLeft: null };
+        const y = parseInt(parts[0], 10);
+        const mo = parseInt(parts[1], 10) - 1;
+        const d = parseInt(parts[2], 10);
+        const spec = parseDurationSpec(durationRaw);
+        if (spec.unit === 'days' && spec.value > 0) {
+          const dt = new Date(Date.UTC(y, mo, d + spec.value));
+          targetISO = dt.toISOString().slice(0, 10);
+        } else {
+          const m = spec.value || 1;
+          const total = y * 12 + mo + m;
+          const ny = Math.floor(total / 12);
+          const nm = (total % 12) + 1;
+          const maxD = new Date(Date.UTC(ny, nm, 0)).getUTCDate();
+          const nd = Math.min(d, maxD);
+          targetISO = `${ny}-${String(nm).padStart(2, '0')}-${String(nd).padStart(2, '0')}`; // taste-skill-ignore
+        }
+      }
+      if (!targetISO) return { endDate: '', endDateISO: '', daysLeft: null };
+      const [ty, tm, td] = targetISO.split('-');
+      const targetVN = `${td}-${tm}-${ty}`;
+      const todayStr = (appState && appState.today) || new Date().toISOString().slice(0, 10);
+      const diffDays = calculateDaysDiff(targetISO, todayStr);
       return { endDate: targetVN, endDateISO: targetISO, daysLeft: diffDays };
     }
 
@@ -6051,7 +6540,11 @@
       else if (low.includes('chat')) cls = 'pt-chatgpt';
       else if (low.includes('netflix')) cls = 'pt-netflix';
       else if (low.includes('capcut')) cls = 'pt-capcut';
-      const mText = months ? ` · ${esc(months)}T` : '';
+      let mText = '';
+      if (months) {
+        const s = String(months).trim();
+        mText = /ngày|ngay|n\b|d\b/i.test(s) ? ` · ${esc(s)}` : ` · ${esc(s)}T`;
+      }
       return `<span class="prod-tag ${cls}">${esc(p || '-')}${mText}</span>`;
     }
 
@@ -6062,15 +6555,67 @@
       return `<span class="chan-badge ${cls}">${esc(c)}</span>`;
     }
 
+    let toastTimer = null;
     function showToast(msg, isError = false, linkUrl = '') {
       const el = document.getElementById('toast');
+      if (!el) return;
+      if (toastTimer) clearTimeout(toastTimer);
+      el.classList.toggle('is-error', Boolean(isError));
+      const iconSvg = isError
+        ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2.4;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`
+        : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2.5;"><polyline points="20 6 9 17 4 12"/></svg>`;
+      const titleText = isError ? 'Cảnh báo hệ thống' : 'Thông báo đồng bộ';
+      el.innerHTML = `
+        <div class="toast-inner">
+          <div class="toast-icon">${iconSvg}</div>
+          <div class="toast-content">
+            <div class="toast-title">${titleText}</div>
+            <div class="toast-msg">
+              ${esc(msg)}
+              ${linkUrl ? ` — <a href="${esc(linkUrl)}" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;text-decoration:underline;">Mở Google Calendar</a>` : ''}
+            </div>
+          </div>
+          <button type="button" class="toast-close" onclick="document.getElementById('toast').style.display='none'" aria-label="Đóng thông báo">×</button>
+        </div>
+      `;
       el.style.display = 'block';
-      el.style.borderColor = isError ? 'var(--negative)' : 'var(--accent)';
-      el.innerHTML =
-        esc(msg) +
-        (linkUrl
-          ? ` — <a href="${esc(linkUrl)}" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;text-decoration:underline;">Mở sự kiện trên Google Calendar</a>`
-          : '');
+      toastTimer = setTimeout(() => {
+        el.style.display = 'none';
+      }, 4800);
+    }
+
+    function showAppConfirm({ title = 'Xác nhận thao tác', subtitle = 'Đồng bộ trực tiếp với Google Sheet', message = '', confirmText = 'Xác nhận', cancelText = 'Hủy bỏ' } = {}) {
+      return new Promise((resolve) => {
+        const backdrop = document.getElementById('appConfirmBackdrop');
+        if (!backdrop) {
+          resolve(window.confirm(message));
+          return;
+        }
+        document.getElementById('appConfirmTitle').textContent = title;
+        document.getElementById('appConfirmSubtitle').textContent = subtitle;
+        document.getElementById('appConfirmMessage').textContent = message;
+        const btnOk = document.getElementById('btnAppConfirmOk');
+        const btnCancel = document.getElementById('btnAppConfirmCancel');
+        btnOk.textContent = confirmText;
+        btnCancel.textContent = cancelText;
+        backdrop.hidden = false;
+
+        const cleanup = (result) => {
+          backdrop.hidden = true;
+          btnOk.removeEventListener('click', onOk);
+          btnCancel.removeEventListener('click', onCancel);
+          backdrop.removeEventListener('click', onBackdrop);
+          resolve(result);
+        };
+        const onOk = () => cleanup(true);
+        const onCancel = () => cleanup(false);
+        const onBackdrop = (e) => { if (e.target === backdrop) cleanup(false); };
+
+        btnOk.addEventListener('click', onOk);
+        btnCancel.addEventListener('click', onCancel);
+        backdrop.addEventListener('click', onBackdrop);
+        btnOk.focus();
+      });
     }
 
     function showAuthNotice(msg, isError = false) {
@@ -6091,26 +6636,126 @@
       return `<span class="pill pos">Còn ${o.daysLeft} ngày</span>`;
     }
 
-    function computeEndPreview(buyISO, monthsStr, customISO) {
-      if (monthsStr && buyISO) {
-        const [y, m, d] = buyISO.split('-').map(Number);
-        const total = y * 12 + (m - 1) + Number(monthsStr);
-        const ny = Math.floor(total / 12);
-        const nm = (total % 12) + 1;
-        const maxD = new Date(Date.UTC(ny, nm, 0)).getUTCDate();
-        const nd = Math.min(d, maxD);
-        return `${ny}-${String(nm).padStart(2, '0')}-${String(nd).padStart(2, '0')}`; // taste-skill-ignore
+    let cDurationUnit = 'months'; // 'months' | 'days'
+    let eDurationUnit = 'months'; // 'months' | 'days'
+
+    function setCreateDurationUnit(unit, defaultVal = null) {
+      cDurationUnit = unit === 'days' ? 'days' : 'months';
+      document.querySelectorAll('[data-cdur-unit]').forEach((b) => {
+        b.classList.toggle('active', b.dataset.cdurUnit === cDurationUnit);
+      });
+      const suffix = document.getElementById('cDurUnitSuffix');
+      if (suffix) suffix.textContent = cDurationUnit === 'days' ? 'ngày' : 'tháng';
+      const lbl = document.getElementById('cDurationLabelText');
+      if (lbl) lbl.textContent = cDurationUnit === 'days' ? 'Thời hạn (Số ngày)' : 'Thời hạn (Số tháng)';
+      const mChips = document.getElementById('cMonthChips');
+      const dChips = document.getElementById('cDayChips');
+      if (mChips) mChips.style.display = cDurationUnit === 'months' ? 'flex' : 'none';
+      if (dChips) dChips.style.display = cDurationUnit === 'days' ? 'flex' : 'none';
+      if (defaultVal !== null) {
+        document.getElementById('cMonths').value = String(defaultVal);
+      }
+      updateCreatePreview();
+    }
+
+    function setEditDurationUnit(unit, defaultVal = null) {
+      eDurationUnit = unit === 'days' ? 'days' : 'months';
+      document.querySelectorAll('[data-edur-unit]').forEach((b) => {
+        b.classList.toggle('active', b.dataset.edurUnit === eDurationUnit);
+      });
+      const suffix = document.getElementById('eDurUnitSuffix');
+      if (suffix) suffix.textContent = eDurationUnit === 'days' ? 'ngày' : 'tháng';
+      const lbl = document.getElementById('eDurationLabelText');
+      if (lbl) lbl.textContent = eDurationUnit === 'days' ? 'Thời hạn (Số ngày)' : 'Thời hạn (Số tháng)';
+      if (defaultVal !== null) {
+        document.getElementById('eMonths').value = String(defaultVal);
+      }
+    }
+
+    function computeEndPreview(buyISO, rawDurationStr, customISO, unit = 'months') {
+      if (rawDurationStr && buyISO) {
+        const num = parseInt(rawDurationStr, 10);
+        if (num > 0) {
+          if (unit === 'days') {
+            return shiftDaysISO(buyISO, num);
+          }
+          const [y, m, d] = buyISO.split('-').map(Number);
+          const total = y * 12 + (m - 1) + num;
+          const ny = Math.floor(total / 12);
+          const nm = (total % 12) + 1;
+          const maxD = new Date(Date.UTC(ny, nm, 0)).getUTCDate();
+          const nd = Math.min(d, maxD);
+          return `${ny}-${String(nm).padStart(2, '0')}-${String(nd).padStart(2, '0')}`; // taste-skill-ignore
+        }
       }
       return customISO || '-';
     }
 
-    function updateCreatePreview() {
-      const iso = computeEndPreview(
-        document.getElementById('cBuyDate').value,
-        document.getElementById('cMonths').value.trim(),
-        document.getElementById('cCustomEnd').value
-      );
-      document.getElementById('cPreviewEnd').textContent = iso;
+    function updateCreatePreview({ syncEndDateInput = true } = {}) {
+      const buyISO = document.getElementById('cBuyDate').value;
+      const durVal = document.getElementById('cMonths').value.trim();
+      const customEl = document.getElementById('cCustomEnd');
+
+      // Cập nhật active state cho chip thời hạn
+      document.querySelectorAll('.mini-chip[data-cm]').forEach((b) => {
+        b.classList.toggle('active', b.dataset.cunit === cDurationUnit && b.dataset.cm === durVal);
+      });
+
+      const durHint = document.getElementById('cDurationDaysHint');
+      if (durHint) {
+        if (durVal) {
+          durHint.textContent = cDurationUnit === 'days' ? `${durVal} ngày` : `${durVal} tháng`;
+        } else {
+          durHint.textContent = 'Theo ngày kết thúc';
+        }
+      }
+
+      if (syncEndDateInput && durVal && buyISO) {
+        const computedISO = computeEndPreview(buyISO, durVal, '', cDurationUnit);
+        if (computedISO && computedISO !== '-') {
+          customEl.value = computedISO;
+        }
+      }
+
+      const finalISO = customEl.value || computeEndPreview(buyISO, durVal, '', cDurationUnit);
+      const previewEl = document.getElementById('cPreviewEnd');
+      if (previewEl) {
+        if (finalISO && finalISO !== '-') {
+          const [y, m, d] = finalISO.split('-');
+          const diff = buyISO ? calculateDaysDiff(finalISO, buyISO) : null;
+          previewEl.textContent = `${d}/${m}/${y}${diff !== null ? ` (Tổng ${diff} ngày)` : ''}`;
+        } else {
+          previewEl.textContent = '-';
+        }
+      }
+
+      // Cập nhật hiển thị tiền tệ & lợi nhuận trực tiếp trên bảng Ghi đơn mới
+      const saleVnd = parseToVndAmount(document.getElementById('cSalePrice')?.value || '');
+      const costVnd = parseToVndAmount(document.getElementById('cCostPrice')?.value || '');
+      const profitVnd = saleVnd - costVnd;
+      const salePrev = document.getElementById('cSalePricePreview');
+      const costPrev = document.getElementById('cCostPricePreview');
+      const headProfit = document.getElementById('cHeaderProfitBadge');
+      if (salePrev) salePrev.textContent = `${saleVnd.toLocaleString('vi-VN')} đ`;
+      if (costPrev) costPrev.textContent = `${costVnd.toLocaleString('vi-VN')} đ`;
+      if (headProfit) {
+        headProfit.textContent = `Lãi: ${profitVnd >= 0 ? '+' : ''}${profitVnd.toLocaleString('vi-VN')} đ`;
+        headProfit.className = `pill ${profitVnd >= 0 ? 'pos' : 'neg'} mono`;
+      }
+    }
+
+    function updateEditPreview() {
+      const buyISO = document.getElementById('eBuyDate').value;
+      const durVal = document.getElementById('eMonths').value.trim();
+      if (buyISO && durVal) {
+        const computed = computeEndPreview(buyISO, durVal, '', eDurationUnit);
+        if (computed && computed !== '-') {
+          document.getElementById('eCustomEnd').value = computed;
+        }
+      }
+      document.querySelectorAll('#eDurQuickChips .mini-chip[data-em]').forEach((b) => {
+        b.classList.toggle('active', b.dataset.eunit === eDurationUnit && b.dataset.em === durVal);
+      });
     }
 
     function shiftDaysISO(iso, days) {
@@ -6852,6 +7497,65 @@
       }
     }
 
+    let currentProductsList = ['gemini', 'chat gpt', 'netflix', 'office', 'canva', 'youtube', 'spotify'];
+    let currentChannelsList = ['Zalo', 'Facebook', 'Telegram', 'TikTok', 'Shopee', 'Website', 'Khách quen', 'Khác'];
+
+    function renderComboMenu(wrapId, inputId, menuId, items, filterText = '') {
+      const wrap = document.getElementById(wrapId);
+      const input = document.getElementById(inputId);
+      const menu = document.getElementById(menuId);
+      if (!wrap || !input || !menu) return;
+      const q = String(filterText || '').trim().toLowerCase();
+      const filtered = q ? items.filter(it => it.toLowerCase().includes(q)) : items;
+      const curVal = input.value.trim().toLowerCase();
+
+      let html = filtered
+        .map(it => {
+          const isSel = it.toLowerCase() === curVal;
+          return `<button type="button" class="combo-item ${isSel ? 'is-selected' : ''}" data-combo-val="${esc(it)}">
+            <span>${esc(it)}</span>
+            ${isSel ? '<span style="font-size:11px;">✓</span>' : ''}
+          </button>`;
+        })
+        .join('');
+
+      if (q && !items.some(it => it.toLowerCase() === q)) {
+        html += `<button type="button" class="combo-item" data-combo-val="${esc(filterText.trim())}" style="color:var(--accent);font-weight:600;">
+          <span>+ Thêm mới: "${esc(filterText.trim())}"</span>
+        </button>`;
+      }
+      menu.innerHTML = html || `<div class="panel-meta" style="padding:8px 10px;">Gõ để thêm mục mới...</div>`;
+      menu.querySelectorAll('.combo-item').forEach(btn => {
+        btn.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          input.value = btn.dataset.comboVal;
+          wrap.classList.remove('open');
+          input.dispatchEvent(new Event('input'));
+        });
+      });
+    }
+
+    function bindCustomCombobox(wrapId, inputId, menuId, getItemsFn) {
+      const wrap = document.getElementById(wrapId);
+      const input = document.getElementById(inputId);
+      if (!wrap || !input) return;
+      input.addEventListener('focus', () => {
+        renderComboMenu(wrapId, inputId, menuId, getItemsFn(), '');
+        wrap.classList.add('open');
+      });
+      input.addEventListener('click', () => {
+        renderComboMenu(wrapId, inputId, menuId, getItemsFn(), '');
+        wrap.classList.add('open');
+      });
+      input.addEventListener('input', () => {
+        renderComboMenu(wrapId, inputId, menuId, getItemsFn(), input.value);
+        wrap.classList.add('open');
+      });
+      input.addEventListener('blur', () => {
+        setTimeout(() => wrap.classList.remove('open'), 150);
+      });
+    }
+
     function updateProductAndChannelDropdowns() {
       const orders = appState.orders || [];
       const defaultProducts = ['gemini', 'chat gpt', 'netflix', 'office', 'canva', 'youtube', 'spotify'];
@@ -6866,6 +7570,9 @@
         ...defaultChannels,
         ...orders.map(o => (o.channel || '').trim()).filter(Boolean)
       ])].sort();
+
+      currentProductsList = products;
+      currentChannelsList = channels;
 
       const prodDataList = document.getElementById('productDatalist');
       if (prodDataList) {
@@ -7113,7 +7820,13 @@
       const o = (appState.orders || []).find((x) => x.rowNumber === rowNumber);
       if (!o) return;
 
-      const confirmed = confirm(`Bạn có chắc chắn muốn xóa đơn hàng của khách "${o.customerName}" (Mặt hàng: ${o.product}) không?\n\nThao tác này sẽ xóa đơn và tự động đồng bộ lên Google Sheet.`);
+      const confirmed = await showAppConfirm({
+        title: `Xóa đơn hàng #${o.stt} (${o.customerName})`,
+        subtitle: `Dòng Sheet #${o.rowNumber} · Mặt hàng: ${o.product}`,
+        message: `Bạn có chắc chắn muốn xóa đơn hàng của khách "${o.customerName}" (Mặt hàng: ${o.product}) không?\n\nThao tác này sẽ xóa đơn trên Web và tự động đồng bộ 2 chiều lên Google Sheet.`,
+        confirmText: 'Xác nhận xóa đơn',
+        cancelText: 'Giữ lại'
+      });
       if (!confirmed) return;
 
       // 1. Cập nhật ngay trên giao diện Web (Optimistic UI)
@@ -7237,17 +7950,19 @@
       document.getElementById('eRowNumber').value = String(o.rowNumber);
       document.getElementById('eCustomerName').value = o.customerName;
       document.getElementById('eProduct').value = o.product;
-      document.getElementById('eChannel').value = ['Zalo', 'Facebook', ''].includes(o.channel) ? o.channel : 'Zalo';
+      document.getElementById('eChannel').value = o.channel || 'Zalo';
       document.getElementById('ePhone').value = o.phone;
       document.getElementById('eSource').value = o.source;
       document.getElementById('eSalePrice').value = o.salePrice.replace(/\./g, '');
       document.getElementById('eCostPrice').value = o.costPrice.replace(/\./g, '');
       document.getElementById('eBuyDate').value = o.buyDateISO || appState.today;
-      document.getElementById('eMonths').value = o.months || '';
+      const durSpec = parseDurationSpec(o.months);
+      setEditDurationUnit(durSpec.unit, durSpec.value || '');
       document.getElementById('eCustomEnd').value = o.endDateISO || '';
       document.getElementById('eCustomerEmail').value = o.customerEmail;
       document.getElementById('eFamEmail').value = o.famEmail;
       document.getElementById('eNote').value = o.note;
+      updateEditPreview();
 
       document.getElementById('detailBackdrop').hidden = false;
     }
@@ -7258,10 +7973,20 @@
       renderTable();
     }
 
+    function closeComposerWindow() {
+      const win = document.getElementById('composerWin');
+      const backdrop = document.getElementById('composerBackdrop');
+      if (win) win.hidden = true;
+      if (backdrop) backdrop.hidden = true;
+      document.body.classList.remove('composer-open');
+    }
+
     function openComposerWindow(prefillOrder = null) {
       const win = document.getElementById('composerWin');
+      const backdrop = document.getElementById('composerBackdrop');
       win.hidden = false;
       win.classList.remove('is-minimized');
+      if (backdrop) backdrop.hidden = false;
       document.body.classList.add('composer-open');
       document.getElementById('composerTitleText').textContent = `+ Ghi đơn mới (Dòng #${appState.nextEmptyRow || 142})`;
 
@@ -7272,7 +7997,8 @@
         document.getElementById('cSalePrice').value = String(prefillOrder.salePrice || '').replace(/\./g, '');
         document.getElementById('cCostPrice').value = String(prefillOrder.costPrice || '').replace(/\./g, '');
         document.getElementById('cBuyDate').value = appState.today || new Date().toISOString().slice(0, 10);
-        document.getElementById('cMonths').value = prefillOrder.months || '12';
+        const spec = parseDurationSpec(prefillOrder.months || '12');
+        setCreateDurationUnit(spec.unit, spec.value || 12);
         document.getElementById('cPhone').value = prefillOrder.phone || '';
         document.getElementById('cSource').value = ''; // Để trống theo yêu cầu
         document.getElementById('cCustomerEmail').value = prefillOrder.customerEmail || '';
@@ -7685,13 +8411,14 @@
 
     document.getElementById('btnToggleComposer').addEventListener('click', () => {
       const win = document.getElementById('composerWin');
+      const backdrop = document.getElementById('composerBackdrop');
       if (win.hidden) openComposerWindow();
       else if (win.classList.contains('is-minimized')) {
         win.classList.remove('is-minimized');
+        if (backdrop) backdrop.hidden = false;
         document.body.classList.add('composer-open');
       } else {
-        win.hidden = true;
-        document.body.classList.remove('composer-open');
+        closeComposerWindow();
       }
     });
     document.getElementById('navBtnNewOrder').addEventListener('click', () => {
@@ -7701,58 +8428,131 @@
     document.getElementById('btnMinComposer').addEventListener('click', (e) => {
       e.stopPropagation();
       const win = document.getElementById('composerWin');
-      win.classList.toggle('is-minimized');
-      document.body.classList.toggle('composer-open', !win.classList.contains('is-minimized'));
+      const backdrop = document.getElementById('composerBackdrop');
+      const nextMin = !win.classList.contains('is-minimized');
+      win.classList.toggle('is-minimized', nextMin);
+      if (backdrop) backdrop.hidden = nextMin;
+      document.body.classList.toggle('composer-open', !nextMin);
     });
     document.getElementById('composerHeaderBar').addEventListener('click', () => {
       const win = document.getElementById('composerWin');
+      const backdrop = document.getElementById('composerBackdrop');
       if (win.classList.contains('is-minimized')) {
         win.classList.remove('is-minimized');
+        if (backdrop) backdrop.hidden = false;
         document.body.classList.add('composer-open');
       }
     });
     document.getElementById('btnCloseComposer').addEventListener('click', (e) => {
       e.stopPropagation();
-      document.getElementById('composerWin').hidden = true;
-      document.body.classList.remove('composer-open');
+      closeComposerWindow();
     });
+    const btnCloseComposerFoot = document.getElementById('btnCloseComposerFoot');
+    if (btnCloseComposerFoot) {
+      btnCloseComposerFoot.addEventListener('click', closeComposerWindow);
+    }
+    const composerBackdropEl = document.getElementById('composerBackdrop');
+    if (composerBackdropEl) {
+      composerBackdropEl.addEventListener('click', closeComposerWindow);
+    }
 
-    
+    // Gắn Custom Combobox cho Mặt hàng & Kênh mua
+    bindCustomCombobox('cProdComboWrap', 'cProduct', 'cProdComboMenu', () => currentProductsList);
+    bindCustomCombobox('cChanComboWrap', 'cChannel', 'cChanComboMenu', () => currentChannelsList);
+    bindCustomCombobox('eProdComboWrap', 'eProduct', 'eProdComboMenu', () => currentProductsList);
+    bindCustomCombobox('eChanComboWrap', 'eChannel', 'eChanComboMenu', () => currentChannelsList);
+
     document.querySelectorAll('.mini-chip[data-cchan]').forEach((b) => {
-      b.addEventListener('click', () => { document.getElementById('cChannel').value = b.dataset.cchan; });
+      b.addEventListener('click', () => {
+        document.getElementById('cChannel').value = b.dataset.cchan;
+        document.querySelectorAll('.mini-chip[data-cchan]').forEach(x => x.classList.toggle('active', x === b));
+      });
     });
     document.querySelectorAll('.mini-chip[data-echan]').forEach((b) => {
-      b.addEventListener('click', () => { document.getElementById('eChannel').value = b.dataset.echan; });
+      b.addEventListener('click', () => {
+        document.getElementById('eChannel').value = b.dataset.echan;
+        document.querySelectorAll('.mini-chip[data-echan]').forEach(x => x.classList.toggle('active', x === b));
+      });
     });
 
     document.querySelectorAll('.mini-chip[data-cprod]').forEach((b) => {
-      b.addEventListener('click', () => { document.getElementById('cProduct').value = b.dataset.cprod; });
-    });
-    document.querySelectorAll('.mini-chip[data-cm]').forEach((b) => {
       b.addEventListener('click', () => {
-        document.getElementById('cMonths').value = b.dataset.cm;
-        document.getElementById('cCustomEnd').value = '';
-        updateCreatePreview();
+        document.getElementById('cProduct').value = b.dataset.cprod;
+        document.querySelectorAll('.mini-chip[data-cprod]').forEach(x => x.classList.toggle('active', x === b));
       });
     });
-    document.getElementById('cBuyDate').addEventListener('change', updateCreatePreview);
-    document.getElementById('cMonths').addEventListener('input', updateCreatePreview);
+
+    // Chuyển đổi đơn vị thời hạn (Theo tháng / Theo ngày) trong Bảng Ghi Đơn Mới
+    document.querySelectorAll('[data-cdur-unit]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const nextUnit = btn.dataset.cdurUnit;
+        const curVal = document.getElementById('cMonths').value;
+        const defVal = nextUnit === 'days' ? (curVal === '12' ? '7' : curVal || '7') : (curVal === '7' ? '12' : curVal || '12');
+        setCreateDurationUnit(nextUnit, defVal);
+      });
+    });
+
+    // Chuyển đổi đơn vị thời hạn (Theo tháng / Theo ngày) trong Bảng Chi Tiết & Sửa
+    document.querySelectorAll('[data-edur-unit]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        setEditDurationUnit(btn.dataset.edurUnit);
+        updateEditPreview();
+      });
+    });
+
+    document.querySelectorAll('.mini-chip[data-cm]').forEach((b) => {
+      b.addEventListener('click', () => {
+        const unit = b.dataset.cunit || 'months';
+        setCreateDurationUnit(unit, b.dataset.cm);
+      });
+    });
+
+    document.querySelectorAll('#eDurQuickChips .mini-chip[data-em]').forEach((b) => {
+      b.addEventListener('click', () => {
+        setEditDurationUnit(b.dataset.eunit || 'months', b.dataset.em);
+        updateEditPreview();
+      });
+    });
+
+    document.getElementById('cBuyDate').addEventListener('change', () => updateCreatePreview({ syncEndDateInput: true }));
+    document.getElementById('cMonths').addEventListener('input', () => updateCreatePreview({ syncEndDateInput: true }));
+    document.getElementById('cSalePrice').addEventListener('input', () => updateCreatePreview({ syncEndDateInput: false }));
+    document.getElementById('cCostPrice').addEventListener('input', () => updateCreatePreview({ syncEndDateInput: false }));
     document.getElementById('cCustomEnd').addEventListener('change', (e) => {
-      if (e.target.value) document.getElementById('cMonths').value = '';
-      updateCreatePreview();
+      const endISO = e.target.value;
+      const buyISO = document.getElementById('cBuyDate').value;
+      if (endISO && buyISO) {
+        const diffD = calculateDaysDiff(endISO, buyISO);
+        if (diffD !== null && diffD > 0) {
+          setCreateDurationUnit('days', diffD);
+        }
+      }
+      updateCreatePreview({ syncEndDateInput: false });
+    });
+
+    document.getElementById('eBuyDate').addEventListener('change', updateEditPreview);
+    document.getElementById('eMonths').addEventListener('input', updateEditPreview);
+    document.getElementById('eCustomEnd').addEventListener('change', (e) => {
+      const endISO = e.target.value;
+      const buyISO = document.getElementById('eBuyDate').value;
+      if (endISO && buyISO) {
+        const diffD = calculateDaysDiff(endISO, buyISO);
+        if (diffD !== null && diffD > 0) {
+          setEditDurationUnit('days', diffD);
+        }
+      }
     });
 
     document.getElementById('btnCreateClear').addEventListener('click', () => {
       document.getElementById('createForm').reset();
-      document.getElementById('cBuyDate').value = appState.today;
-      document.getElementById('cMonths').value = '12';
-      updateCreatePreview();
+      document.getElementById('cBuyDate').value = appState.today || new Date().toISOString().slice(0, 10);
+      setCreateDurationUnit('months', 12);
     });
 
-    
+
     function processLocalOrderSave(payload, isEdit = false, targetRow = null) {
       const todayStr = appState.today || new Date().toISOString().slice(0, 10);
-      const calc = calculateEndDate(payload.buyDate || todayStr, payload.months || 1);
+      const calc = calculateEndDate(payload.buyDate || todayStr, payload.months || 1, payload.customEndDate || '');
 
       if (isEdit && targetRow) {
         const idx = (appState.orders || []).findIndex(o => o.rowNumber === targetRow);
@@ -7767,8 +8567,8 @@
             buyDate: payload.buyDate,
             buyDateISO: payload.buyDate,
             months: payload.months,
-            endDate: payload.customEndDate || calc.endDate,
-            endDateISO: payload.customEndDate || calc.endDateISO,
+            endDate: calc.endDate || payload.customEndDate,
+            endDateISO: calc.endDateISO || payload.customEndDate,
             daysLeft: calc.daysLeft,
             phone: payload.phone || '',
             source: payload.source || '',
@@ -7790,8 +8590,8 @@
           buyDate: payload.buyDate,
           buyDateISO: payload.buyDate,
           months: payload.months,
-          endDate: payload.customEndDate || calc.endDate,
-          endDateISO: payload.customEndDate || calc.endDateISO,
+          endDate: calc.endDate || payload.customEndDate,
+          endDateISO: calc.endDateISO || payload.customEndDate,
           daysLeft: calc.daysLeft,
           phone: payload.phone || '',
           source: payload.source || '',
@@ -7815,39 +8615,50 @@
       syncOrderToGas(isEdit ? 'update' : 'create', payload, targetRow || appState.nextEmptyRow - 1);
     }
 
-document.getElementById('createForm').addEventListener('submit', async (e) => {
+    document.getElementById('createForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('btnCreateSubmit');
       btn.disabled = true;
       try {
+        const buyISO = document.getElementById('cBuyDate').value;
+        const rawDur = document.getElementById('cMonths').value.trim();
+        const monthsFieldVal = rawDur
+          ? (cDurationUnit === 'days' ? `${rawDur} ngày` : rawDur)
+          : '';
+        const computedEnd = document.getElementById('cCustomEnd').value || computeEndPreview(buyISO, rawDur, '', cDurationUnit);
+        const customEndFieldVal = (cDurationUnit === 'days' || !rawDur) && computedEnd !== '-' ? computedEnd : (document.getElementById('cCustomEnd').value || '');
+
         const payload = {
           customerName: document.getElementById('cCustomerName').value.trim(),
           product: document.getElementById('cProduct').value.trim(),
-          channel: document.getElementById('cChannel').value.trim(),
+          channel: document.getElementById('cChannel').value.trim() || 'Zalo',
           salePrice: document.getElementById('cSalePrice').value.trim(),
           costPrice: document.getElementById('cCostPrice').value.trim(),
-          buyDate: document.getElementById('cBuyDate').value,
-          months: document.getElementById('cMonths').value,
+          buyDate: buyISO,
+          months: monthsFieldVal,
           phone: document.getElementById('cPhone').value.trim(),
-          source: document.getElementById('cSource').value.trim(), // để trống
+          source: document.getElementById('cSource').value.trim(),
           customerEmail: document.getElementById('cCustomerEmail').value.trim(),
-          famEmail: document.getElementById('cFamEmail').value.trim(), // để trống
-          customEndDate: document.getElementById('cCustomEnd').value,
+          famEmail: document.getElementById('cFamEmail').value.trim(),
+          customEndDate: customEndFieldVal,
           note: document.getElementById('cNote').value.trim(),
           syncCalendar: document.getElementById('cSyncCal').checked,
+        };
+
+        const resetComposerAfterSave = () => {
+          document.getElementById('createForm').reset();
+          document.getElementById('cBuyDate').value = appState.today || new Date().toISOString().slice(0, 10);
+          setCreateDurationUnit('months', 12);
+          document.getElementById('cSource').value = '';
+          document.getElementById('cFamEmail').value = '';
+          closeComposerWindow();
         };
 
         const isGhPages = window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
 
         if (isGhPages || !navigator.onLine) {
           processLocalOrderSave(payload, false);
-          document.getElementById('createForm').reset();
-          document.getElementById('cBuyDate').value = appState.today || new Date().toISOString().slice(0, 10);
-          document.getElementById('cMonths').value = '12';
-          document.getElementById('cSource').value = '';
-          document.getElementById('cFamEmail').value = '';
-          document.getElementById('composerWin').hidden = true;
-          document.body.classList.remove('composer-open');
+          resetComposerAfterSave();
           showToast('Đã thêm đơn hàng mới thành công!');
         } else {
           try {
@@ -7860,36 +8671,17 @@ document.getElementById('createForm').addEventListener('submit', async (e) => {
             if (res.ok && contentType.includes('application/json')) {
               const data = await res.json();
               if (!data.ok) throw new Error(data.error);
-              document.getElementById('createForm').reset();
-              document.getElementById('cBuyDate').value = appState.today;
-              document.getElementById('cMonths').value = '12';
-              document.getElementById('cSource').value = '';
-              document.getElementById('cFamEmail').value = '';
-              document.getElementById('composerWin').hidden = true;
-              document.body.classList.remove('composer-open');
+              resetComposerAfterSave();
               await loadOrders({ silent: true });
               showToast(`Đã ghi đơn mới vào dòng #${data.targetRow} trên Google Sheet.`);
             } else {
-              // Fallback local save nếu endpoint không trả JSON
               processLocalOrderSave(payload, false);
-              document.getElementById('createForm').reset();
-              document.getElementById('cBuyDate').value = appState.today || new Date().toISOString().slice(0, 10);
-              document.getElementById('cMonths').value = '12';
-              document.getElementById('cSource').value = '';
-              document.getElementById('cFamEmail').value = '';
-              document.getElementById('composerWin').hidden = true;
-              document.body.classList.remove('composer-open');
+              resetComposerAfterSave();
               showToast('Đã thêm đơn hàng mới thành công!');
             }
           } catch (fetchErr) {
             processLocalOrderSave(payload, false);
-            document.getElementById('createForm').reset();
-            document.getElementById('cBuyDate').value = appState.today || new Date().toISOString().slice(0, 10);
-            document.getElementById('cMonths').value = '12';
-            document.getElementById('cSource').value = '';
-            document.getElementById('cFamEmail').value = '';
-            document.getElementById('composerWin').hidden = true;
-            document.body.classList.remove('composer-open');
+            resetComposerAfterSave();
             showToast('Đã thêm đơn hàng mới thành công!');
           }
         }
@@ -7911,17 +8703,25 @@ document.getElementById('createForm').addEventListener('submit', async (e) => {
       const btn = document.getElementById('btnEditSubmit');
       btn.disabled = true;
       try {
+        const buyISO = document.getElementById('eBuyDate').value;
+        const rawDur = document.getElementById('eMonths').value.trim();
+        const monthsFieldVal = rawDur
+          ? (eDurationUnit === 'days' ? `${rawDur} ngày` : rawDur)
+          : '';
+        const computedEnd = document.getElementById('eCustomEnd').value || computeEndPreview(buyISO, rawDur, '', eDurationUnit);
+        const customEndFieldVal = (eDurationUnit === 'days' || !rawDur) && computedEnd !== '-' ? computedEnd : '';
+
         const payload = {
           customerName: document.getElementById('eCustomerName').value.trim(),
           product: document.getElementById('eProduct').value.trim(),
-          channel: document.getElementById('eChannel').value.trim(),
+          channel: document.getElementById('eChannel').value.trim() || 'Zalo',
           phone: document.getElementById('ePhone').value.trim(),
           source: document.getElementById('eSource').value.trim(),
           salePrice: document.getElementById('eSalePrice').value.trim(),
           costPrice: document.getElementById('eCostPrice').value.trim(),
-          buyDate: document.getElementById('eBuyDate').value,
-          months: document.getElementById('eMonths').value,
-          customEndDate: document.getElementById('eMonths').value ? '' : document.getElementById('eCustomEnd').value,
+          buyDate: buyISO,
+          months: monthsFieldVal,
+          customEndDate: customEndFieldVal,
           customerEmail: document.getElementById('eCustomerEmail').value.trim(),
           famEmail: document.getElementById('eFamEmail').value.trim(),
           note: document.getElementById('eNote').value.trim(),

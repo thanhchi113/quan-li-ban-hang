@@ -180,10 +180,7 @@ function buildBatchRowWrite(rowNumber, input) {
   const product = sanitizeText(input.product);
   if (!product) throw new Error('Vui lòng nhập Mặt Hàng / Nội dung cần nhắc');
 
-  const channel = String(input.channel ?? 'Zalo').trim();
-  if (!ALLOWED_CHANNELS.has(channel)) {
-    throw new Error('Kênh Mua chỉ nhận "Zalo", "Facebook" hoặc để trống theo quy tắc của Sheet');
-  }
+  const channel = sanitizeText(input.channel ?? 'Zalo') || 'Zalo';
 
   const buyDateISO = String(input.buyDate ?? '').trim();
   if (!parseISODateParts(buyDateISO)) throw new Error('Ngày Mua không hợp lệ (YYYY-MM-DD)');
@@ -195,7 +192,13 @@ function buildBatchRowWrite(rowNumber, input) {
   let endFormulaOrSerial = '';
   let resolvedEndISO = null;
 
-  if (monthsStr !== '') {
+  const dayMatch = monthsStr.match(/^(\d+)\s*(ngày|ngay|n|d)\b/i);
+  if (dayMatch) {
+    const days = Number(dayMatch[1]);
+    monthsCell = `${days} ngày`;
+    resolvedEndISO = customEndISO || addDaysISO(buyDateISO, days);
+    endFormulaOrSerial = isoToSerialDate(resolvedEndISO);
+  } else if (monthsStr !== '') {
     const months = Number(monthsStr);
     if (!Number.isInteger(months) || months <= 0 || months > 240) {
       throw new Error('Thời Hạn (Tháng) phải là số nguyên dương (1 - 240)');
@@ -207,7 +210,7 @@ function buildBatchRowWrite(rowNumber, input) {
     endFormulaOrSerial = isoToSerialDate(customEndISO);
     resolvedEndISO = customEndISO;
   } else {
-    throw new Error('Vui lòng nhập Thời Hạn (Tháng) hoặc chọn Ngày Kết Thúc / Ngày Hẹn Nhắc');
+    throw new Error('Vui lòng nhập Thời Hạn hoặc chọn Ngày Kết Thúc / Ngày Hẹn Nhắc');
   }
 
   const rawPhone = String(input.phone ?? '').trim();
