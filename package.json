@@ -1,0 +1,17 @@
+{
+  "name": "quan-li-nhac-hen",
+  "version": "1.0.0",
+  "description": "Quản lý đơn hàng & nhắc hẹn đồng bộ Google Sheets và Google Calendar",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test.js"
+  },
+  "keywords": [
+    "google-sheets",
+    "google-calendar",
+    "order-management"
+  ],
+  "author": "Thanh Chí",
+  "license": "MIT"
+}

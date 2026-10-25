@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Binaries & executables
+cloudflared.exe
+*.exe
+
+# Local secrets & runtime data
+auth-config.json
+public-url.txt
+synced-reminders.json
+
+# Tooling, IDE & OS
+.taste-skill/
+.vscode/
+.idea/
+*.log
+Thumbs.db
+.DS_Store

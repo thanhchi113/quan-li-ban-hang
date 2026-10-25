@@ -1,0 +1,4016 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quản lí đơn hàng &amp; nhắc hẹn - Bảng theo dõi bán hàng online</title>
+  <script>
+    (function() {
+      try {
+        var t = localStorage.getItem('ql_theme');
+        if (t) document.documentElement.setAttribute('data-theme', t);
+        var c = localStorage.getItem('ql_contrast');
+        if (c === 'high') document.documentElement.setAttribute('data-contrast', 'high');
+        var a = localStorage.getItem('ql_accent_color');
+        if (a) {
+          document.documentElement.style.setProperty('--accent', a);
+          document.documentElement.style.setProperty('--primary', a);
+          document.documentElement.style.setProperty('--chart-1', a);
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    /* APP SHEET - Framed sheet (seed 494038914 · kind commerce · light)
+       Enhanced with multi-accent palette, micro-interactions, sticky table header, and Owner Auth Gate */
+    :root {
+      --ground: #eef2f6;
+      --surface: #ffffff;
+      --raised: #f4f7fa;
+      --active: #e3ecf2;
+      --border: #dde3ea;
+      --rule: #edf1f5;
+      --control: #c5ced8;
+      --text: #0f172a;
+      --muted: #475569;
+      --faint: #64748b;
+      --accent: #0e7490;
+      --accent-tint: #e0f2fe;
+      --primary: #0e7490;
+      --primary-ink: #ffffff;
+      --positive: #15803d;
+      --negative: #be123c;
+      --warning: #b45309;
+      --chart-1: #0e7490;
+      --chart-2: #2563eb;
+      --chart-3: #d97706;
+      --chart-4: #c2410c;
+      --chart-5: #059669;
+      --chart-6: #e11d48;
+      --pill-positive-bg: #dcfce7;
+      --pill-positive-ink: #14532d;
+      --pill-negative-bg: #ffe4e6;
+      --pill-negative-ink: #881337;
+      --pill-warning-bg: #fef3c7;
+      --pill-warning-ink: #78350f;
+      --pill-neutral-bg: #e2e8f0;
+      --pill-neutral-ink: #334155;
+      --pill-info-bg: #dbeafe;
+      --pill-info-ink: #1e40af;
+      --pill-coral-bg: #ffedd5;
+      --pill-coral-ink: #9a3412;
+      --radius-card: 10px;
+      --radius-control: 6px;
+      --radius-sheet: 16px;
+      --sheet-inset: 8px;
+      --row-height: 48px;
+      --sidebar-width: 228px;
+      --gap: 20px;
+      --pad: 24px;
+      --control-height: 32px;
+      --fs-title: 22px;
+      --fs-section: 16px;
+      --fs-kpi: 28px;
+      --fs-body: 14px;
+      --fs-small: 13px;
+      --font: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+    }
+
+    :root[data-theme="dark"] {
+      --ground: #090d16;
+      --surface: #111827;
+      --raised: #1e293b;
+      --active: #26354d;
+      --border: #293548;
+      --rule: #1e293b;
+      --control: #475569;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --faint: #64748b;
+      --accent: #38bdf8;
+      --accent-tint: #0c2d48;
+      --primary: #0284c7;
+      --primary-ink: #ffffff;
+      --positive: #4ade80;
+      --negative: #fb7185;
+      --warning: #fbbf24;
+      --chart-1: #38bdf8;
+      --chart-2: #60a5fa;
+      --chart-3: #fbbf24;
+      --chart-4: #fb923c;
+      --chart-5: #34d399;
+      --chart-6: #fb7185;
+      --pill-positive-bg: #064e3b;
+      --pill-positive-ink: #6ee7b7;
+      --pill-negative-bg: #4c0519;
+      --pill-negative-ink: #fda4af;
+      --pill-warning-bg: #451a03;
+      --pill-warning-ink: #fcd34d;
+      --pill-neutral-bg: #1e293b;
+      --pill-neutral-ink: #cbd5e1;
+      --pill-info-bg: #1e3a8a;
+      --pill-info-ink: #93c5fd;
+      --pill-coral-bg: #431407;
+      --pill-coral-ink: #fdba74;
+    }
+
+    /* High Contrast Modes (Chế độ tương phản cao cho cả sáng và tối) */
+    :root[data-contrast="high"] {
+      --ground: #f8fafc;
+      --surface: #ffffff;
+      --raised: #ffffff;
+      --active: #e2e8f0;
+      --border: #000000;
+      --rule: #000000;
+      --control: #000000;
+      --text: #000000;
+      --muted: #0f172a;
+      --faint: #334155;
+      --primary-ink: #ffffff;
+    }
+    :root[data-contrast="high"] .btn {
+      border: 1px solid #000000;
+      color: #000000;
+      font-weight: 600;
+    }
+    :root[data-contrast="high"] .btn.primary {
+      background: #000000;
+      color: #ffffff;
+      border-color: #000000;
+    }
+    :root[data-contrast="high"] .table th,
+    :root[data-contrast="high"] .table td {
+      border-bottom-color: #000000;
+    }
+    :root[data-contrast="high"] .kpi-strip {
+      border-color: #000000;
+    }
+    :root[data-contrast="high"] .kpi-cell + .kpi-cell {
+      border-left-color: #000000;
+    }
+    :root[data-contrast="high"] .table-wrap {
+      border-color: #000000;
+    }
+
+    :root[data-theme="dark"][data-contrast="high"] {
+      --ground: #000000;
+      --surface: #0a0a0a;
+      --raised: #121212;
+      --active: #222222;
+      --border: #ffffff;
+      --rule: #ffffff;
+      --control: #ffffff;
+      --text: #ffffff;
+      --muted: #f1f5f9;
+      --faint: #cbd5e1;
+      --primary-ink: #000000;
+    }
+    :root[data-theme="dark"][data-contrast="high"] .btn {
+      border: 1px solid #ffffff;
+      color: #ffffff;
+      font-weight: 600;
+    }
+    :root[data-theme="dark"][data-contrast="high"] .btn.primary {
+      background: #ffffff;
+      color: #000000;
+      border-color: #ffffff;
+    }
+    :root[data-theme="dark"][data-contrast="high"] .table th,
+    :root[data-theme="dark"][data-contrast="high"] .table td {
+      border-bottom-color: #475569;
+    }
+    :root[data-theme="dark"][data-contrast="high"] .kpi-strip {
+      border-color: #ffffff;
+    }
+    :root[data-theme="dark"][data-contrast="high"] .kpi-cell + .kpi-cell {
+      border-left-color: #ffffff;
+    }
+    :root[data-theme="dark"][data-contrast="high"] .table-wrap {
+      border-color: #ffffff;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    /* Custom Theme-Synchronized Scrollbars (Thanh kéo đồng bộ giao diện) */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--control) transparent;
+    }
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--control);
+      border-radius: 4px;
+      transition: background-color 150ms ease;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent);
+    }
+    ::-webkit-scrollbar-corner {
+      background: transparent;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.28); opacity: 0.72; }
+    }
+
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes drawerSlideIn {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+      background: var(--ground);
+      color: var(--text);
+      font: 400 var(--fs-body)/20px var(--font);
+      font-variant-numeric: tabular-nums;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    a { color: inherit; text-decoration: none; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .mono { font-variant-numeric: tabular-nums; }
+    .num { font-variant-numeric: tabular-nums; text-align: right; }
+
+    /* Shell: Tinted L-frame (sidebar + 48px top bar on --ground) + inset white sheet */
+    .shell {
+      display: grid;
+      grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+      min-height: 100svh;
+      width: 100%;
+      transition: grid-template-columns 200ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .shell.sidebar-collapsed {
+      grid-template-columns: 0px minmax(0, 1fr);
+    }
+    .shell.sidebar-collapsed .sidebar {
+      transform: translateX(-100%);
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100svh;
+      padding: 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      background: var(--ground);
+      min-width: 0;
+      transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), opacity 160ms ease;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 8px 12px;
+    }
+
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--chart-1);
+      color: #ffffff;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      font-weight: 600;
+      flex: none;
+    }
+
+    .brand-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-scope {
+      font-size: 12px;
+      color: var(--accent);
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .nav-group-label {
+      margin: 16px 8px 6px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      height: 36px;
+      padding: 0 10px;
+      border-radius: 8px;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 400;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      transition: background-color 150ms ease, color 150ms ease, transform 150ms ease;
+    }
+    .nav-item:hover {
+      background: var(--active);
+      color: var(--text);
+      transform: translateX(2px);
+    }
+    .nav-item[aria-current="page"] {
+      background: var(--accent-tint);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .nav-item[aria-current="page"] .nav-item-left svg {
+      color: var(--accent);
+    }
+
+    .nav-item-left {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+    }
+    .nav-item-left svg {
+      width: 16px;
+      height: 16px;
+      stroke-width: 1.7;
+      flex: none;
+      color: var(--muted);
+      transition: color 150ms ease;
+    }
+
+    .queue-badge {
+      height: 20px;
+      padding: 0 7px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--pill-warning-bg);
+      color: var(--pill-warning-ink);
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .sidebar-foot {
+      margin-top: auto;
+      padding: 10px 8px 2px;
+      border-top: 1px solid var(--border); /* taste-skill-ignore */
+      font-size: 12px;
+      color: var(--muted);
+      display: grid;
+      gap: 6px;
+    }
+
+    /* Main Column: 48px Top Bar + White Sheet */
+    .main-area {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      padding-right: var(--sheet-inset);
+      padding-bottom: var(--sheet-inset);
+    }
+
+    .topbar {
+      height: 48px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--ground);
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .btn.menu-btn, .win-btn.menu-btn {
+      display: none;
+    }
+
+    .search-wrap {
+      position: relative;
+      width: 420px;
+      max-width: 100%;
+    }
+    .search-wrap svg {
+      position: absolute;
+      left: 11px;
+      top: 9px;
+      width: 14px;
+      height: 14px;
+      color: var(--accent);
+      pointer-events: none;
+    }
+    .search-input {
+      width: 100%;
+      height: 32px;
+      padding: 0 12px 0 32px;
+      border: 1px solid var(--control);
+      border-radius: var(--radius-control);
+      background: var(--surface);
+      font-size: 13px;
+      transition: border-color 150ms ease, box-shadow 150ms ease;
+    }
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-tint); /* taste-skill-ignore */
+      outline: none;
+    }
+    .search-input::placeholder { color: var(--faint); }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .sync-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+    .sync-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--positive);
+      animation: pulseDot 2.2s infinite ease-in-out;
+    }
+
+    /* White Sheet */
+    .sheet {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sheet);
+      padding: var(--pad);
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04); /* taste-skill-ignore */
+    }
+
+    /* Controls & Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      height: var(--control-height);
+      padding: 0 12px;
+      border-radius: var(--radius-control);
+      border: 1px solid var(--control);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background-color 150ms ease, border-color 150ms ease, transform 120ms ease, box-shadow 150ms ease;
+    }
+    .btn svg { width: 14px; height: 14px; stroke-width: 1.7; flex: none; }
+    .btn:hover {
+      background: var(--raised);
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .btn:active { transform: translateY(0); }
+    .btn:disabled { opacity: 0.55; cursor: wait; transform: none; }
+    .btn.primary {
+      background: var(--primary);
+      color: var(--primary-ink);
+      border-color: var(--primary);
+    }
+    .btn.primary:hover {
+      opacity: 0.92;
+    }
+    .btn.accent-outline {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-tint);
+    }
+    .btn.text-btn {
+      border: 0;
+      background: var(--raised);
+      padding: 0 9px;
+      height: 26px;
+      font-size: 12px;
+      color: var(--accent);
+      font-weight: 500;
+    }
+    .btn.text-btn:hover {
+      background: var(--accent-tint);
+    }
+
+    /* Title Row */
+    .title-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding-bottom: 4px;
+    }
+    .title-row h1 {
+      font-size: var(--fs-title);
+      line-height: 28px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    .title-sub {
+      margin-top: 4px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .title-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* Status Notice */
+    #toast {
+      display: none;
+      padding: 10px 14px;
+      border-radius: var(--radius-card);
+      font-size: 13px;
+      border: 1px solid var(--accent);
+      background: var(--accent-tint);
+      animation: fadeSlideUp 200ms ease;
+    }
+
+    /* Section 1: Colorful Divided KPI Strip */
+    .kpi-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      background: var(--surface);
+      overflow: hidden;
+      animation: fadeSlideUp 260ms ease;
+    }
+    .kpi-cell {
+      padding: 16px 20px;
+      min-width: 0;
+      position: relative;
+      transition: background-color 180ms ease;
+    }
+    .kpi-cell:hover {
+      background: var(--raised);
+    }
+    .kpi-cell::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--chart-1);
+    }
+    .kpi-cell.k-profit::before { background: var(--positive); }
+    .kpi-cell.k-orders::before { background: var(--chart-2); }
+    .kpi-cell.k-soon::before { background: var(--warning); }
+
+    .kpi-cell + .kpi-cell {
+      border-left: 1px solid var(--border); /* taste-skill-ignore */
+    }
+    .kpi-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+    .kpi-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--chart-1);
+      flex: none;
+    }
+    .kpi-cell.k-profit .kpi-dot { background: var(--positive); }
+    .kpi-cell.k-orders .kpi-dot { background: var(--chart-2); }
+    .kpi-cell.k-soon .kpi-dot { background: var(--warning); animation: pulseDot 2s infinite; }
+
+    .kpi-val {
+      margin-top: 6px;
+      font-size: var(--fs-kpi);
+      line-height: 32px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .kpi-cell.lead .kpi-val {
+      font-size: 32px;
+      color: var(--chart-1);
+    }
+    .kpi-cell.k-profit .kpi-val {
+      color: var(--positive);
+    }
+    .kpi-val small {
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 400;
+      margin-left: 3px;
+    }
+    .kpi-note {
+      margin-top: 4px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* Section 2: Urgent Queue & Product Breakdown Pair */
+    .pair-grid {
+      display: grid;
+      grid-template-columns: 7fr 5fr;
+      gap: var(--gap);
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      background: var(--surface);
+      padding: 18px 20px;
+      min-width: 0;
+      animation: fadeSlideUp 320ms ease;
+    }
+    .panel-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .panel-head h2 {
+      font-size: var(--fs-section);
+      line-height: 22px;
+      font-weight: 600;
+    }
+    .panel-meta {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* Urgent Rows */
+    .urgent-rows {
+      display: grid;
+    }
+    .u-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) auto auto;
+      align-items: center;
+      gap: 12px;
+      min-height: 44px;
+      padding: 8px 8px;
+      margin: 0 -8px;
+      border-radius: 6px;
+      border-top: 1px solid var(--rule); /* taste-skill-ignore */
+      transition: background-color 140ms ease, transform 140ms ease;
+    }
+    .u-row:first-child { border-top: 0; }
+    .u-row:hover {
+      background: var(--raised);
+      transform: translateX(2px);
+    }
+    .u-name {
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: pointer;
+    }
+    .u-name:hover { color: var(--accent); }
+
+    /* Bar list for product share */
+    .bar-list {
+      display: grid;
+      gap: 10px;
+    }
+    .bar-item {
+      display: grid;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px 6px;
+      margin: 0 -6px;
+      border-radius: 6px;
+      transition: background-color 140ms ease;
+    }
+    .bar-item:hover {
+      background: var(--raised);
+    }
+    .bar-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+    .bar-track {
+      height: 8px;
+      background: var(--raised);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      background: var(--chart-1);
+      border-radius: 4px;
+      transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .bar-fill.bf-0 { background: var(--chart-1); }
+    .bar-fill.bf-1 { background: var(--chart-2); }
+    .bar-fill.bf-2 { background: var(--chart-5); }
+    .bar-fill.bf-3 { background: var(--chart-4); }
+    .bar-fill.bf-4 { background: var(--chart-3); }
+
+    /* Section 3: Count Cards That Filter + Sticky Header Scrollable Table */
+    .filter-cards {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .f-card {
+      height: 62px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      background: var(--surface);
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-width: 0;
+      transition: transform 140ms ease, border-color 140ms ease, background-color 140ms ease, box-shadow 140ms ease;
+    }
+    .f-card:hover {
+      background: var(--raised);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    .f-card[aria-pressed="true"] {
+      border: 1.5px solid var(--accent);
+      background: var(--accent-tint);
+    }
+    .f-card-label {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .f-card[aria-pressed="true"] .f-card-label {
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .f-card-val {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .table-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .select-control {
+      height: var(--control-height);
+      padding: 0 10px;
+      border: 1px solid var(--control);
+      border-radius: var(--radius-control);
+      background: var(--surface);
+      font-size: 13px;
+    }
+
+    /* Sticky Header Scrollable Table Container */
+    .table-container {
+      width: 100%;
+      max-height: 540px;
+      overflow-y: auto;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      background: var(--surface);
+      position: relative;
+    }
+    table {
+      width: 100%;
+      table-layout: fixed;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 15;
+      height: 40px;
+      padding: 0 10px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      background: var(--raised);
+      border-bottom: 2px solid var(--accent);
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06); /* taste-skill-ignore */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    td {
+      height: var(--row-height);
+      padding: 0 10px;
+      border-bottom: 1px solid var(--rule); /* taste-skill-ignore */
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      vertical-align: middle;
+    }
+    tbody tr {
+      cursor: pointer;
+      transition: background-color 120ms ease;
+    }
+    tbody tr:hover {
+      background: var(--raised);
+    }
+    tbody tr:hover td:first-child {
+      box-shadow: inset 3px 0 0 var(--accent); /* taste-skill-ignore */
+    }
+    tbody tr[aria-selected="true"] {
+      background: var(--accent-tint);
+    }
+    tbody tr[aria-selected="true"] td:first-child {
+      box-shadow: inset 3px 0 0 var(--accent); /* taste-skill-ignore */
+    }
+
+    /* Column Widths (Sums to 100%) */
+    col.c-stt    { width: 6%; }
+    col.c-cust   { width: 27%; }
+    col.c-prod   { width: 17%; }
+    col.c-price  { width: 11%; }
+    col.c-end    { width: 13%; }
+    col.c-status { width: 15%; }
+    col.c-act    { width: 11%; }
+
+    /* Compact Customer Cell */
+    .cust-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 600;
+      display: inline-grid;
+      place-items: center;
+      flex: none;
+    }
+    .cust-name {
+      font-weight: 500;
+      color: var(--text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .chan-badge {
+      display: inline-flex;
+      align-items: center;
+      height: 18px;
+      padding: 0 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      flex: none;
+    }
+    .chan-zalo {
+      background: var(--pill-info-bg);
+      color: var(--pill-info-ink);
+    }
+    .chan-fb {
+      background: var(--pill-coral-bg);
+      color: var(--pill-coral-ink);
+    }
+
+    /* Product Tag */
+    .prod-tag {
+      display: inline-flex;
+      align-items: center;
+      height: 22px;
+      padding: 0 8px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      background: var(--raised);
+      color: var(--text);
+    }
+    .prod-tag.pt-gemini { background: var(--accent-tint); color: var(--accent); }
+    .prod-tag.pt-office { background: var(--pill-info-bg); color: var(--pill-info-ink); }
+    .prod-tag.pt-mathpix { background: var(--pill-positive-bg); color: var(--pill-positive-ink); }
+    .prod-tag.pt-chatgpt { background: var(--pill-coral-bg); color: var(--pill-coral-ink); }
+    .prod-tag.pt-netflix { background: var(--pill-negative-bg); color: var(--pill-negative-ink); }
+    .prod-tag.pt-capcut { background: var(--pill-warning-bg); color: var(--pill-warning-ink); }
+
+    /* Status Pill */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      height: 22px;
+      padding: 0 8px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      background: var(--pill-neutral-bg);
+      color: var(--pill-neutral-ink);
+      white-space: nowrap;
+    }
+    .pill.pos {
+      background: var(--pill-positive-bg);
+      color: var(--pill-positive-ink);
+    }
+    .pill.warn {
+      background: var(--pill-warning-bg);
+      color: var(--pill-warning-ink);
+    }
+    .pill.neg {
+      background: var(--pill-negative-bg);
+      color: var(--pill-negative-ink);
+    }
+
+    /* Sales Analytics & Date Range Stats Panel */
+    .stat-controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .stat-preset-btn.active {
+      border-color: var(--accent);
+      background: var(--accent-tint);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .stat-inputs-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .stat-metrics-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .stat-metric-cell {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-width: 0;
+      position: relative;
+    }
+    .stat-metric-cell::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--chart-2);
+      border-radius: var(--radius-card) var(--radius-card) 0 0;
+    }
+    .stat-metric-cell.s-rev::before { background: var(--chart-1); }
+    .stat-metric-cell.s-profit::before { background: var(--positive); }
+    .stat-metric-cell.s-avg::before { background: var(--chart-3); }
+
+    .stat-m-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+    .stat-m-val {
+      font-size: 20px;
+      line-height: 26px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 4px 0 2px;
+    }
+    .stat-m-val small {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--muted);
+      margin-left: 3px;
+    }
+    .stat-m-sub {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .stat-details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .stat-subpanel {
+      padding: 12px 14px;
+      border-radius: var(--radius-card);
+      background: var(--raised);
+      border: 1px solid var(--border);
+    }
+    .stat-quick-rows {
+      max-height: 190px;
+      overflow-y: auto;
+      display: grid;
+      gap: 6px;
+      padding-right: 4px;
+    }
+    .stat-q-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 10px;
+      border-radius: 6px;
+      background: var(--surface);
+      font-size: 12px;
+      cursor: pointer;
+      transition: background-color 120ms ease;
+    }
+    .stat-q-row:hover {
+      background: var(--active);
+    }
+
+    /* Floating Compact Composer Window (Ghi đơn mới) */
+    .composer-win {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      width: 440px;
+      max-width: calc(100vw - 24px);
+      background: var(--surface);
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      box-shadow: 0 18px 42px rgba(15, 23, 42, 0.2); /* taste-skill-ignore */
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: fadeSlideUp 200ms ease;
+    }
+    .composer-win[hidden] { display: none !important; }
+    .composer-win.is-minimized .composer-body { display: none; }
+    .composer-win.is-minimized { width: 290px; }
+
+    .composer-head {
+      height: 42px;
+      padding: 0 12px 0 14px;
+      background: var(--chart-1);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+    }
+    .composer-title {
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .win-controls {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .win-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      border: 0;
+      background: rgba(255, 255, 255, 0.16);
+      color: inherit;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .win-btn:hover { background: rgba(255, 255, 255, 0.28); }
+    .drawer-head .win-btn, .brand-row .win-btn {
+      background: transparent;
+      color: var(--muted);
+    }
+    .drawer-head .win-btn:hover, .brand-row .win-btn:hover {
+      background: var(--active);
+      color: var(--text);
+    }
+
+    .composer-body {
+      padding: 16px;
+      max-height: min(74vh, 560px);
+      overflow-y: auto;
+    }
+
+    /* Customer Detail & 2-Way Edit Slide-Over Drawer */
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.36);
+      z-index: 60;
+      display: flex;
+      justify-content: flex-end;
+    }
+    .drawer-backdrop[hidden] { display: none !important; }
+
+    .detail-drawer {
+      width: 480px;
+      max-width: 100vw;
+      height: 100%;
+      background: var(--surface);
+      border-left: 1px solid var(--border); /* taste-skill-ignore */
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: drawerSlideIn 220ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .drawer-head {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border); /* taste-skill-ignore */
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--raised);
+    }
+    .drawer-body {
+      padding: 20px;
+      overflow-y: auto;
+      flex: 1;
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+    .drawer-foot {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border); /* taste-skill-ignore */
+      background: var(--raised);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* Floating Back-To-Top Button (Nút bật lên trang đầu) */
+    .btn-back-to-top {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 46;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border); /* taste-skill-ignore */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(12px);
+      transition: opacity 200ms ease, transform 200ms ease, background 150ms ease, border-color 150ms ease;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12); /* taste-skill-ignore */
+    }
+    .btn-back-to-top.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .btn-back-to-top:hover {
+      background: var(--active);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+    .btn-back-to-top svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 2.2;
+    }
+    body.composer-open .btn-back-to-top {
+      bottom: 24px;
+      right: 480px;
+    }
+    @media (max-width: 860px) {
+      body.composer-open .btn-back-to-top {
+        right: 20px;
+        bottom: calc(min(74vh, 560px) + 54px);
+      }
+    }
+
+    /* Theme & Color Customizer Modal (Theo phong cách Thanh Chí Edu) */
+    .theme-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.48);
+      z-index: 70;
+      display: grid;
+      place-items: center;
+      padding: 16px;
+    }
+    .theme-modal-backdrop[hidden] { display: none !important; }
+
+    .theme-modal {
+      width: 700px;
+      max-width: 100%;
+      max-height: 90vh;
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 16px;
+      border: 1px solid var(--border); /* taste-skill-ignore */
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28); /* taste-skill-ignore */
+      animation: fadeSlideUp 220ms ease;
+    }
+    .theme-modal-head {
+      padding: 16px 20px;
+      background: #0f172a;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .theme-modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      display: grid;
+      gap: 18px;
+    }
+    .theme-modal-foot {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border); /* taste-skill-ignore */
+      background: var(--raised);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    /* Mode Selection Cards */
+    .theme-mode-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 540px) {
+      .theme-mode-grid { grid-template-columns: 1fr; }
+    }
+    .theme-mode-card {
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 2px solid var(--border); /* taste-skill-ignore */
+      background: var(--surface);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      text-align: left;
+      transition: border-color 160ms ease, background 160ms ease;
+    }
+    .theme-mode-card:hover {
+      border-color: var(--accent);
+      background: var(--active);
+    }
+    .theme-mode-card.active {
+      border-color: var(--accent);
+      background: var(--accent-tint);
+    }
+    .theme-mode-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+    .theme-mode-icon.light {
+      background: #fef3c7;
+      color: #d97706;
+      border: 1px solid #fde68a; /* taste-skill-ignore */
+    }
+    .theme-mode-icon.dark {
+      background: #0f172a;
+      color: #facc15;
+      border: 1px solid #334155; /* taste-skill-ignore */
+    }
+    .theme-mode-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+    .theme-mode-badge.on {
+      background: var(--accent);
+      color: #ffffff;
+    }
+    .theme-mode-badge.off {
+      background: var(--raised);
+      color: var(--faint);
+      border: 1px solid var(--border); /* taste-skill-ignore */
+    }
+
+    /* Preset Palettes Grid */
+    .tc-preset-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 10px;
+    }
+    .tc-preset-card {
+      padding: 12px;
+      border-radius: 12px;
+      border: 2px solid var(--border); /* taste-skill-ignore */
+      background: var(--surface);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+      text-align: left;
+      transition: border-color 160ms ease, background 160ms ease;
+    }
+    .tc-preset-card:hover {
+      border-color: var(--accent);
+      background: var(--active);
+    }
+    .tc-preset-card.active {
+      border-color: var(--accent);
+      background: var(--accent-tint);
+    }
+    .tc-dots-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .tc-dots {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .tc-dot-main {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.7); /* taste-skill-ignore */
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); /* taste-skill-ignore */
+    }
+    .tc-dot-sub {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.7); /* taste-skill-ignore */
+    }
+    .tc-card-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .tc-card-desc {
+      font-size: 11px;
+      color: var(--faint);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Saved Custom Colors Grid */
+    .tc-saved-custom-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .tc-saved-card {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 2px solid var(--border); /* taste-skill-ignore */
+      background: var(--surface);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      transition: border-color 150ms ease, background 150ms ease;
+    }
+    .tc-saved-card:hover {
+      border-color: var(--accent);
+      background: var(--active);
+    }
+    .tc-saved-card.active {
+      border-color: var(--accent);
+      background: var(--accent-tint);
+    }
+    .tc-divider {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border); /* taste-skill-ignore */
+    }
+    .custom-color-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      padding: 12px;
+      background: var(--raised);
+      border-radius: 8px;
+      border: 1px solid var(--border); /* taste-skill-ignore */
+    }
+    .custom-color-picker {
+      width: 44px;
+      height: 36px;
+      border: 0;
+      padding: 0;
+      border-radius: 6px;
+      cursor: pointer;
+      background: transparent;
+    }
+
+    /* Owner Authentication Gate & Security Modal */
+    .auth-gate {
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      background: #0f172a;
+      display: grid;
+      place-items: center;
+      padding: 16px;
+    }
+    .auth-gate[hidden] { display: none !important; }
+
+    .auth-card {
+      width: 420px;
+      max-width: 100%;
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      padding: 26px 24px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35); /* taste-skill-ignore */
+      display: grid;
+      gap: 16px;
+      animation: fadeSlideUp 240ms ease;
+    }
+    .auth-owner-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--accent-tint);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 600;
+      width: fit-content;
+    }
+    .auth-msg {
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      background: var(--raised);
+      border: 1px solid var(--border);
+      display: none;
+    }
+
+    /* Form Grid inside Composer & Detail Drawer */
+    .f-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .f-full { grid-column: 1 / -1; }
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      height: 36px;
+      padding: 0 10px;
+      border: 1px solid var(--control);
+      border-radius: var(--radius-control);
+      background: var(--surface);
+      font-size: 13px;
+    }
+    .field textarea {
+      height: auto;
+      padding: 8px 10px;
+    }
+    .chip-row {
+      display: flex;
+      gap: 4px;
+      margin-top: 5px;
+      flex-wrap: wrap;
+    }
+    .mini-chip {
+      height: 22px;
+      padding: 0 7px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: var(--raised);
+      font-size: 11px;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .mini-chip:hover { border-color: var(--accent); color: var(--accent); }
+
+    .kv-well {
+      background: var(--raised);
+      border-radius: var(--radius-card);
+      padding: 10px 12px;
+      display: grid;
+      gap: 6px;
+      font-size: 12px;
+      border: 1px solid var(--border);
+    }
+    .kv-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Responsive Tablet & Phone Rules */
+    @media (max-width: 1060px) {
+      .pair-grid { grid-template-columns: minmax(0, 1fr); }
+      .filter-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 860px) {
+      .shell { grid-template-columns: minmax(0, 1fr); }
+      .sidebar {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        z-index: 70;
+        transform: translateX(-100%);
+        transition: transform 180ms ease;
+      }
+      .sidebar.open { transform: translateX(0); }
+      .btn.menu-btn, .win-btn.menu-btn { display: inline-flex; }
+      .main-area { padding: 0; }
+      .sheet {
+        border-radius: 0;
+        border-left: 0;
+        border-right: 0;
+        padding: 16px;
+      }
+      .kpi-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .kpi-cell + .kpi-cell { border-left: 0; }
+      .kpi-cell:nth-child(2n) { border-left: 1px solid var(--border); } /* taste-skill-ignore */
+      .kpi-cell:nth-child(n + 3) { border-top: 1px solid var(--border); } /* taste-skill-ignore */
+      .filter-cards {
+        display: flex;
+        overflow-x: auto;
+        padding-bottom: 4px;
+      }
+      .f-card { flex: 0 0 156px; }
+      .stat-metrics-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .stat-details-grid { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    @media (max-width: 640px) {
+      .topbar { padding: 0 12px; gap: 8px; }
+      .topbar-left { flex: 1; }
+      .search-wrap { width: 100%; }
+      .sync-indicator, #btnOpenSecurity { display: none; }
+      .kpi-cell { padding: 12px 14px; }
+      .kpi-val, .kpi-cell.lead .kpi-val {
+        font-size: 21px;
+        line-height: 26px;
+        white-space: nowrap;
+      }
+      .kpi-val small { font-size: 11px; white-space: nowrap; }
+      .u-row {
+        grid-template-columns: minmax(0, 1fr) auto;
+      }
+      .u-row .u-meta-col,
+      .u-row .u-act-col { display: none; }
+      col.c-stt { width: 12%; }
+      col.c-cust { width: 42%; }
+      col.c-prod { width: 22%; }
+      col.c-end { width: 24%; }
+      th.hide-sm, td.hide-sm, col.hide-sm { display: none; }
+      .composer-win {
+        right: 12px;
+        left: 12px;
+        bottom: 12px;
+        width: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- OWNER AUTHENTICATION GATE (Chỉ chủ sở hữu badaoqn132@gmail.com được truy cập) -->
+  <div class="auth-gate" id="authGate" hidden>
+    <div class="auth-card">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="brand-mark" style="width:36px;height:36px;font-size:14px;">QL</div>
+        <div>
+          <h2 style="font-size:18px;font-weight:600;">Quản lí Đơn hàng &amp; Nhắc hẹn</h2>
+          <p class="panel-meta">Cổng truy cập cá nhân bảo mật 2 chiều</p>
+        </div>
+      </div>
+
+      <div class="auth-owner-pill">
+        <span>Chủ sở hữu: badaoqn132@gmail.com</span>
+      </div>
+
+      <div id="authNotice" class="auth-msg"></div>
+
+      <!-- Form 1: Đăng nhập -->
+      <form id="loginForm" style="display:grid;gap:12px;">
+        <div class="field">
+          <label for="loginPassword">Mật khẩu truy cập *</label>
+          <input id="loginPassword" type="password" required placeholder="Nhập mật khẩu của bạn..." autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn primary" id="btnLoginSubmit" style="height:38px;font-size:14px;">
+          Đăng nhập vào Sổ đơn hàng
+        </button>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;">
+          <button type="button" class="btn text-btn" id="btnShowResetView">
+            Quên mật khẩu? Gửi OTP về badaoqn132@gmail.com
+          </button>
+        </div>
+      </form>
+
+      <!-- Form 2: Quên / Reset mật khẩu qua badaoqn132@gmail.com -->
+      <form id="resetForm" style="display:none;gap:12px;">
+        <p class="panel-meta">
+          Hệ thống sẽ gửi mã OTP 6 số trực tiếp tới tài khoản <strong>badaoqn132@gmail.com</strong> (qua Thông báo Lịch Google &amp; Gmail trên điện thoại của bạn).
+        </p>
+        <button type="button" class="btn accent-outline" id="btnSendOtp" style="height:36px;">
+          Gửi mã OTP 6 số về badaoqn132@gmail.com
+        </button>
+        <div class="field">
+          <label for="resetOtpInput">Mã OTP 6 số vừa nhận *</label>
+          <input id="resetOtpInput" class="mono" inputmode="numeric" maxlength="6" required placeholder="Nhập 6 chữ số OTP..." />
+        </div>
+        <div class="field">
+          <label for="resetNewPassword">Mật khẩu mới (tối thiểu 6 ký tự) *</label>
+          <input id="resetNewPassword" type="password" required placeholder="Nhập mật khẩu mới..." autocomplete="new-password" />
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button type="submit" class="btn primary" id="btnResetSubmit" style="flex:1;height:36px;">
+            Xác nhận đổi mật khẩu
+          </button>
+          <button type="button" class="btn" id="btnBackToLogin" style="height:36px;">Quay lại</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="shell">
+    <!-- L-FRAME SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand-row">
+        <div class="brand-mark">QL</div>
+        <div style="min-width:0;flex:1;">
+          <div class="brand-name">Quản lí bán hàng</div>
+          <div class="brand-scope">badaoqn132@gmail.com</div>
+        </div>
+        <button type="button" class="win-btn" id="btnCollapseSidebar" title="Thu gọn thanh menu" aria-label="Thu gọn menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2;"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button type="button" class="win-btn menu-btn" id="btnCloseSidebar" aria-label="Đóng menu">×</button>
+      </div>
+
+      <div class="nav-group-label">Không gian làm việc</div>
+      <button type="button" class="nav-item" aria-current="page" data-filter-nav="all">
+        <span class="nav-item-left">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+          <span>Tổng quan &amp; sổ đơn</span>
+        </span>
+      </button>
+
+      <button type="button" class="nav-item" data-filter-nav="soon30">
+        <span class="nav-item-left">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          <span>Đơn cần nhắc hạn</span>
+        </span>
+        <span class="queue-badge num" id="navSoonBadge">0</span>
+      </button>
+
+      <button type="button" class="nav-item" data-filter-nav="unsynced">
+        <span class="nav-item-left">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          <span>Chưa đặt lịch ĐT</span>
+        </span>
+      </button>
+
+      <button type="button" class="nav-item" id="navBtnSalesStats">
+        <span class="nav-item-left">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>Thống kê đơn bán</span>
+        </span>
+      </button>
+
+      <div class="nav-group-label">Tác vụ nhanh</div>
+      <button type="button" class="nav-item" id="navBtnNewOrder">
+        <span class="nav-item-left">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+          <span>Cửa sổ ghi đơn mới</span>
+        </span>
+      </button>
+
+      <button type="button" class="nav-item" id="navBtnSyncCal">
+        <span class="nav-item-left">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+          <span>Đồng bộ lịch 60 ngày</span>
+        </span>
+      </button>
+
+      <button type="button" class="nav-item" id="navBtnTestPhone">
+        <span class="nav-item-left">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+          <span>Bắn thử báo ĐT (1p)</span>
+        </span>
+      </button>
+
+      <button type="button" class="nav-item" id="navBtnSecurity">
+        <span class="nav-item-left">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <span>Link Web &amp; Mật khẩu</span>
+        </span>
+      </button>
+
+      <button type="button" class="nav-item" id="navBtnPalette">
+        <span class="nav-item-left">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.563-2.512 5.563-5.563C22 6.5 17.5 2 12 2z"/></svg>
+          <span>Bộ màu &amp; Giao diện</span>
+        </span>
+      </button>
+
+      <a class="nav-item" href="https://docs.google.com/spreadsheets/d/1t1WTrgrfVv_WbUG-Zl2ORwwjGWzgV0XodD9WnNvp8ZE/edit" target="_blank" rel="noopener">
+        <span class="nav-item-left">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          <span>Mở Google Sheet gốc</span>
+        </span>
+      </a>
+
+      <div class="sidebar-foot">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Tự đồng bộ 20s</span>
+          <input type="checkbox" id="toggleAutoSync" checked aria-label="Tự đồng bộ 2 chiều mỗi 20 giây" />
+        </div>
+        <div class="mono" id="sidebarNextRow">Dòng trống kế: #142</div>
+      </div>
+    </aside>
+
+    <!-- MAIN AREA: 48px TOPBAR + INSET WHITE SHEET -->
+    <div class="main-area">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button type="button" class="btn" id="btnToggleSidebar" title="Thu gọn / Mở rộng thanh menu" aria-label="Thu gọn / Mở rộng menu">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:1.8;"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+            <span id="btnToggleSidebarLabel">Menu</span>
+          </button>
+          <div class="search-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input id="searchInput" class="search-input" type="search" placeholder="Tìm khách hàng, mặt hàng, SĐT, email, ghi chú..." />
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <div class="sync-indicator">
+            <span class="sync-dot" id="syncDot"></span>
+            <span id="syncStamp">Đã kết nối Google Sheet (2 chiều)</span>
+          </div>
+          <button type="button" class="btn" id="btnHeaderHome" title="Cuộn lên trang đầu">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>Trang đầu</span>
+          </button>
+          <button type="button" class="btn" id="btnTheme" title="Chuyển chế độ Sáng / Tối">
+            <span id="themeBtnIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
+            <span id="themeBtnLabel">Tối</span>
+          </button>
+          <button type="button" class="btn" id="btnOpenPalette" title="Cài đặt giao diện &amp; màu sắc">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:1.8;"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.563-2.512 5.563-5.563C22 6.5 17.5 2 12 2z"/></svg>
+            <span>Giao diện</span>
+            <span id="headerThemeDot" style="width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;margin-left:2px;"></span>
+          </button>
+          <button type="button" class="btn" id="btnReload" title="Tải lại từ Google Sheet">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2;"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+            <span>Đồng bộ Sheet</span>
+          </button>
+          <button type="button" class="btn accent-outline" id="btnOpenSecurity" title="Bảo mật &amp; Link Web trực tiếp">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span>Web &amp; Bảo mật</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="sheet">
+        <!-- Title Row -->
+        <div class="title-row">
+          <div>
+            <h1>Quản lí đơn hàng &amp; nhắc hẹn</h1>
+            <p class="title-sub" id="findingLine">
+              Đang đồng bộ dữ liệu 2 chiều với Trang tính1...
+            </p>
+          </div>
+          <div class="title-actions">
+            <a class="btn" href="https://docs.google.com/spreadsheets/d/1t1WTrgrfVv_WbUG-Zl2ORwwjGWzgV0XodD9WnNvp8ZE/edit" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              <span>Mở Google Sheet</span>
+            </a>
+            <button type="button" class="btn" id="btnSyncUpcoming">Đồng bộ lịch 60 ngày</button>
+            <button type="button" class="btn primary" id="btnToggleComposer">+ Ghi đơn mới</button>
+          </div>
+        </div>
+
+        <div id="toast" role="status" aria-live="polite"></div>
+
+        <!-- Colorful Divided KPI Strip -->
+        <section class="kpi-strip" aria-label="Chỉ số tổng hợp từ Google Sheet">
+          <div class="kpi-cell lead">
+            <div class="kpi-label"><span class="kpi-dot"></span>Tổng doanh thu (D5)</div>
+            <div class="kpi-val mono" id="kpiRev">0<small>nghìn đ</small></div>
+            <div class="kpi-note">Tự cộng từ cột Giá bán (G8:G)</div>
+          </div>
+          <div class="kpi-cell k-profit">
+            <div class="kpi-label"><span class="kpi-dot"></span>Lợi nhuận ròng (J5)</div>
+            <div class="kpi-val mono" id="kpiProfit">0<small>nghìn đ</small></div>
+            <div class="kpi-note" id="kpiCostNote">Tổng chi phí nhập: 0 nghìn đ</div>
+          </div>
+          <div class="kpi-cell k-orders">
+            <div class="kpi-label"><span class="kpi-dot"></span>Tổng đơn hàng (F5)</div>
+            <div class="kpi-val mono" id="kpiOrders">0<small>đơn</small></div>
+            <div class="kpi-note" id="kpiRowNote">Dòng ghi kế tiếp: #142</div>
+          </div>
+          <div class="kpi-cell k-soon">
+            <div class="kpi-label"><span class="kpi-dot"></span>Đến hạn trong 30 ngày tới</div>
+            <div class="kpi-val mono" id="kpiSoon">0<small>đơn</small></div>
+            <div class="kpi-note" id="kpiCalNote">Đã đặt lịch nhắc ĐT: 0/0 đơn</div>
+          </div>
+        </section>
+
+        <!-- Paired Row: Urgent Queue (left 7 cols) + Product Breakdown (right 5 cols) -->
+        <section class="pair-grid">
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Hàng đợi sắp hết hạn (≤ 30 ngày)</h2>
+              <span class="panel-meta">Bấm vào tên khách để xem chi tiết &amp; sửa</span>
+            </div>
+            <div id="urgentList" class="urgent-rows"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Phân bổ theo mặt hàng</h2>
+              <span class="panel-meta">Bấm để lọc nhanh bảng bên dưới</span>
+            </div>
+            <div id="productBreakdown" class="bar-list"></div>
+          </div>
+        </section>
+
+        <!-- Section: Thống kê đơn hàng bán ra theo ngày & khoảng thời gian -->
+        <section class="panel" id="salesStatsSection">
+          <div class="panel-head">
+            <div>
+              <h2 style="display:flex;align-items:center;gap:8px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:18px;height:18px;color:var(--accent);stroke-width:2;"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                <span>Thống kê đơn bán theo ngày &amp; khoảng thời gian</span>
+              </h2>
+              <p class="panel-meta" id="statPeriodSummary">Chọn ngày hoặc khoảng thời gian để xem số đơn và doanh thu</p>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <button type="button" class="btn accent-outline" id="btnFilterTableByPeriod">Lọc bảng đơn theo kỳ này</button>
+              <button type="button" class="btn text-btn" id="btnClearDateFilter" style="display:none;">Bỏ lọc ngày</button>
+            </div>
+          </div>
+
+          <!-- Controls: Presets + Date Inputs -->
+          <div class="stat-controls-row">
+            <div class="chip-row" role="group" aria-label="Chọn kỳ thống kê nhanh">
+              <button type="button" class="mini-chip stat-preset-btn active" data-preset="today">Hôm nay</button>
+              <button type="button" class="mini-chip stat-preset-btn" data-preset="yesterday">Hôm qua</button>
+              <button type="button" class="mini-chip stat-preset-btn" data-preset="last7">7 ngày qua</button>
+              <button type="button" class="mini-chip stat-preset-btn" data-preset="last30">30 ngày qua</button>
+              <button type="button" class="mini-chip stat-preset-btn" data-preset="thisMonth">Tháng này</button>
+              <button type="button" class="mini-chip stat-preset-btn" data-preset="lastMonth">Tháng trước</button>
+              <button type="button" class="mini-chip stat-preset-btn" data-preset="singleDay">Chọn 1 ngày</button>
+              <button type="button" class="mini-chip stat-preset-btn" data-preset="customRange">Tùy chọn khoảng ngày</button>
+            </div>
+
+            <div class="stat-inputs-wrap">
+              <div id="statSingleWrap" style="display:flex;align-items:center;gap:6px;">
+                <label for="statSingleDate" style="font-size:12px;font-weight:500;color:var(--muted);white-space:nowrap;">Ngày bán:</label>
+                <input type="date" id="statSingleDate" class="mono select-control" style="width:145px;height:32px;" />
+              </div>
+              <div id="statRangeWrap" style="display:none;align-items:center;gap:6px;flex-wrap:wrap;">
+                <label for="statFromDate" style="font-size:12px;font-weight:500;color:var(--muted);white-space:nowrap;">Từ:</label>
+                <input type="date" id="statFromDate" class="mono select-control" style="width:140px;height:32px;" />
+                <label for="statToDate" style="font-size:12px;font-weight:500;color:var(--muted);white-space:nowrap;">Đến:</label>
+                <input type="date" id="statToDate" class="mono select-control" style="width:140px;height:32px;" />
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 Stat Summary Metric Cells -->
+          <div class="stat-metrics-strip">
+            <div class="stat-metric-cell">
+              <span class="stat-m-label">Đơn bán trong kỳ</span>
+              <div class="stat-m-val mono" id="statCountVal">0<small>đơn</small></div>
+              <span class="stat-m-sub" id="statCountSub">0% tổng số đơn</span>
+            </div>
+            <div class="stat-metric-cell s-rev">
+              <span class="stat-m-label">Doanh thu bán ra</span>
+              <div class="stat-m-val mono" id="statRevVal">0<small>nghìn đ</small></div>
+              <span class="stat-m-sub" id="statRevSub">Cột Giá bán (G)</span>
+            </div>
+            <div class="stat-metric-cell s-profit">
+              <span class="stat-m-label">Lợi nhuận ước tính</span>
+              <div class="stat-m-val mono" id="statProfitVal">0<small>nghìn đ</small></div>
+              <span class="stat-m-sub" id="statProfitSub">Sau khi trừ giá vốn</span>
+            </div>
+            <div class="stat-metric-cell s-avg">
+              <span class="stat-m-label">Giá trị trung bình / đơn</span>
+              <div class="stat-m-val mono" id="statAvgVal">0<small>nghìn đ</small></div>
+              <span class="stat-m-sub" id="statCostTotal">Chi phí nhập: 0 nghìn đ</span>
+            </div>
+          </div>
+
+          <!-- Product breakdown for this period + List of orders sold -->
+          <div class="stat-details-grid">
+            <div class="stat-subpanel">
+              <div style="font-size:13px;font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;">
+                <span>Mặt hàng bán chạy trong kỳ</span>
+                <span class="panel-meta" id="statProdCountMeta">0 mặt hàng</span>
+              </div>
+              <div id="statProductBreakdown" class="bar-list">
+                <div class="panel-meta">Chưa có đơn hàng nào trong khoảng thời gian này.</div>
+              </div>
+            </div>
+            <div class="stat-subpanel">
+              <div style="font-size:13px;font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;">
+                <span>Danh sách đơn hàng bán ra</span>
+                <span class="panel-meta" id="statOrderListMeta">0 đơn</span>
+              </div>
+              <div id="statOrderQuickList" class="stat-quick-rows">
+                <div class="panel-meta">Chưa có đơn hàng nào trong khoảng thời gian này.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Full Order Ledger with Sticky Header & Scrollable Body -->
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Sổ đơn hàng đồng bộ 2 chiều (Trang tính1)</h2>
+            <span class="panel-meta" id="tableSummaryMeta">Hiển thị 0 đơn hàng</span>
+          </div>
+
+          <div class="filter-cards" role="group" aria-label="Bộ lọc trạng thái đơn hàng">
+            <button type="button" class="f-card" data-fcard="all" aria-pressed="true">
+              <span class="f-card-label">Tất cả đơn hàng</span>
+              <span class="f-card-val mono" id="fcAll">0</span>
+            </button>
+            <button type="button" class="f-card" data-fcard="soon30" aria-pressed="false">
+              <span class="f-card-label">Sắp hết hạn ≤ 30 ngày</span>
+              <span class="f-card-val mono" id="fcSoon30">0</span>
+            </button>
+            <button type="button" class="f-card" data-fcard="soon7" aria-pressed="false">
+              <span class="f-card-label">Khẩn cấp ≤ 7 ngày</span>
+              <span class="f-card-val mono" id="fcSoon7">0</span>
+            </button>
+            <button type="button" class="f-card" data-fcard="unsynced" aria-pressed="false">
+              <span class="f-card-label">Chưa đặt lịch ĐT</span>
+              <span class="f-card-val mono" id="fcUnsynced">0</span>
+            </button>
+            <button type="button" class="f-card" data-fcard="expired" aria-pressed="false">
+              <span class="f-card-label">Quá hạn chưa nối gói</span>
+              <span class="f-card-val mono" id="fcExpired">0</span>
+            </button>
+          </div>
+
+          <div class="table-toolbar">
+            <div class="toolbar-left">
+              <select id="productSelect" class="select-control" aria-label="Lọc mặt hàng">
+                <option value="all">Tất cả mặt hàng</option>
+              </select>
+              <select id="channelSelect" class="select-control" aria-label="Lọc kênh mua">
+                <option value="all">Tất cả kênh mua</option>
+                <option value="Zalo">Kênh Zalo</option>
+                <option value="Facebook">Kênh Facebook</option>
+              </select>
+            </div>
+            <span class="panel-meta">Tiêu đề cột được ghim cố định khi cuộn · Bấm vào dòng bất kỳ để xem &amp; sửa</span>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <colgroup>
+                <col class="c-stt" />
+                <col class="c-cust" />
+                <col class="c-prod" />
+                <col class="c-price hide-sm" />
+                <col class="c-end" />
+                <col class="c-status hide-sm" />
+                <col class="c-act hide-sm" />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th class="num">STT</th>
+                  <th>Khách hàng</th>
+                  <th>Mặt hàng</th>
+                  <th class="num hide-sm">Giá bán (k)</th>
+                  <th class="num">Ngày kết thúc</th>
+                  <th class="hide-sm">Trạng thái hạn</th>
+                  <th class="num hide-sm">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="ordersBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- FLOATING COMPACT COMPOSER WINDOW (Ghi đơn mới — Thu gọn / Bật tắt như cửa sổ nhỏ) -->
+  <section class="composer-win" id="composerWin" hidden aria-label="Cửa sổ ghi đơn mới">
+    <header class="composer-head" id="composerHeaderBar">
+      <span class="composer-title" id="composerTitleText">+ Ghi đơn mới (Dòng #142)</span>
+      <div class="win-controls">
+        <button type="button" class="win-btn" id="btnMinComposer" title="Thu gọn / Mở rộng cửa sổ">—</button>
+        <button type="button" class="win-btn" id="btnCloseComposer" title="Đóng cửa sổ">×</button>
+      </div>
+    </header>
+    <div class="composer-body">
+      <form id="createForm" class="f-grid">
+        <div class="field f-full">
+          <label for="cCustomerName">Tên khách hàng *</label>
+          <input id="cCustomerName" required placeholder="Nhập tên khách hàng" />
+        </div>
+
+        <div class="field">
+          <label for="cProduct">Mặt hàng *</label>
+          <input id="cProduct" list="productDatalist" required placeholder="gemini, netflix..." />
+          <datalist id="productDatalist"></datalist>
+          <div class="chip-row">
+            <button type="button" class="mini-chip" data-cprod="gemini">gemini</button>
+            <button type="button" class="mini-chip" data-cprod="chat gpt">chat gpt</button>
+            <button type="button" class="mini-chip" data-cprod="netflix">netflix</button>
+            <button type="button" class="mini-chip" data-cprod="office">office</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="cChannel">Kênh mua</label>
+          <select id="cChannel">
+            <option value="Zalo">Zalo</option>
+            <option value="Facebook">Facebook</option>
+            <option value="">(Trống)</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="cSalePrice">Giá bán (nghìn đ)</label>
+          <input id="cSalePrice" class="mono" inputmode="numeric" placeholder="700" />
+        </div>
+
+        <div class="field">
+          <label for="cCostPrice">Giá nhập (nghìn đ)</label>
+          <input id="cCostPrice" class="mono" inputmode="numeric" placeholder="150" />
+        </div>
+
+        <div class="field">
+          <label for="cBuyDate">Ngày mua *</label>
+          <input id="cBuyDate" type="date" class="mono" required />
+        </div>
+
+        <div class="field">
+          <label for="cMonths">Thời hạn (tháng)</label>
+          <input id="cMonths" type="number" class="mono" min="1" max="240" value="12" />
+          <div class="chip-row">
+            <button type="button" class="mini-chip" data-cm="1">1T</button>
+            <button type="button" class="mini-chip" data-cm="3">3T</button>
+            <button type="button" class="mini-chip" data-cm="6">6T</button>
+            <button type="button" class="mini-chip" data-cm="12">12T</button>
+            <button type="button" class="mini-chip" data-cm="18">18T</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="cPhone">Số điện thoại</label>
+          <input id="cPhone" class="mono" placeholder="090..." />
+        </div>
+
+        <div class="field">
+          <label for="cSource">Nguồn gốc</label>
+          <input id="cSource" placeholder="mua trường..." />
+        </div>
+
+        <div class="field">
+          <label for="cCustomerEmail">Mail khách</label>
+          <input id="cCustomerEmail" type="email" placeholder="khach@gmail.com" />
+        </div>
+
+        <div class="field">
+          <label for="cFamEmail">Mail Fam</label>
+          <input id="cFamEmail" type="email" placeholder="badaoqn...@gmail.com" />
+        </div>
+
+        <div class="field f-full">
+          <label for="cCustomEnd">Hoặc ngày kết thúc riêng (khi để trống số tháng)</label>
+          <input id="cCustomEnd" type="date" class="mono" />
+        </div>
+
+        <div class="field f-full">
+          <label for="cNote">Lưu ý</label>
+          <textarea id="cNote" rows="2" placeholder="Ghi chú đơn hàng..."></textarea>
+        </div>
+
+        <div class="kv-well f-full">
+          <div class="kv-line">
+            <span>Ngày kết thúc dự kiến (Cột K):</span>
+            <strong class="mono" id="cPreviewEnd">-</strong>
+          </div>
+          <label style="display:flex;align-items:center;gap:6px;margin:0;color:var(--text);">
+            <input type="checkbox" id="cSyncCal" checked style="width:auto;height:auto;" />
+            <span>Tự đặt 2 lịch nhắc ĐT (trước 3 ngày &amp; đúng hạn lúc 07:30)</span>
+          </label>
+        </div>
+
+        <div class="f-full" style="display:flex;gap:8px;">
+          <button type="submit" class="btn primary" id="btnCreateSubmit" style="flex:1;">Lưu vào Sheet</button>
+          <button type="button" class="btn" id="btnCreateClear">Xóa trắng</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- CUSTOMER DETAIL & EDIT DRAWER (Xem đầy đủ thông tin & chỉnh sửa 2 chiều) -->
+  <div class="drawer-backdrop" id="detailBackdrop" hidden>
+    <aside class="detail-drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+      <header class="drawer-head">
+        <div>
+          <h2 id="drawerTitle" style="font-size:18px;font-weight:600;">Chi tiết đơn hàng</h2>
+          <p class="panel-meta mono" id="drawerMeta">STT #- · Dòng Sheet #-</p>
+        </div>
+        <button type="button" class="win-btn" id="btnCloseDrawer" aria-label="Đóng chi tiết">×</button>
+      </header>
+
+      <form id="editForm" class="drawer-body">
+        <input type="hidden" id="eRowNumber" />
+
+        <div class="kv-well">
+          <div class="kv-line">
+            <span>Trạng thái thời hạn:</span>
+            <span id="drawerStatusPill"></span>
+          </div>
+          <div class="kv-line">
+            <span>Lịch nhắc Google Calendar (07:30 sáng):</span>
+            <span id="drawerCalLinks" class="mono">-</span>
+          </div>
+        </div>
+
+        <div class="f-grid">
+          <div class="field f-full">
+            <label for="eCustomerName">Tên khách hàng *</label>
+            <input id="eCustomerName" required />
+          </div>
+
+          <div class="field">
+            <label for="eProduct">Mặt hàng *</label>
+            <input id="eProduct" list="productDatalist" required />
+          </div>
+
+          <div class="field">
+            <label for="eChannel">Kênh mua</label>
+            <select id="eChannel">
+              <option value="Zalo">Zalo</option>
+              <option value="Facebook">Facebook</option>
+              <option value="">(Trống)</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="ePhone">Số điện thoại</label>
+            <input id="ePhone" class="mono" placeholder="Chưa có SĐT" />
+          </div>
+
+          <div class="field">
+            <label for="eSource">Nguồn gốc</label>
+            <input id="eSource" placeholder="-" />
+          </div>
+
+          <div class="field">
+            <label for="eSalePrice">Giá bán (nghìn đ)</label>
+            <input id="eSalePrice" class="mono" inputmode="numeric" />
+          </div>
+
+          <div class="field">
+            <label for="eCostPrice">Giá nhập (nghìn đ)</label>
+            <input id="eCostPrice" class="mono" inputmode="numeric" />
+          </div>
+
+          <div class="field">
+            <label for="eBuyDate">Ngày mua *</label>
+            <input id="eBuyDate" type="date" class="mono" required />
+          </div>
+
+          <div class="field">
+            <label for="eMonths">Thời hạn (tháng)</label>
+            <input id="eMonths" type="number" class="mono" min="1" max="240" />
+          </div>
+
+          <div class="field f-full">
+            <label for="eCustomEnd">Ngày kết thúc (tự tính bằng EDATE nếu có số tháng)</label>
+            <input id="eCustomEnd" type="date" class="mono" />
+          </div>
+
+          <div class="field f-full">
+            <label for="eCustomerEmail">Mail khách hàng</label>
+            <input id="eCustomerEmail" type="email" placeholder="Chưa có email khách" />
+          </div>
+
+          <div class="field f-full">
+            <label for="eFamEmail">Mail Fam / Tài khoản cấp</label>
+            <input id="eFamEmail" type="email" placeholder="Chưa có mail fam" />
+          </div>
+
+          <div class="field f-full">
+            <label for="eNote">Lưu ý / Ghi chú nhắc hẹn</label>
+            <textarea id="eNote" rows="3" placeholder="Ghi chú..."></textarea>
+          </div>
+        </div>
+      </form>
+
+      <footer class="drawer-foot">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button type="button" class="btn" id="btnDrawerRenew">Gia hạn đơn mới</button>
+          <button type="button" class="btn" id="btnDrawerCopy">Copy tin nhắc</button>
+          <button type="button" class="btn" id="btnDrawerSyncCal">Đặt lịch ĐT</button>
+        </div>
+        <button type="submit" form="editForm" class="btn primary" id="btnEditSubmit">
+          Lưu thay đổi lên Sheet
+        </button>
+      </footer>
+    </aside>
+  </div>
+
+  <!-- SECURITY & PUBLIC WEB URL DRAWER (Link Web trực tiếp + Đổi mật khẩu + Đăng xuất) -->
+  <div class="drawer-backdrop" id="securityBackdrop" hidden>
+    <aside class="detail-drawer" role="dialog" aria-modal="true" aria-labelledby="securityTitle">
+      <header class="drawer-head">
+        <div>
+          <h2 id="securityTitle" style="font-size:18px;font-weight:600;">Link Web Trực Tiếp &amp; Bảo mật</h2>
+          <p class="panel-meta">Chỉ mình tài khoản badaoqn132@gmail.com được quyền truy cập</p>
+        </div>
+        <button type="button" class="win-btn" id="btnCloseSecurity" aria-label="Đóng">×</button>
+      </header>
+
+      <div class="drawer-body">
+        <div class="kv-well">
+          <div style="font-weight:600;color:var(--text);">1. Địa chỉ Web Trực Tiếp (Truy cập từ Điện thoại / 4G / Mọi nơi)</div>
+          <p class="panel-meta">
+            Mở link HTTPS dưới đây trên điện thoại hoặc máy tính bất kỳ. Hệ thống luôn yêu cầu mật khẩu của bạn trước khi hiển thị dữ liệu.
+          </p>
+          <div style="display:flex;gap:8px;align-items:center;margin-top:4px;">
+            <input id="publicUrlInput" class="mono" readonly value="Đang khởi tạo link..." style="flex:1;height:34px;padding:0 10px;border:1px solid var(--control);border-radius:6px;background:var(--surface);font-size:12px;" />
+            <button type="button" class="btn primary" id="btnCopyPublicUrl">Sao chép</button>
+          </div>
+        </div>
+
+        <form id="changePwdForm" class="f-grid" style="border:1px solid var(--border);border-radius:10px;padding:16px;">
+          <div class="f-full" style="font-weight:600;">2. Đổi mật khẩu đăng nhập Web</div>
+          <div class="field f-full">
+            <label for="cpCurrent">Mật khẩu hiện tại *</label>
+            <input id="cpCurrent" type="password" required placeholder="Mặc định ban đầu: badao132" />
+          </div>
+          <div class="field f-full">
+            <label for="cpNew">Mật khẩu mới (ít nhất 6 ký tự) *</label>
+            <input id="cpNew" type="password" required placeholder="Nhập mật khẩu mới..." />
+          </div>
+          <div class="field f-full">
+            <label for="cpGmailAppPass">Mật khẩu ứng dụng Gmail (Tùy chọn - để gửi thêm thư SMTP ngoài báo Lịch Google)</label>
+            <input id="cpGmailAppPass" type="password" placeholder="Để trống nếu dùng thông báo Google Calendar / Gmail mặc định" />
+          </div>
+          <div class="f-full" style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:4px;">
+            <button type="submit" class="btn primary" id="btnSavePwd">Cập nhật mật khẩu</button>
+            <button type="button" class="btn" id="btnTriggerOtpTest">Gửi thử OTP về badaoqn132@gmail.com</button>
+          </div>
+        </form>
+      </div>
+
+      <footer class="drawer-foot">
+        <span class="panel-meta">Phiên đăng nhập: badaoqn132@gmail.com</span>
+        <button type="button" class="btn" id="btnLogout" style="color:var(--negative);border-color:var(--negative);">
+          Đăng xuất khỏi thiết bị này
+        </button>
+      </footer>
+    </aside>
+  </div>
+
+  <!-- THEME & COLOR CUSTOMIZER MODAL (Cài Đặt Giao Diện & Màu Sắc Web — Theo phong cách Thanh Chí Edu) -->
+  <div class="theme-modal-backdrop" id="paletteBackdrop" hidden>
+    <div class="theme-modal" role="dialog" aria-modal="true" aria-labelledby="paletteModalTitle">
+      <header class="theme-modal-head">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.25);display:grid;place-items:center;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:18px;height:18px;color:#facc15;stroke-width:2;"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.563-2.512 5.563-5.563C22 6.5 17.5 2 12 2z"/></svg>
+          </div>
+          <div>
+            <h2 id="paletteModalTitle" style="font-size:16px;font-weight:700;color:#ffffff;">Cài Đặt Giao Diện &amp; Màu Sắc Web</h2>
+            <p style="font-size:12px;color:#94a3b8;">Tùy chỉnh tông màu chủ đạo và chế độ Sáng / Tối theo sở thích</p>
+          </div>
+        </div>
+        <button type="button" class="win-btn" id="btnClosePalette" aria-label="Đóng bảng màu" style="color:#ffffff;">×</button>
+      </header>
+
+      <div class="theme-modal-body">
+        <!-- 1. Chế độ hiển thị (Sáng / Tối - Tương phản cao) -->
+        <div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">
+            1. Chế độ hiển thị (Sáng / Tối - Tương phản cao)
+          </div>
+          <div class="theme-mode-grid">
+            <button type="button" class="theme-mode-card" id="themeModeLightBtn">
+              <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+                <div class="theme-mode-icon light">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:18px;height:18px;stroke-width:2;"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                </div>
+                <div style="min-width:0;">
+                  <div style="font-size:14px;font-weight:700;color:var(--text);">Chế độ Sáng</div>
+                  <div style="font-size:11px;color:var(--faint);">Nền sáng rõ nét, chữ đậm</div>
+                </div>
+              </div>
+              <span id="themeLightActiveBadge" class="theme-mode-badge on">Đang bật</span>
+            </button>
+
+            <button type="button" class="theme-mode-card" id="themeModeDarkBtn">
+              <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+                <div class="theme-mode-icon dark">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:18px;height:18px;stroke-width:2;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                </div>
+                <div style="min-width:0;">
+                  <div style="font-size:14px;font-weight:700;color:var(--text);">Chế độ Tối</div>
+                  <div style="font-size:11px;color:var(--faint);">Nền đêm dịu mắt, tương phản cao</div>
+                </div>
+              </div>
+              <span id="themeDarkActiveBadge" class="theme-mode-badge off">Tắt</span>
+            </button>
+          </div>
+
+          <div class="kv-well" style="margin-top:10px;display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text);">Chế độ tương phản cao (High Contrast)</div>
+              <div style="font-size:11px;color:var(--faint);">Nét viền sắc nét, chữ đen/trắng tối đa, hỗ trợ đọc dễ dàng dưới nắng chói.</div>
+            </div>
+            <label style="display:flex;align-items:center;cursor:pointer;margin:0;">
+              <input type="checkbox" id="toggleHighContrast" style="width:18px;height:18px;cursor:pointer;" />
+            </label>
+          </div>
+        </div>
+
+        <!-- 2. Bảng màu chủ đạo chuẩn -->
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);">
+              2. Bảng màu chủ đạo chuẩn (Tương thích Sáng &amp; Tối)
+            </div>
+            <span id="themeCurrentLabel" class="preset-badge" style="font-size:11px;">Thanh Chí Edu (Achromatic &amp; Navy)</span>
+          </div>
+          <div class="tc-preset-grid" id="themePresetGrid"></div>
+        </div>
+
+        <!-- 3. Tự chọn màu riêng & Lưu bộ màu cá nhân -->
+        <div class="kv-well">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2;"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.563-2.512 5.563-5.563C22 6.5 17.5 2 12 2z"/></svg>
+              <span>3. Tự chọn màu riêng &amp; Lưu bộ màu cá nhân</span>
+            </div>
+            <div style="font-size:11px;color:var(--faint);margin-top:2px;">
+              Chọn màu trên bảng màu hoặc nhập mã HEX (VD: #2563EB), đặt tên và bấm <strong>Lưu màu</strong> để dùng lâu dài.
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;margin-top:10px;">
+            <div>
+              <label for="themeCustomHexInput" style="display:block;font-size:11px;font-weight:600;margin-bottom:4px;">Chọn màu &amp; Mã HEX</label>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <input type="color" id="themeCustomColorPicker" class="custom-color-picker" value="#141414" aria-label="Bảng chọn màu" />
+                <input type="text" id="themeCustomHexInput" class="mono" value="#141414" maxlength="7" style="flex:1;height:36px;padding:0 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);font-size:13px;font-weight:600;" />
+              </div>
+            </div>
+            <div>
+              <label for="themeCustomNameInput" style="display:block;font-size:11px;font-weight:600;margin-bottom:4px;">Tên màu muốn lưu</label>
+              <input type="text" id="themeCustomNameInput" placeholder="VD: Xanh Thương Hiệu..." style="width:100%;height:36px;padding:0 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);font-size:13px;" />
+            </div>
+            <button type="button" class="btn primary" id="btnSaveCustomTheme" style="height:36px;background:#059669;border-color:#059669;color:#ffffff;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              <span>Lưu màu</span>
+            </button>
+          </div>
+
+          <div class="tc-divider">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--faint);">
+              Danh sách màu tự chọn đã lưu (<span id="themeSavedCustomCount">0</span>)
+            </div>
+            <div class="tc-saved-custom-grid" id="themeSavedCustomList"></div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="theme-modal-foot">
+        <button type="button" class="btn" id="btnResetPalette">Khôi phục mặc định</button>
+        <button type="button" class="btn primary" id="btnSavePaletteClose">Hoàn tất</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- FLOATING BACK TO TOP BUTTON (Nút bật lên trang đầu) -->
+  <button type="button" class="btn-back-to-top" id="btnBackToTop" title="Bật lên trang đầu" aria-label="Bật lên trang đầu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
+
+  <script>
+    let appState = { orders: [], today: '', dataHash: '', nextEmptyRow: 142, publicUrl: '' };
+    let activeFilter = 'all';
+    let selectedRowNumber = null;
+    let statDateFilter = null;
+    let currentPreset = 'today';
+
+    const AVATAR_PALETTE = [
+      ['#e0f2fe', '#0369a1'],
+      ['#dcfce7', '#15803d'],
+      ['#fef3c7', '#b45309'],
+      ['#ffedd5', '#9a3412'],
+      ['#ffe4e6', '#be123c'],
+      ['#dbeafe', '#1d4ed8'],
+    ];
+
+    function esc(s) {
+      return String(s ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function initials(name) {
+      const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+      if (!parts.length) return 'KH';
+      if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+
+    function avatarStyle(name) {
+      let h = 0;
+      const s = String(name || '');
+      for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+      const [bg, ink] = AVATAR_PALETTE[h % AVATAR_PALETTE.length];
+      return `background:${bg};color:${ink};`;
+    }
+
+    function productTagHtml(product, months) {
+      const p = String(product || '').trim();
+      const low = p.toLowerCase();
+      let cls = '';
+      if (low.includes('gemini')) cls = 'pt-gemini';
+      else if (low.includes('office')) cls = 'pt-office';
+      else if (low.includes('mathpix')) cls = 'pt-mathpix';
+      else if (low.includes('chat')) cls = 'pt-chatgpt';
+      else if (low.includes('netflix')) cls = 'pt-netflix';
+      else if (low.includes('capcut')) cls = 'pt-capcut';
+      const mText = months ? ` · ${esc(months)}T` : '';
+      return `<span class="prod-tag ${cls}">${esc(p || '-')}${mText}</span>`;
+    }
+
+    function channelBadgeHtml(channel) {
+      const c = String(channel || '').trim();
+      if (!c) return '';
+      const cls = c.toLowerCase() === 'facebook' ? 'chan-fb' : 'chan-zalo';
+      return `<span class="chan-badge ${cls}">${esc(c)}</span>`;
+    }
+
+    function showToast(msg, isError = false, linkUrl = '') {
+      const el = document.getElementById('toast');
+      el.style.display = 'block';
+      el.style.borderColor = isError ? 'var(--negative)' : 'var(--accent)';
+      el.innerHTML =
+        esc(msg) +
+        (linkUrl
+          ? ` — <a href="${esc(linkUrl)}" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;text-decoration:underline;">Mở sự kiện trên Google Calendar</a>`
+          : '');
+    }
+
+    function showAuthNotice(msg, isError = false) {
+      const el = document.getElementById('authNotice');
+      el.style.display = 'block';
+      el.style.borderColor = isError ? 'var(--negative)' : 'var(--accent)';
+      el.style.color = isError ? 'var(--negative)' : 'var(--text)';
+      el.textContent = msg;
+    }
+
+    function statusPillForOrder(o) {
+      if (o.renewedByRow) return `<span class="pill">Đã nối gói (#${o.renewedByRow})</span>`;
+      if (o.daysLeft === null) return `<span class="pill">-</span>`;
+      if (o.daysLeft < 0) return `<span class="pill neg">Quá hạn ${Math.abs(o.daysLeft)} ngày</span>`;
+      if (o.daysLeft === 0) return `<span class="pill neg">Hết hạn hôm nay</span>`;
+      if (o.daysLeft <= 7) return `<span class="pill neg">Còn ${o.daysLeft} ngày</span>`;
+      if (o.daysLeft <= 30) return `<span class="pill warn">Còn ${o.daysLeft} ngày</span>`;
+      return `<span class="pill pos">Còn ${o.daysLeft} ngày</span>`;
+    }
+
+    function computeEndPreview(buyISO, monthsStr, customISO) {
+      if (monthsStr && buyISO) {
+        const [y, m, d] = buyISO.split('-').map(Number);
+        const total = y * 12 + (m - 1) + Number(monthsStr);
+        const ny = Math.floor(total / 12);
+        const nm = (total % 12) + 1;
+        const maxD = new Date(Date.UTC(ny, nm, 0)).getUTCDate();
+        const nd = Math.min(d, maxD);
+        return `${ny}-${String(nm).padStart(2, '0')}-${String(nd).padStart(2, '0')}`; // taste-skill-ignore
+      }
+      return customISO || '-';
+    }
+
+    function updateCreatePreview() {
+      const iso = computeEndPreview(
+        document.getElementById('cBuyDate').value,
+        document.getElementById('cMonths').value.trim(),
+        document.getElementById('cCustomEnd').value
+      );
+      document.getElementById('cPreviewEnd').textContent = iso;
+    }
+
+    function shiftDaysISO(iso, days) {
+      if (!iso) return '';
+      const [y, m, d] = iso.split('-').map(Number);
+      const dt = new Date(Date.UTC(y, m - 1, d + days));
+      return dt.toISOString().slice(0, 10);
+    }
+
+    function getPresetRange(preset, todayISO) {
+      if (!todayISO) return { from: '', to: '' };
+      const [y, m, d] = todayISO.split('-').map(Number);
+      if (preset === 'today') {
+        return { from: todayISO, to: todayISO };
+      }
+      if (preset === 'yesterday') {
+        const yest = shiftDaysISO(todayISO, -1);
+        return { from: yest, to: yest };
+      }
+      if (preset === 'last7') {
+        return { from: shiftDaysISO(todayISO, -6), to: todayISO };
+      }
+      if (preset === 'last30') {
+        return { from: shiftDaysISO(todayISO, -29), to: todayISO };
+      }
+      if (preset === 'thisMonth') {
+        const from = `${y}-${String(m).padStart(2, '0')}-01`;
+        return { from, to: todayISO };
+      }
+      if (preset === 'lastMonth') {
+        const prevM = m === 1 ? 12 : m - 1;
+        const prevY = m === 1 ? y - 1 : y;
+        const lastDay = new Date(Date.UTC(prevY, prevM, 0)).getUTCDate();
+        return {
+          from: `${prevY}-${String(prevM).padStart(2, '0')}-01`,
+          to: `${prevY}-${String(prevM).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`,
+        };
+      }
+      return { from: todayISO, to: todayISO };
+    }
+
+    function updateSalesStats() {
+      let fromISO = '';
+      let toISO = '';
+
+      if (currentPreset === 'singleDay') {
+        fromISO = document.getElementById('statSingleDate').value;
+        toISO = fromISO;
+      } else if (currentPreset === 'customRange') {
+        fromISO = document.getElementById('statFromDate').value;
+        toISO = document.getElementById('statToDate').value;
+      } else {
+        const rng = getPresetRange(currentPreset, appState.today);
+        fromISO = rng.from;
+        toISO = rng.to;
+      }
+
+      if (!fromISO || !toISO) return;
+      if (fromISO > toISO) {
+        const tmp = fromISO; fromISO = toISO; toISO = tmp;
+      }
+
+      const matched = appState.orders.filter(
+        (o) => o.buyDateISO && o.buyDateISO >= fromISO && o.buyDateISO <= toISO
+      );
+
+      let totalRev = 0;
+      let totalCost = 0;
+      const countsByProd = new Map();
+
+      for (const o of matched) {
+        const s = Number(String(o.salePrice || '').replace(/[.\s,]/g, '')) || 0;
+        const c = Number(String(o.costPrice || '').replace(/[.\s,]/g, '')) || 0;
+        totalRev += s;
+        totalCost += c;
+        const p = (o.product || 'Khác').trim().toLowerCase();
+        countsByProd.set(p, (countsByProd.get(p) || 0) + 1);
+      }
+
+      const profit = totalRev - totalCost;
+      const avg = matched.length ? Math.round(totalRev / matched.length) : 0;
+      const pct = appState.orders.length ? Math.round((matched.length / appState.orders.length) * 100) : 0;
+
+      const summaryText = fromISO === toISO
+        ? `Ngày ${fromISO}: có ${matched.length} đơn bán ra (${totalRev.toLocaleString('vi-VN')} nghìn đ)`
+        : `Từ ${fromISO} đến ${toISO}: có ${matched.length} đơn bán ra (${totalRev.toLocaleString('vi-VN')} nghìn đ)`;
+      document.getElementById('statPeriodSummary').textContent = summaryText;
+
+      document.getElementById('statCountVal').innerHTML = `${matched.length}<small>đơn</small>`;
+      document.getElementById('statCountSub').textContent = `${pct}% tổng số đơn (${appState.orders.length} đơn)`;
+
+      document.getElementById('statRevVal').innerHTML = `${totalRev.toLocaleString('vi-VN')}<small>nghìn đ</small>`;
+      document.getElementById('statRevSub').textContent = `Tổng giá bán từ ${matched.length} đơn`;
+
+      document.getElementById('statProfitVal').innerHTML = `${profit.toLocaleString('vi-VN')}<small>nghìn đ</small>`;
+      document.getElementById('statProfitSub').textContent = `Tỷ suất: ${totalRev ? Math.round((profit / totalRev) * 100) : 0}% doanh thu`;
+
+      document.getElementById('statAvgVal').innerHTML = `${avg.toLocaleString('vi-VN')}<small>k / đơn</small>`;
+      document.getElementById('statCostTotal').textContent = `Tổng giá vốn nhập: ${totalCost.toLocaleString('vi-VN')} nghìn đ`;
+
+      const ranked = [...countsByProd.entries()].sort((a, b) => b[1] - a[1]);
+      document.getElementById('statProdCountMeta').textContent = `${ranked.length} mặt hàng`;
+      const prodBox = document.getElementById('statProductBreakdown');
+      if (!ranked.length) {
+        prodBox.innerHTML = `<div class="panel-meta" style="padding:10px 0;">Không có đơn hàng nào bán ra trong kỳ này.</div>`;
+      } else {
+        const maxC = ranked[0][1] || 1;
+        prodBox.innerHTML = ranked
+          .map(
+            ([p, cnt], idx) => `
+          <div class="bar-item" onclick="filterByProduct('${esc(p)}')">
+            <div class="bar-top">
+              <span>${productTagHtml(p, '')}</span>
+              <span class="mono" style="font-weight:600;">${cnt} đơn</span>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill bf-${idx % 5}" style="width:${Math.max(8, Math.round((cnt / maxC) * 100))}%;"></div>
+            </div>
+          </div>`
+          )
+          .join('');
+      }
+
+      document.getElementById('statOrderListMeta').textContent = `${matched.length} đơn`;
+      const listBox = document.getElementById('statOrderQuickList');
+      if (!matched.length) {
+        listBox.innerHTML = `<div class="panel-meta" style="padding:10px 0;">Không có đơn hàng nào bán ra trong kỳ này.</div>`;
+      } else {
+        listBox.innerHTML = matched
+          .slice()
+          .reverse()
+          .map(
+            (o) => `
+          <div class="stat-q-row" onclick="openDetailDrawer(${o.rowNumber})">
+            <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+              <span class="avatar" style="${avatarStyle(o.customerName)};width:22px;height:22px;font-size:11px;">${esc(initials(o.customerName))}</span>
+              <span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">#${esc(o.stt)} · ${esc(o.customerName)}</span>
+              ${channelBadgeHtml(o.channel)}
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;flex:none;">
+              ${productTagHtml(o.product, '')}
+              <span class="mono" style="font-weight:600;color:var(--text);">${o.salePrice ? `${esc(o.salePrice)}k` : '—'}</span>
+            </div>
+          </div>`
+          )
+          .join('');
+      }
+
+      if (statDateFilter) {
+        statDateFilter = { from: fromISO, to: toISO };
+        renderTable();
+      }
+    }
+
+    function renderAll() {
+      const orders = appState.orders;
+      const soon30 = orders.filter((o) => !o.renewedByRow && o.daysLeft !== null && o.daysLeft >= 0 && o.daysLeft <= 30);
+      const soon60 = orders.filter((o) => !o.renewedByRow && o.daysLeft !== null && o.daysLeft >= 0 && o.daysLeft <= 60);
+      const soon7 = orders.filter((o) => !o.renewedByRow && o.daysLeft !== null && o.daysLeft >= 0 && o.daysLeft <= 7);
+      const unsynced = orders.filter((o) => !o.renewedByRow && o.daysLeft !== null && o.daysLeft >= 0 && !o.syncedOnDay);
+      const expired = orders.filter((o) => !o.renewedByRow && o.daysLeft !== null && o.daysLeft < 0);
+      const syncedSoon30 = soon30.filter((o) => o.syncedOnDay).length;
+
+      document.getElementById('fcAll').textContent = String(orders.length);
+      document.getElementById('fcSoon30').textContent = String(soon30.length);
+      document.getElementById('fcSoon7').textContent = String(soon7.length);
+      document.getElementById('fcUnsynced').textContent = String(unsynced.length);
+      document.getElementById('fcExpired').textContent = String(expired.length);
+      document.getElementById('navSoonBadge').textContent = String(soon30.length);
+
+      document.getElementById('kpiRev').innerHTML = `${esc(appState.kpis.revenue)}<small>nghìn đ</small>`;
+      document.getElementById('kpiProfit').innerHTML = `${esc(appState.kpis.profit)}<small>nghìn đ</small>`;
+      document.getElementById('kpiCostNote').textContent = `Tổng chi phí nhập: ${appState.kpis.totalCost} nghìn đ`;
+      document.getElementById('kpiOrders').innerHTML = `${esc(appState.kpis.totalOrders)}<small>đơn</small>`;
+      document.getElementById('kpiRowNote').textContent = `Dòng ghi kế tiếp: #${appState.nextEmptyRow}`;
+      document.getElementById('kpiSoon').innerHTML = `${soon30.length}<small>đơn</small>`;
+      document.getElementById('kpiCalNote').textContent = `Đã đặt lịch nhắc ĐT: ${syncedSoon30}/${soon30.length} đơn`;
+
+      if (appState.publicUrl) {
+        document.getElementById('publicUrlInput').value = appState.publicUrl;
+      }
+
+      const nearest = [...soon60].sort((a, b) => a.daysLeft - b.daysLeft)[0];
+      document.getElementById('findingLine').textContent = nearest
+        ? `Gần nhất: đơn ${nearest.product} của ${nearest.customerName} hết hạn sau ${nearest.daysLeft} ngày (${nearest.endDateISO || nearest.endDate}) · ${soon60.length} đơn trong 60 ngày tới.`
+        : `Tất cả ${orders.length} đơn hàng đang hoạt động ổn định.`;
+
+      const urgentBox = document.getElementById('urgentList');
+      const urgentItems = [...soon30].sort((a, b) => a.daysLeft - b.daysLeft).slice(0, 5);
+      if (!urgentItems.length) {
+        urgentBox.innerHTML = `<div class="panel-meta">Không có đơn hàng nào hết hạn trong 30 ngày tới.</div>`;
+      } else {
+        urgentBox.innerHTML = urgentItems
+          .map(
+            (o) => `
+          <div class="u-row" onclick="openDetailDrawer(${o.rowNumber})" style="cursor:pointer;">
+            <div class="u-name">
+              #${esc(o.stt)} · ${esc(o.customerName)}
+            </div>
+            <div class="panel-meta u-meta-col">${productTagHtml(o.product, '')} <span class="mono">${esc(o.endDateISO || o.endDate)}</span></div>
+            <div>${statusPillForOrder(o)}</div>
+            <div class="u-act-col" style="text-align:right;">
+              <button type="button" class="btn text-btn" onclick="event.stopPropagation(); openDetailDrawer(${o.rowNumber})">Chi tiết &amp; Sửa</button>
+            </div>
+          </div>`
+          )
+          .join('');
+      }
+
+      const countsByProd = new Map();
+      for (const o of orders) {
+        const k = (o.product || 'khác').trim().toLowerCase();
+        countsByProd.set(k, (countsByProd.get(k) || 0) + 1);
+      }
+      const rankedProds = [...countsByProd.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
+      const maxCount = rankedProds[0]?.[1] || 1;
+      document.getElementById('productBreakdown').innerHTML = rankedProds
+        .map(
+          ([prod, cnt], idx) => `
+        <div class="bar-item" onclick="filterByProduct('${esc(prod)}')">
+          <div class="bar-top">
+            <span>${productTagHtml(prod, '')}</span>
+            <span class="mono" style="font-weight:600;">${cnt} đơn</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill bf-${idx % 5}" style="width:${Math.max(8, Math.round((cnt / maxCount) * 100))}%;"></div>
+          </div>
+        </div>`
+        )
+        .join('');
+
+      updateSalesStats();
+      renderTable();
+    }
+
+    function renderTable() {
+      const q = document.getElementById('searchInput').value.trim().toLowerCase();
+      const prodFilter = document.getElementById('productSelect').value;
+      const chanFilter = document.getElementById('channelSelect').value;
+      const tbody = document.getElementById('ordersBody');
+
+      const filtered = [...appState.orders].reverse().filter((o) => {
+        if (activeFilter === 'soon30' && !(o.daysLeft !== null && o.daysLeft >= 0 && o.daysLeft <= 30 && !o.renewedByRow)) return false;
+        if (activeFilter === 'soon7' && !(o.daysLeft !== null && o.daysLeft >= 0 && o.daysLeft <= 7 && !o.renewedByRow)) return false;
+        if (activeFilter === 'unsynced' && !(o.daysLeft !== null && o.daysLeft >= 0 && !o.renewedByRow && !o.syncedOnDay)) return false;
+        if (activeFilter === 'expired' && !(o.daysLeft !== null && o.daysLeft < 0 && !o.renewedByRow)) return false;
+        if (prodFilter !== 'all' && o.product.trim().toLowerCase() !== prodFilter) return false;
+        if (chanFilter !== 'all' && o.channel.trim() !== chanFilter) return false;
+        if (statDateFilter && (!o.buyDateISO || o.buyDateISO < statDateFilter.from || o.buyDateISO > statDateFilter.to)) return false;
+        if (!q) return true;
+        const hay = `${o.stt} ${o.rowNumber} ${o.customerName} ${o.product} ${o.phone} ${o.channel} ${o.customerEmail} ${o.famEmail} ${o.source} ${o.note} ${o.endDate}`.toLowerCase();
+        return hay.includes(q);
+      });
+
+      const filterNote = statDateFilter
+        ? (statDateFilter.from === statDateFilter.to
+            ? ` (Đơn bán ngày ${statDateFilter.from})`
+            : ` (Đơn bán từ ${statDateFilter.from} đến ${statDateFilter.to})`)
+        : '';
+      document.getElementById('tableSummaryMeta').textContent = `Hiển thị ${filtered.length} / ${appState.orders.length} đơn hàng${filterNote}`;
+
+      if (!filtered.length) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);">Không có đơn hàng nào khớp bộ lọc hiện tại.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered
+        .map(
+          (o) => `
+        <tr onclick="openDetailDrawer(${o.rowNumber})" aria-selected="${o.rowNumber === selectedRowNumber}">
+          <td class="num mono">${esc(o.stt)}</td>
+          <td>
+            <div class="cust-cell">
+              <span class="avatar" style="${avatarStyle(o.customerName)}">${esc(initials(o.customerName))}</span>
+              <span class="cust-name">${esc(o.customerName)}</span>
+              ${channelBadgeHtml(o.channel)}
+            </div>
+          </td>
+          <td>${productTagHtml(o.product, o.months)}</td>
+          <td class="num mono hide-sm" style="font-weight:500;">${o.salePrice ? esc(o.salePrice) : '—'}</td>
+          <td class="num mono">${esc(o.endDateISO || o.endDate || '—')}</td>
+          <td class="hide-sm">${statusPillForOrder(o)}</td>
+          <td class="num hide-sm">
+            <button type="button" class="btn text-btn" onclick="event.stopPropagation();openDetailDrawer(${o.rowNumber})">Chi tiết &amp; Sửa</button>
+          </td>
+        </tr>`
+        )
+        .join('');
+    }
+
+    function setFilterMode(mode) {
+      activeFilter = mode;
+      document.querySelectorAll('.f-card[data-fcard]').forEach((btn) => {
+        btn.setAttribute('aria-pressed', String(btn.dataset.fcard === mode));
+      });
+      document.querySelectorAll('.nav-item[data-filter-nav]').forEach((btn) => {
+        if (btn.dataset.filterNav === mode) btn.setAttribute('aria-current', 'page');
+        else btn.removeAttribute('aria-current');
+      });
+      renderTable();
+    }
+
+    function filterByProduct(prod) {
+      const sel = document.getElementById('productSelect');
+      sel.value = sel.value === prod ? 'all' : prod;
+      renderTable();
+    }
+
+    function openDetailDrawer(rowNumber) {
+      const o = appState.orders.find((x) => x.rowNumber === rowNumber);
+      if (!o) return;
+      selectedRowNumber = rowNumber;
+      renderTable();
+
+      document.getElementById('drawerTitle').textContent = o.customerName;
+      document.getElementById('drawerMeta').textContent = `STT #${o.stt} · Dòng Sheet #${o.rowNumber}`;
+      document.getElementById('drawerStatusPill').innerHTML = statusPillForOrder(o);
+
+      const calParts = [];
+      if (o.syncedBefore3d?.htmlLink) {
+        calParts.push(`<a href="${esc(o.syncedBefore3d.htmlLink)}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline;">Trước 3 ngày</a>`);
+      }
+      if (o.syncedOnDay?.htmlLink) {
+        calParts.push(`<a href="${esc(o.syncedOnDay.htmlLink)}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline;">Đúng hạn</a>`);
+      }
+      document.getElementById('drawerCalLinks').innerHTML = calParts.length ? calParts.join(' · ') : 'Chưa đặt lịch';
+
+      document.getElementById('eRowNumber').value = String(o.rowNumber);
+      document.getElementById('eCustomerName').value = o.customerName;
+      document.getElementById('eProduct').value = o.product;
+      document.getElementById('eChannel').value = ['Zalo', 'Facebook', ''].includes(o.channel) ? o.channel : 'Zalo';
+      document.getElementById('ePhone').value = o.phone;
+      document.getElementById('eSource').value = o.source;
+      document.getElementById('eSalePrice').value = o.salePrice.replace(/\./g, '');
+      document.getElementById('eCostPrice').value = o.costPrice.replace(/\./g, '');
+      document.getElementById('eBuyDate').value = o.buyDateISO || appState.today;
+      document.getElementById('eMonths').value = o.months || '';
+      document.getElementById('eCustomEnd').value = o.endDateISO || '';
+      document.getElementById('eCustomerEmail').value = o.customerEmail;
+      document.getElementById('eFamEmail').value = o.famEmail;
+      document.getElementById('eNote').value = o.note;
+
+      document.getElementById('detailBackdrop').hidden = false;
+    }
+
+    function closeDetailDrawer() {
+      selectedRowNumber = null;
+      document.getElementById('detailBackdrop').hidden = true;
+      renderTable();
+    }
+
+    function openComposerWindow(prefillOrder = null) {
+      const win = document.getElementById('composerWin');
+      win.hidden = false;
+      win.classList.remove('is-minimized');
+      document.body.classList.add('composer-open');
+      document.getElementById('composerTitleText').textContent = `+ Ghi đơn mới (Dòng #${appState.nextEmptyRow})`;
+
+      if (prefillOrder) {
+        document.getElementById('cCustomerName').value = prefillOrder.customerName;
+        document.getElementById('cProduct').value = prefillOrder.product;
+        document.getElementById('cChannel').value = ['Zalo', 'Facebook', ''].includes(prefillOrder.channel) ? prefillOrder.channel : 'Zalo';
+        document.getElementById('cSalePrice').value = prefillOrder.salePrice.replace(/\./g, '');
+        document.getElementById('cCostPrice').value = prefillOrder.costPrice.replace(/\./g, '');
+        document.getElementById('cBuyDate').value = appState.today;
+        document.getElementById('cMonths').value = prefillOrder.months || '12';
+        document.getElementById('cPhone').value = prefillOrder.phone;
+        document.getElementById('cSource').value = prefillOrder.source;
+        document.getElementById('cCustomerEmail').value = prefillOrder.customerEmail;
+        document.getElementById('cFamEmail').value = prefillOrder.famEmail;
+        document.getElementById('cCustomEnd').value = '';
+        document.getElementById('cNote').value = prefillOrder.note;
+      } else if (!document.getElementById('cBuyDate').value) {
+        document.getElementById('cBuyDate').value = appState.today;
+      }
+      updateCreatePreview();
+      document.getElementById('cCustomerName').focus();
+    }
+
+    async function loadOrders({ silent = false } = {}) {
+      const btn = document.getElementById('btnReload');
+      if (!silent) btn.disabled = true;
+      try {
+        const res = await fetch('/api/orders');
+        const data = await res.json();
+        if (res.status === 401 || data.authRequired) {
+          document.getElementById('authGate').hidden = false;
+          return;
+        }
+        if (!data.ok) throw new Error(data.error || 'Lỗi tải dữ liệu');
+
+        document.getElementById('authGate').hidden = true;
+        const changed = silent && appState.dataHash && appState.dataHash !== data.dataHash;
+        appState = data;
+
+        const timeStr = new Date(data.syncedAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        document.getElementById('syncStamp').textContent = `Đồng bộ 2 chiều: ${timeStr}`;
+        document.getElementById('sidebarNextRow').textContent = `Dòng trống kế: #${data.nextEmptyRow}`;
+        document.getElementById('composerTitleText').textContent = `+ Ghi đơn mới (Dòng #${data.nextEmptyRow})`;
+
+        if (!document.getElementById('cBuyDate').value) {
+          document.getElementById('cBuyDate').value = data.today;
+          updateCreatePreview();
+        }
+        if (!document.getElementById('statSingleDate').value) {
+          document.getElementById('statSingleDate').value = data.today;
+          document.getElementById('statFromDate').value = data.today;
+          document.getElementById('statToDate').value = data.today;
+        }
+
+        const products = [...new Set(data.orders.map((o) => o.product.trim().toLowerCase()).filter(Boolean))];
+        document.getElementById('productDatalist').innerHTML = products.map((p) => `<option value="${esc(p)}"></option>`).join('');
+
+        const pSel = document.getElementById('productSelect');
+        const curP = pSel.value;
+        pSel.innerHTML =
+          `<option value="all">Tất cả mặt hàng (${products.length})</option>` +
+          products.map((p) => `<option value="${esc(p)}">${esc(p)}</option>`).join('');
+        if ([...pSel.options].some((opt) => opt.value === curP)) pSel.value = curP;
+
+        renderAll();
+
+        if (changed) {
+          showToast('Đã tự động cập nhật thay đổi mới từ Google Sheet.');
+        }
+      } catch (err) {
+        if (!silent) showToast(err.message, true);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    // --- Authentication & Password Reset Handlers ---
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btnLoginSubmit');
+      btn.disabled = true;
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: document.getElementById('loginPassword').value }),
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error);
+        document.getElementById('loginPassword').value = '';
+        document.getElementById('authNotice').style.display = 'none';
+        document.getElementById('authGate').hidden = true;
+        await loadOrders();
+      } catch (err) {
+        showAuthNotice(err.message, true);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    document.getElementById('btnShowResetView').addEventListener('click', () => {
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('resetForm').style.display = 'grid';
+      document.getElementById('authNotice').style.display = 'none';
+    });
+
+    document.getElementById('btnBackToLogin').addEventListener('click', () => {
+      document.getElementById('resetForm').style.display = 'none';
+      document.getElementById('loginForm').style.display = 'grid';
+      document.getElementById('authNotice').style.display = 'none';
+    });
+
+    async function requestResetOtp(inModal = false) {
+      const btn = document.getElementById('btnSendOtp');
+      if (btn) btn.disabled = true;
+      try {
+        const res = await fetch('/api/auth/forgot-password', { method: 'POST' });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error);
+        if (inModal) showToast(data.message);
+        else showAuthNotice(data.message, false);
+      } catch (err) {
+        if (inModal) showToast(err.message, true);
+        else showAuthNotice(err.message, true);
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    document.getElementById('btnSendOtp').addEventListener('click', () => requestResetOtp(false));
+    document.getElementById('btnTriggerOtpTest').addEventListener('click', () => {
+      document.getElementById('securityBackdrop').hidden = true;
+      requestResetOtp(true);
+    });
+
+    document.getElementById('resetForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btnResetSubmit');
+      btn.disabled = true;
+      try {
+        const res = await fetch('/api/auth/reset-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            otp: document.getElementById('resetOtpInput').value,
+            newPassword: document.getElementById('resetNewPassword').value,
+          }),
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error);
+        document.getElementById('resetForm').reset();
+        document.getElementById('resetForm').style.display = 'none';
+        document.getElementById('loginForm').style.display = 'grid';
+        document.getElementById('authGate').hidden = true;
+        await loadOrders();
+        showToast('Đã đặt lại mật khẩu mới thành công!');
+      } catch (err) {
+        showAuthNotice(err.message, true);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    function openSecurityDrawer() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('publicUrlInput').value = appState.publicUrl || window.location.origin;
+      document.getElementById('securityBackdrop').hidden = false;
+    }
+
+    document.getElementById('btnOpenSecurity').addEventListener('click', openSecurityDrawer);
+    document.getElementById('navBtnSecurity').addEventListener('click', openSecurityDrawer);
+    document.getElementById('btnCloseSecurity').addEventListener('click', () => {
+      document.getElementById('securityBackdrop').hidden = true;
+    });
+    document.getElementById('securityBackdrop').addEventListener('click', (e) => {
+      if (e.target.id === 'securityBackdrop') document.getElementById('securityBackdrop').hidden = true;
+    });
+
+    document.getElementById('btnCopyPublicUrl').addEventListener('click', async () => {
+      const val = document.getElementById('publicUrlInput').value;
+      await navigator.clipboard.writeText(val);
+      showToast(`Đã sao chép địa chỉ Web trực tiếp: ${val}`);
+    });
+
+    document.getElementById('changePwdForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btnSavePwd');
+      btn.disabled = true;
+      try {
+        const res = await fetch('/api/auth/change-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            currentPassword: document.getElementById('cpCurrent').value,
+            newPassword: document.getElementById('cpNew').value,
+            gmailAppPassword: document.getElementById('cpGmailAppPass').value,
+          }),
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error);
+        document.getElementById('changePwdForm').reset();
+        document.getElementById('securityBackdrop').hidden = true;
+        showToast(data.message);
+      } catch (err) {
+        showToast(err.message, true);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    document.getElementById('btnLogout').addEventListener('click', async () => {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      document.getElementById('securityBackdrop').hidden = true;
+      document.getElementById('authGate').hidden = false;
+    });
+
+    // --- Main App Event Bindings ---
+    document.querySelectorAll('.f-card[data-fcard]').forEach((btn) => {
+      btn.addEventListener('click', () => setFilterMode(btn.dataset.fcard));
+    });
+    document.querySelectorAll('.nav-item[data-filter-nav]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        setFilterMode(btn.dataset.filterNav);
+        document.getElementById('sidebar').classList.remove('open');
+      });
+    });
+
+    document.getElementById('btnToggleComposer').addEventListener('click', () => {
+      const win = document.getElementById('composerWin');
+      if (win.hidden) openComposerWindow();
+      else if (win.classList.contains('is-minimized')) {
+        win.classList.remove('is-minimized');
+        document.body.classList.add('composer-open');
+      } else {
+        win.hidden = true;
+        document.body.classList.remove('composer-open');
+      }
+    });
+    document.getElementById('navBtnNewOrder').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.remove('open');
+      openComposerWindow();
+    });
+    document.getElementById('btnMinComposer').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const win = document.getElementById('composerWin');
+      win.classList.toggle('is-minimized');
+      document.body.classList.toggle('composer-open', !win.classList.contains('is-minimized'));
+    });
+    document.getElementById('composerHeaderBar').addEventListener('click', () => {
+      const win = document.getElementById('composerWin');
+      if (win.classList.contains('is-minimized')) {
+        win.classList.remove('is-minimized');
+        document.body.classList.add('composer-open');
+      }
+    });
+    document.getElementById('btnCloseComposer').addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.getElementById('composerWin').hidden = true;
+      document.body.classList.remove('composer-open');
+    });
+
+    document.querySelectorAll('.mini-chip[data-cprod]').forEach((b) => {
+      b.addEventListener('click', () => { document.getElementById('cProduct').value = b.dataset.cprod; });
+    });
+    document.querySelectorAll('.mini-chip[data-cm]').forEach((b) => {
+      b.addEventListener('click', () => {
+        document.getElementById('cMonths').value = b.dataset.cm;
+        document.getElementById('cCustomEnd').value = '';
+        updateCreatePreview();
+      });
+    });
+    document.getElementById('cBuyDate').addEventListener('change', updateCreatePreview);
+    document.getElementById('cMonths').addEventListener('input', updateCreatePreview);
+    document.getElementById('cCustomEnd').addEventListener('change', (e) => {
+      if (e.target.value) document.getElementById('cMonths').value = '';
+      updateCreatePreview();
+    });
+
+    document.getElementById('btnCreateClear').addEventListener('click', () => {
+      document.getElementById('createForm').reset();
+      document.getElementById('cBuyDate').value = appState.today;
+      document.getElementById('cMonths').value = '12';
+      updateCreatePreview();
+    });
+
+    document.getElementById('createForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btnCreateSubmit');
+      btn.disabled = true;
+      try {
+        const payload = {
+          customerName: document.getElementById('cCustomerName').value,
+          product: document.getElementById('cProduct').value,
+          channel: document.getElementById('cChannel').value,
+          salePrice: document.getElementById('cSalePrice').value,
+          costPrice: document.getElementById('cCostPrice').value,
+          buyDate: document.getElementById('cBuyDate').value,
+          months: document.getElementById('cMonths').value,
+          phone: document.getElementById('cPhone').value,
+          source: document.getElementById('cSource').value,
+          customerEmail: document.getElementById('cCustomerEmail').value,
+          famEmail: document.getElementById('cFamEmail').value,
+          customEndDate: document.getElementById('cCustomEnd').value,
+          note: document.getElementById('cNote').value,
+          syncCalendar: document.getElementById('cSyncCal').checked,
+        };
+        const res = await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error);
+
+        const link = data.reminderSync?.created?.[0]?.htmlLink || '';
+        document.getElementById('createForm').reset();
+        document.getElementById('cBuyDate').value = appState.today;
+        document.getElementById('cMonths').value = '12';
+        document.getElementById('composerWin').hidden = true;
+        document.body.classList.remove('composer-open');
+        await loadOrders({ silent: true });
+        showToast(`Đã ghi đơn mới vào dòng #${data.targetRow} trên Google Sheet.`, false, link);
+      } catch (err) {
+        showToast(err.message, true);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    document.getElementById('btnCloseDrawer').addEventListener('click', closeDetailDrawer);
+    document.getElementById('detailBackdrop').addEventListener('click', (e) => {
+      if (e.target.id === 'detailBackdrop') closeDetailDrawer();
+    });
+
+    document.getElementById('editForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const rowNumber = Number(document.getElementById('eRowNumber').value);
+      const btn = document.getElementById('btnEditSubmit');
+      btn.disabled = true;
+      try {
+        const payload = {
+          customerName: document.getElementById('eCustomerName').value,
+          product: document.getElementById('eProduct').value,
+          channel: document.getElementById('eChannel').value,
+          phone: document.getElementById('ePhone').value,
+          source: document.getElementById('eSource').value,
+          salePrice: document.getElementById('eSalePrice').value,
+          costPrice: document.getElementById('eCostPrice').value,
+          buyDate: document.getElementById('eBuyDate').value,
+          months: document.getElementById('eMonths').value,
+          customEndDate: document.getElementById('eMonths').value ? '' : document.getElementById('eCustomEnd').value,
+          customerEmail: document.getElementById('eCustomerEmail').value,
+          famEmail: document.getElementById('eFamEmail').value,
+          note: document.getElementById('eNote').value,
+          syncCalendar: true,
+        };
+        const res = await fetch(`/api/orders/${rowNumber}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error);
+        const link = data.reminderSync?.updated?.[0]?.htmlLink || data.reminderSync?.created?.[0]?.htmlLink || '';
+        closeDetailDrawer();
+        await loadOrders({ silent: true });
+        showToast(`Đã cập nhật dòng #${rowNumber} trực tiếp lên Google Sheet.`, false, link);
+      } catch (err) {
+        showToast(err.message, true);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    document.getElementById('btnDrawerRenew').addEventListener('click', () => {
+      const rowNumber = Number(document.getElementById('eRowNumber').value);
+      const o = appState.orders.find((x) => x.rowNumber === rowNumber);
+      closeDetailDrawer();
+      if (o) openComposerWindow(o);
+    });
+
+    document.getElementById('btnDrawerCopy').addEventListener('click', async () => {
+      const rowNumber = Number(document.getElementById('eRowNumber').value);
+      const o = appState.orders.find((x) => x.rowNumber === rowNumber);
+      if (!o) return;
+      const msg = `Chào ${o.customerName}, gói ${o.product} của bạn sẽ hết hạn vào ngày ${o.endDate}. Bạn có muốn mình hỗ trợ gia hạn tiếp không ạ?`;
+      await navigator.clipboard.writeText(msg);
+      showToast(`Đã copy lời nhắn nhắc gia hạn cho ${o.customerName}.`);
+    });
+
+    document.getElementById('btnDrawerSyncCal').addEventListener('click', async (e) => {
+      const rowNumber = Number(document.getElementById('eRowNumber').value);
+      const btn = e.currentTarget;
+      btn.disabled = true;
+      try {
+        const res = await fetch('/api/reminders/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rowNumber }),
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error);
+        const link = data.created[0]?.htmlLink || data.skipped[0]?.htmlLink || '';
+        await loadOrders({ silent: true });
+        openDetailDrawer(rowNumber);
+        showToast(`Đã đặt lịch nhắc Điện thoại cho dòng #${rowNumber}.`, false, link);
+      } catch (err) {
+        showToast(err.message, true);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    async function triggerSync60Days() {
+      const btn = document.getElementById('btnSyncUpcoming');
+      btn.disabled = true;
+      try {
+        const res = await fetch('/api/reminders/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ withinDays: 60 }),
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error);
+        await loadOrders({ silent: true });
+        showToast(`Đã đồng bộ ${data.matchedOrders} đơn sắp hết hạn (tạo mới ${data.created.length}, đã có ${data.skipped.length}).`);
+      } catch (err) {
+        showToast(err.message, true);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    document.getElementById('btnSyncUpcoming').addEventListener('click', triggerSync60Days);
+    document.getElementById('navBtnSyncCal').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.remove('open');
+      triggerSync60Days();
+    });
+
+    document.getElementById('navBtnTestPhone').addEventListener('click', async () => {
+      document.getElementById('sidebar').classList.remove('open');
+      try {
+        const res = await fetch('/api/reminders/test', { method: 'POST' });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error);
+        showToast('Đã tạo sự kiện thử! Điện thoại sẽ báo thông báo sau khoảng 1 phút.', false, data.htmlLink);
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    });
+
+    document.querySelectorAll('.stat-preset-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.stat-preset-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentPreset = btn.dataset.preset;
+
+        const singleWrap = document.getElementById('statSingleWrap');
+        const rangeWrap = document.getElementById('statRangeWrap');
+
+        if (currentPreset === 'singleDay') {
+          singleWrap.style.display = 'flex';
+          rangeWrap.style.display = 'none';
+        } else if (currentPreset === 'customRange') {
+          singleWrap.style.display = 'none';
+          rangeWrap.style.display = 'flex';
+        } else {
+          singleWrap.style.display = 'none';
+          rangeWrap.style.display = 'none';
+        }
+        updateSalesStats();
+      });
+    });
+
+    document.getElementById('statSingleDate').addEventListener('change', updateSalesStats);
+    document.getElementById('statFromDate').addEventListener('change', updateSalesStats);
+    document.getElementById('statToDate').addEventListener('change', updateSalesStats);
+
+    document.getElementById('btnFilterTableByPeriod').addEventListener('click', () => {
+      let fromISO = '';
+      let toISO = '';
+      if (currentPreset === 'singleDay') {
+        fromISO = document.getElementById('statSingleDate').value;
+        toISO = fromISO;
+      } else if (currentPreset === 'customRange') {
+        fromISO = document.getElementById('statFromDate').value;
+        toISO = document.getElementById('statToDate').value;
+      } else {
+        const rng = getPresetRange(currentPreset, appState.today);
+        fromISO = rng.from;
+        toISO = rng.to;
+      }
+      if (!fromISO || !toISO) return;
+      if (fromISO > toISO) { const tmp = fromISO; fromISO = toISO; toISO = tmp; }
+      statDateFilter = { from: fromISO, to: toISO };
+      document.getElementById('btnClearDateFilter').style.display = 'inline-flex';
+      renderTable();
+      document.getElementById('ordersBody').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      showToast(`Đang lọc bảng đơn hàng bán từ ${fromISO} đến ${toISO}`);
+    });
+
+    document.getElementById('btnClearDateFilter').addEventListener('click', () => {
+      statDateFilter = null;
+      document.getElementById('btnClearDateFilter').style.display = 'none';
+      renderTable();
+      showToast('Đã xóa bộ lọc ngày, hiển thị lại toàn bộ đơn hàng.');
+    });
+
+    document.getElementById('navBtnSalesStats').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('salesStatsSection').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    function toggleSidebar(forceState = null) {
+      const shell = document.querySelector('.shell');
+      const isMobile = window.innerWidth <= 860;
+      if (isMobile) {
+        const sidebar = document.getElementById('sidebar');
+        if (typeof forceState === 'boolean') {
+          sidebar.classList.toggle('open', forceState);
+        } else {
+          sidebar.classList.toggle('open');
+        }
+      } else {
+        const shouldCollapse = typeof forceState === 'boolean'
+          ? forceState
+          : !shell.classList.contains('sidebar-collapsed');
+        shell.classList.toggle('sidebar-collapsed', shouldCollapse);
+        try { localStorage.setItem('ql_sidebar_collapsed', shouldCollapse ? '1' : '0'); } catch {}
+      }
+    }
+
+    if (window.innerWidth > 860 && localStorage.getItem('ql_sidebar_collapsed') === '1') {
+      document.querySelector('.shell').classList.add('sidebar-collapsed');
+    }
+
+    document.getElementById('btnToggleSidebar').addEventListener('click', () => toggleSidebar());
+    document.getElementById('btnCollapseSidebar').addEventListener('click', () => toggleSidebar(true));
+    document.getElementById('btnCloseSidebar').addEventListener('click', () => toggleSidebar(false));
+
+    const THEME_PRESETS = {
+      thanhchi: {
+        key: 'thanhchi',
+        name: 'Thanh Chí Edu (Achromatic & Navy)',
+        desc: 'Đen #141414 & Xanh Chart #1D5FBF',
+        primary: '#141414',
+        navy: '#1d5fbf',
+        primaryDark: '#38bdf8'
+      },
+      navy: {
+        key: 'navy',
+        name: 'Xanh Navy Chuẩn',
+        desc: 'Chuyên nghiệp, chuẩn giáo dục',
+        primary: '#1d5fbf',
+        navy: '#1f3d6e',
+        primaryDark: '#60a5fa'
+      },
+      emerald: {
+        key: 'emerald',
+        name: 'Xanh Ngọc Lục Bảo',
+        desc: 'Tươi mát, dịu mắt, tài chính',
+        primary: '#059669',
+        navy: '#064e3b',
+        primaryDark: '#34d399'
+      },
+      royal: {
+        key: 'royal',
+        name: 'Xanh Lam Hoàng Gia',
+        desc: 'Sang trọng, công nghệ cao',
+        primary: '#2563eb',
+        navy: '#1e40af',
+        primaryDark: '#60a5fa'
+      },
+      teal: {
+        key: 'teal',
+        name: 'Xanh Cổ Vịt (Teal)',
+        desc: 'Thanh lịch, cân bằng, hiện đại',
+        primary: '#0d9488',
+        navy: '#134e4a',
+        primaryDark: '#2dd4bf'
+      },
+      rose: {
+        key: 'rose',
+        name: 'Đỏ Ruby Nổi Bật',
+        desc: 'Ấm áp, năng động, ấn tượng',
+        primary: '#e11d48',
+        navy: '#881337',
+        primaryDark: '#fb7185'
+      },
+      amber: {
+        key: 'amber',
+        name: 'Cam Hoàng Kim',
+        desc: 'Tươi sáng, nhiệt huyết',
+        primary: '#d97706',
+        navy: '#78350f',
+        primaryDark: '#fbbf24'
+      }
+    };
+
+    const THEME_PREF_KEY = 'ql_ui_theme_prefs_v1';
+    const CUSTOM_SAVED_THEMES_KEY = 'ql_custom_saved_themes_v1';
+
+    function getCustomSavedThemes() {
+      try {
+        const raw = localStorage.getItem(CUSTOM_SAVED_THEMES_KEY);
+        if (raw) {
+          const list = JSON.parse(raw);
+          if (Array.isArray(list)) return list;
+        }
+      } catch (e) {}
+      return [];
+    }
+
+    function saveCustomSavedThemes(list) {
+      try {
+        localStorage.setItem(CUSTOM_SAVED_THEMES_KEY, JSON.stringify(list || []));
+      } catch (e) {}
+    }
+
+    function getSavedThemePrefs() {
+      try {
+        const raw = localStorage.getItem(THEME_PREF_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (e) {}
+      return {
+        darkMode: localStorage.getItem('ql_theme') === 'dark',
+        highContrast: localStorage.getItem('ql_contrast') === 'high',
+        themeKey: 'thanhchi',
+        customHex: localStorage.getItem('ql_accent_color') || '',
+        customName: ''
+      };
+    }
+
+    function saveThemePrefs(prefs) {
+      try {
+        localStorage.setItem(THEME_PREF_KEY, JSON.stringify(prefs));
+        localStorage.setItem('ql_theme', prefs.darkMode ? 'dark' : 'light');
+        localStorage.setItem('ql_contrast', prefs.highContrast ? 'high' : 'normal');
+        if (prefs.customHex) localStorage.setItem('ql_accent_color', prefs.customHex);
+      } catch (e) {}
+    }
+
+    function hexToRgb(hex) {
+      let clean = String(hex || '#141414').replace('#', '').trim();
+      if (clean.length === 3) clean = clean.split('').map(c => c + c).join('');
+      if (clean.length !== 6) return [20, 20, 20];
+      return [
+        parseInt(clean.slice(0, 2), 16) || 20,
+        parseInt(clean.slice(2, 4), 16) || 20,
+        parseInt(clean.slice(4, 6), 16) || 20
+      ];
+    }
+
+    function applyCssTheme(cfg, isDark) {
+      const hex = isDark ? (cfg.primaryDark || cfg.primary) : cfg.primary;
+      const [r, g, b] = hexToRgb(hex);
+      const alpha = isDark ? 0.24 : 0.12;
+
+      document.documentElement.style.setProperty('--accent', hex);
+      document.documentElement.style.setProperty('--primary', hex);
+      document.documentElement.style.setProperty('--chart-1', hex);
+      document.documentElement.style.setProperty('--accent-tint', `rgba(${r}, ${g}, ${b}, ${alpha})`);
+
+      const dot = document.getElementById('headerThemeDot');
+      if (dot) dot.style.backgroundColor = hex;
+    }
+
+    function setDarkMode(isDark, showMsg = false) {
+      const prefs = getSavedThemePrefs();
+      prefs.darkMode = Boolean(isDark);
+      saveThemePrefs(prefs);
+
+      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+
+      const btnThemeLabel = document.getElementById('themeBtnLabel');
+      const btnThemeIcon = document.getElementById('themeBtnIcon');
+      if (btnThemeLabel) btnThemeLabel.textContent = isDark ? 'Sáng' : 'Tối';
+      if (btnThemeIcon) {
+        btnThemeIcon.innerHTML = isDark
+          ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2;"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`
+          : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+      }
+
+      if (prefs.themeKey === 'custom' && prefs.customHex) {
+        applyCssTheme({ primary: prefs.customHex, primaryDark: prefs.customHex }, isDark);
+      } else {
+        const p = THEME_PRESETS[prefs.themeKey] || THEME_PRESETS.thanhchi;
+        applyCssTheme(p, isDark);
+      }
+
+      renderThemeModalControls();
+      if (showMsg) {
+        showToast(isDark ? 'Đã bật Chế độ Tối (Dark Mode)' : 'Đã chuyển về Chế độ Sáng (Light Mode)');
+      }
+    }
+
+    function setContrast(isHigh, showMsg = false) {
+      const prefs = getSavedThemePrefs();
+      prefs.highContrast = Boolean(isHigh);
+      saveThemePrefs(prefs);
+
+      if (isHigh) {
+        document.documentElement.setAttribute('data-contrast', 'high');
+      } else {
+        document.documentElement.removeAttribute('data-contrast');
+      }
+
+      renderThemeModalControls();
+      if (showMsg) {
+        showToast(isHigh ? 'Đã bật độ tương phản cao' : 'Đã tắt độ tương phản cao');
+      }
+    }
+
+    function applyPresetTheme(key, showMsg = true) {
+      const p = THEME_PRESETS[key] || THEME_PRESETS.thanhchi;
+      const prefs = getSavedThemePrefs();
+      prefs.themeKey = p.key;
+      prefs.customHex = '';
+      prefs.customName = '';
+      saveThemePrefs(prefs);
+
+      applyCssTheme(p, prefs.darkMode);
+      renderThemeModalControls();
+      if (showMsg) {
+        showToast(`Đã áp dụng bảng màu "${p.name}"`);
+      }
+    }
+
+    function applyCustomColorTheme(hex, name = '', savePref = true, showMsg = false) {
+      let cleanHex = String(hex || '#141414').trim();
+      if (!cleanHex.startsWith('#')) cleanHex = '#' + cleanHex;
+      if (!/^#([0-9A-Fa-f]{6})$/.test(cleanHex)) return;
+      cleanHex = cleanHex.toUpperCase();
+
+      const prefs = getSavedThemePrefs();
+      if (savePref) {
+        prefs.themeKey = 'custom';
+        prefs.customHex = cleanHex;
+        prefs.customName = name || `Màu ${cleanHex}`;
+        saveThemePrefs(prefs);
+      }
+
+      applyCssTheme({ primary: cleanHex, primaryDark: cleanHex }, prefs.darkMode);
+      renderThemeModalControls();
+      if (showMsg) {
+        showToast(`Đã áp dụng màu "${name || cleanHex}"`);
+      }
+    }
+
+    function saveCustomNamedTheme() {
+      const hexInput = document.getElementById('themeCustomHexInput');
+      const nameInput = document.getElementById('themeCustomNameInput');
+      let hex = (hexInput?.value || '#141414').trim();
+      if (!hex.startsWith('#')) hex = '#' + hex;
+      if (!/^#([0-9A-Fa-f]{6})$/.test(hex)) {
+        showToast('Mã màu HEX không hợp lệ! Vui lòng nhập định dạng #RRGGBB (VD: #2563EB)', true);
+        return;
+      }
+      hex = hex.toUpperCase();
+      const name = (nameInput?.value || '').trim() || `Màu ${hex}`;
+
+      const savedList = getCustomSavedThemes();
+      const existingIdx = savedList.findIndex(t => t.hex === hex || t.name.toLowerCase() === name.toLowerCase());
+      if (existingIdx !== -1) {
+        savedList[existingIdx] = { ...savedList[existingIdx], name, hex, updatedAt: Date.now() };
+      } else {
+        savedList.unshift({ id: 'CT_' + Date.now(), name, hex, createdAt: Date.now() });
+      }
+
+      saveCustomSavedThemes(savedList.slice(0, 16));
+      applyCustomColorTheme(hex, name, true, true);
+      if (nameInput) nameInput.value = '';
+    }
+
+    function deleteSavedCustomTheme(id, e) {
+      if (e && e.stopPropagation) e.stopPropagation();
+      const savedList = getCustomSavedThemes();
+      const nextList = savedList.filter(t => t.id !== id);
+      saveCustomSavedThemes(nextList);
+
+      const prefs = getSavedThemePrefs();
+      if (prefs.themeKey === 'custom') {
+        const exists = nextList.some(t => t.hex === prefs.customHex);
+        if (!exists) applyPresetTheme('thanhchi', false);
+      }
+
+      renderThemeModalControls();
+      showToast('Đã xóa màu tự chọn khỏi danh sách lưu');
+    }
+
+    function resetDefaultThemeSettings() {
+      const prefs = {
+        darkMode: false,
+        highContrast: false,
+        themeKey: 'thanhchi',
+        customHex: '',
+        customName: ''
+      };
+      saveThemePrefs(prefs);
+      document.documentElement.setAttribute('data-theme', 'light');
+      document.documentElement.removeAttribute('data-contrast');
+      applyCssTheme(THEME_PRESETS.thanhchi, false);
+      setDarkMode(false, false);
+      setContrast(false, false);
+      renderThemeModalControls();
+      showToast('Đã khôi phục cài đặt giao diện & màu sắc mặc định');
+    }
+
+    function renderThemeModalControls() {
+      const prefs = getSavedThemePrefs();
+      const isDark = Boolean(prefs.darkMode);
+      const isHigh = Boolean(prefs.highContrast);
+
+      // Mode buttons
+      const lightCard = document.getElementById('themeModeLightBtn');
+      const darkCard = document.getElementById('themeModeDarkBtn');
+      const lightBadge = document.getElementById('themeLightActiveBadge');
+      const darkBadge = document.getElementById('themeDarkActiveBadge');
+      const toggleContrast = document.getElementById('toggleHighContrast');
+
+      if (lightCard && darkCard) {
+        lightCard.classList.toggle('active', !isDark);
+        darkCard.classList.toggle('active', isDark);
+      }
+      if (lightBadge && darkBadge) {
+        lightBadge.className = isDark ? 'theme-mode-badge off' : 'theme-mode-badge on';
+        lightBadge.textContent = isDark ? 'Tắt' : 'Đang bật';
+        darkBadge.className = isDark ? 'theme-mode-badge on' : 'theme-mode-badge off';
+        darkBadge.textContent = isDark ? 'Đang bật' : 'Tắt';
+      }
+      if (toggleContrast) toggleContrast.checked = isHigh;
+
+      // Active label
+      const currentLabel = document.getElementById('themeCurrentLabel');
+      if (currentLabel) {
+        if (prefs.themeKey === 'custom' && prefs.customHex) {
+          currentLabel.textContent = `${prefs.customName || 'Màu tự chọn'} (${prefs.customHex})`;
+        } else {
+          const p = THEME_PRESETS[prefs.themeKey] || THEME_PRESETS.thanhchi;
+          currentLabel.textContent = p.name;
+        }
+      }
+
+      // Preset grid
+      const presetGrid = document.getElementById('themePresetGrid');
+      if (presetGrid) {
+        presetGrid.innerHTML = Object.values(THEME_PRESETS).map(p => {
+          const isActive = prefs.themeKey === p.key;
+          return `
+            <button type="button" class="tc-preset-card ${isActive ? 'active' : ''}" data-key="${p.key}">
+              <div class="tc-dots-row">
+                <div class="tc-dots">
+                  <span class="tc-dot-main" style="background:${p.primary};"></span>
+                  <span class="tc-dot-sub" style="background:${p.navy};"></span>
+                </div>
+                ${isActive ? '<span class="preset-badge">Đang dùng</span>' : ''}
+              </div>
+              <div>
+                <div class="tc-card-title">${p.name}</div>
+                <div class="tc-card-desc">${p.desc}</div>
+              </div>
+            </button>
+          `;
+        }).join('');
+
+        presetGrid.querySelectorAll('.tc-preset-card').forEach(card => {
+          card.addEventListener('click', () => applyPresetTheme(card.dataset.key));
+        });
+      }
+
+      // Custom color inputs
+      const hexInput = document.getElementById('themeCustomHexInput');
+      const picker = document.getElementById('themeCustomColorPicker');
+      const activeHex = prefs.customHex || (THEME_PRESETS[prefs.themeKey] || THEME_PRESETS.thanhchi).primary;
+      if (hexInput) hexInput.value = activeHex;
+      if (picker) picker.value = activeHex;
+
+      // Saved custom themes
+      const savedList = getCustomSavedThemes();
+      const countEl = document.getElementById('themeSavedCustomCount');
+      if (countEl) countEl.textContent = String(savedList.length);
+
+      const savedListEl = document.getElementById('themeSavedCustomList');
+      if (savedListEl) {
+        if (!savedList.length) {
+          savedListEl.innerHTML = `<div style="grid-column: 1 / -1; font-size:12px; color:var(--faint); padding:10px; text-align:center; background:var(--raised); border-radius:8px;">Chưa có màu tự chọn nào được lưu. Chọn màu và bấm "Lưu màu" để ghi nhớ.</div>`;
+        } else {
+          savedListEl.innerHTML = savedList.map(t => {
+            const isActive = prefs.themeKey === 'custom' && prefs.customHex === t.hex;
+            return `
+              <div class="tc-saved-card ${isActive ? 'active' : ''}" data-id="${t.id}" data-hex="${t.hex}">
+                <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+                  <span class="tc-dot-main" style="background:${t.hex};"></span>
+                  <div style="min-width:0;">
+                    <div style="font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${t.name}</div>
+                    <div class="mono" style="font-size:11px;color:var(--faint);">${t.hex}</div>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:4px;" onclick="event.stopPropagation()">
+                  ${isActive ? '<span class="preset-badge" style="font-size:9px;padding:1px 5px;">Đang dùng</span>' : ''}
+                  <button type="button" class="btn-del-custom" data-del-id="${t.id}" title="Xóa màu này" style="width:20px;height:20px;display:grid;place-items:center;border:0;background:transparent;cursor:pointer;color:var(--faint);font-size:14px;">×</button>
+                </div>
+              </div>
+            `;
+          }).join('');
+
+          savedListEl.querySelectorAll('.tc-saved-card').forEach(card => {
+            card.addEventListener('click', () => {
+              const hex = card.dataset.hex;
+              const title = card.querySelector('div[style*="font-weight:700"]')?.textContent || hex;
+              applyCustomColorTheme(hex, title, true, true);
+            });
+          });
+
+          savedListEl.querySelectorAll('.btn-del-custom').forEach(btn => {
+            btn.addEventListener('click', (e) => deleteSavedCustomTheme(btn.dataset.delId, e));
+          });
+        }
+      }
+    }
+
+    function openPaletteModal() {
+      document.getElementById('paletteBackdrop').hidden = false;
+      renderThemeModalControls();
+    }
+
+    function closePaletteModal() {
+      document.getElementById('paletteBackdrop').hidden = true;
+    }
+
+    // Modal & Header theme listeners
+    document.getElementById('btnTheme').addEventListener('click', () => {
+      const prefs = getSavedThemePrefs();
+      setDarkMode(!prefs.darkMode, true);
+    });
+
+    document.getElementById('btnOpenPalette').addEventListener('click', openPaletteModal);
+    document.getElementById('navBtnPalette').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.remove('open');
+      openPaletteModal();
+    });
+    document.getElementById('btnClosePalette').addEventListener('click', closePaletteModal);
+    document.getElementById('btnSavePaletteClose').addEventListener('click', closePaletteModal);
+    document.getElementById('paletteBackdrop').addEventListener('click', (e) => {
+      if (e.target.id === 'paletteBackdrop') closePaletteModal();
+    });
+
+    document.getElementById('themeModeLightBtn').addEventListener('click', () => setDarkMode(false, true));
+    document.getElementById('themeModeDarkBtn').addEventListener('click', () => setDarkMode(true, true));
+    document.getElementById('toggleHighContrast').addEventListener('change', (e) => setContrast(e.target.checked, true));
+
+    document.getElementById('themeCustomColorPicker').addEventListener('input', (e) => {
+      const hex = e.target.value.toUpperCase();
+      const hexInput = document.getElementById('themeCustomHexInput');
+      if (hexInput) hexInput.value = hex;
+      applyCustomColorTheme(hex, '', false, false);
+    });
+
+    document.getElementById('themeCustomHexInput').addEventListener('input', (e) => {
+      let val = e.target.value.trim();
+      if (!val.startsWith('#')) val = '#' + val;
+      if (/^#([0-9A-Fa-f]{6})$/.test(val)) {
+        val = val.toUpperCase();
+        const picker = document.getElementById('themeCustomColorPicker');
+        if (picker) picker.value = val;
+        applyCustomColorTheme(val, '', false, false);
+      }
+    });
+
+    document.getElementById('btnSaveCustomTheme').addEventListener('click', saveCustomNamedTheme);
+    document.getElementById('btnResetPalette').addEventListener('click', resetDefaultThemeSettings);
+
+    // Scroll to top buttons (Header & Floating)
+    const btnHeaderHome = document.getElementById('btnHeaderHome');
+    if (btnHeaderHome) {
+      btnHeaderHome.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    }
+
+    const btnBackToTop = document.getElementById('btnBackToTop');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 280) {
+        btnBackToTop.classList.add('show');
+      } else {
+        btnBackToTop.classList.remove('show');
+      }
+    }, { passive: true });
+
+    btnBackToTop.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // Initialize Theme Preferences from Storage on load
+    (function initSavedTheme() {
+      const prefs = getSavedThemePrefs();
+      if (prefs.highContrast) {
+        document.documentElement.setAttribute('data-contrast', 'high');
+      }
+      setDarkMode(prefs.darkMode, false);
+      if (prefs.themeKey === 'custom' && prefs.customHex) {
+        applyCustomColorTheme(prefs.customHex, prefs.customName, false, false);
+      } else {
+        applyPresetTheme(prefs.themeKey || 'thanhchi', false);
+      }
+    })();
+
+    document.getElementById('btnReload').addEventListener('click', () => loadOrders({ silent: false }));
+    document.getElementById('searchInput').addEventListener('input', renderTable);
+    document.getElementById('productSelect').addEventListener('change', renderTable);
+    document.getElementById('channelSelect').addEventListener('change', renderTable);
+
+    setInterval(() => {
+      if (document.getElementById('toggleAutoSync').checked && document.visibilityState === 'visible') {
+        loadOrders({ silent: true });
+      }
+    }, 20000);
+
+    loadOrders();
+  </script>
+</body>
+</html>
