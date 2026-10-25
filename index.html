@@ -2166,12 +2166,16 @@
         </div>
 
         <div class="field">
-          <label for="cChannel">Kênh mua</label>
-          <select id="cChannel">
-            <option value="Zalo">Zalo</option>
-            <option value="Facebook">Facebook</option>
-            <option value="">(Trống)</option>
-          </select>
+          <label for="cChannel">Kênh mua (chọn hoặc gõ thêm kênh mới)</label>
+          <input id="cChannel" list="channelDatalist" placeholder="Zalo, Facebook, Telegram, Shopee..." />
+          <datalist id="channelDatalist"></datalist>
+          <div class="chip-row">
+            <button type="button" class="mini-chip" data-cchan="Zalo">Zalo</button>
+            <button type="button" class="mini-chip" data-cchan="Facebook">Facebook</button>
+            <button type="button" class="mini-chip" data-cchan="Telegram">Telegram</button>
+            <button type="button" class="mini-chip" data-cchan="TikTok">TikTok</button>
+            <button type="button" class="mini-chip" data-cchan="Shopee">Shopee</button>
+          </div>
         </div>
 
         <div class="field">
@@ -2208,7 +2212,7 @@
 
         <div class="field">
           <label for="cSource">Nguồn gốc</label>
-          <input id="cSource" placeholder="mua trường..." />
+          <input id="cSource" placeholder="(Để trống)" />
         </div>
 
         <div class="field">
@@ -2218,7 +2222,7 @@
 
         <div class="field">
           <label for="cFamEmail">Mail Fam</label>
-          <input id="cFamEmail" type="email" placeholder="badaoqn...@gmail.com" />
+          <input id="cFamEmail" placeholder="(Để trống)" />
         </div>
 
         <div class="field f-full">
@@ -2287,13 +2291,16 @@
           </div>
 
           <div class="field">
-            <label for="eChannel">Kênh mua</label>
-            <select id="eChannel">
-              <option value="Zalo">Zalo</option>
-              <option value="Facebook">Facebook</option>
-              <option value="">(Trống)</option>
-            </select>
+          <label for="eChannel">Kênh mua (chọn hoặc gõ thêm kênh mới)</label>
+          <input id="eChannel" list="channelDatalist" placeholder="Zalo, Facebook, Telegram, Shopee..." />
+          <div class="chip-row">
+            <button type="button" class="mini-chip" data-echan="Zalo">Zalo</button>
+            <button type="button" class="mini-chip" data-echan="Facebook">Facebook</button>
+            <button type="button" class="mini-chip" data-echan="Telegram">Telegram</button>
+            <button type="button" class="mini-chip" data-echan="TikTok">TikTok</button>
+            <button type="button" class="mini-chip" data-echan="Shopee">Shopee</button>
           </div>
+        </div>
 
           <div class="field">
             <label for="ePhone">Số điện thoại</label>
@@ -2302,7 +2309,7 @@
 
           <div class="field">
             <label for="eSource">Nguồn gốc</label>
-            <input id="eSource" placeholder="-" />
+            <input id="eSource" placeholder="(Để trống)" />
           </div>
 
           <div class="field">
@@ -2337,7 +2344,7 @@
 
           <div class="field f-full">
             <label for="eFamEmail">Mail Fam / Tài khoản cấp</label>
-            <input id="eFamEmail" type="email" placeholder="Chưa có mail fam" />
+            <input id="eFamEmail" placeholder="(Để trống)" />
           </div>
 
           <div class="field f-full">
@@ -5843,6 +5850,51 @@
       }
     }
 
+    
+    function updateProductAndChannelDropdowns() {
+      const orders = appState.orders || [];
+      const defaultProducts = ['gemini', 'chat gpt', 'netflix', 'office', 'canva', 'youtube', 'spotify'];
+      const defaultChannels = ['Zalo', 'Facebook', 'Telegram', 'TikTok', 'Shopee', 'Website', 'Khách quen', 'Khác'];
+
+      const products = [...new Set([
+        ...defaultProducts,
+        ...orders.map(o => (o.product || '').trim().toLowerCase()).filter(Boolean)
+      ])].sort();
+
+      const channels = [...new Set([
+        ...defaultChannels,
+        ...orders.map(o => (o.channel || '').trim()).filter(Boolean)
+      ])].sort();
+
+      const prodDataList = document.getElementById('productDatalist');
+      if (prodDataList) {
+        prodDataList.innerHTML = products.map(p => `<option value="${esc(p)}"></option>`).join('');
+      }
+
+      const chanDataList = document.getElementById('channelDatalist');
+      if (chanDataList) {
+        chanDataList.innerHTML = channels.map(c => `<option value="${esc(c)}"></option>`).join('');
+      }
+
+      const pSel = document.getElementById('productSelect');
+      if (pSel) {
+        const curP = pSel.value;
+        pSel.innerHTML =
+          `<option value="all">Tất cả mặt hàng (${products.length})</option>` +
+          products.map(p => `<option value="${esc(p)}">${esc(p)}</option>`).join('');
+        if ([...pSel.options].some(opt => opt.value === curP)) pSel.value = curP;
+      }
+
+      const cSel = document.getElementById('channelSelect');
+      if (cSel) {
+        const curC = cSel.value;
+        cSel.innerHTML =
+          `<option value="all">Tất cả kênh mua (${channels.length})</option>` +
+          channels.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+        if ([...cSel.options].some(opt => opt.value === curC)) cSel.value = curC;
+      }
+    }
+
     function renderAll() {
       const orders = appState.orders;
       const soon30 = orders.filter((o) => !o.renewedByRow && o.daysLeft !== null && o.daysLeft >= 0 && o.daysLeft <= 30);
@@ -6045,24 +6097,28 @@
       win.hidden = false;
       win.classList.remove('is-minimized');
       document.body.classList.add('composer-open');
-      document.getElementById('composerTitleText').textContent = `+ Ghi đơn mới (Dòng #${appState.nextEmptyRow})`;
+      document.getElementById('composerTitleText').textContent = `+ Ghi đơn mới (Dòng #${appState.nextEmptyRow || 142})`;
 
       if (prefillOrder) {
-        document.getElementById('cCustomerName').value = prefillOrder.customerName;
-        document.getElementById('cProduct').value = prefillOrder.product;
-        document.getElementById('cChannel').value = ['Zalo', 'Facebook', ''].includes(prefillOrder.channel) ? prefillOrder.channel : 'Zalo';
-        document.getElementById('cSalePrice').value = prefillOrder.salePrice.replace(/\./g, '');
-        document.getElementById('cCostPrice').value = prefillOrder.costPrice.replace(/\./g, '');
-        document.getElementById('cBuyDate').value = appState.today;
+        document.getElementById('cCustomerName').value = prefillOrder.customerName || '';
+        document.getElementById('cProduct').value = prefillOrder.product || '';
+        document.getElementById('cChannel').value = prefillOrder.channel || 'Zalo';
+        document.getElementById('cSalePrice').value = String(prefillOrder.salePrice || '').replace(/\./g, '');
+        document.getElementById('cCostPrice').value = String(prefillOrder.costPrice || '').replace(/\./g, '');
+        document.getElementById('cBuyDate').value = appState.today || new Date().toISOString().slice(0, 10);
         document.getElementById('cMonths').value = prefillOrder.months || '12';
-        document.getElementById('cPhone').value = prefillOrder.phone;
-        document.getElementById('cSource').value = prefillOrder.source;
-        document.getElementById('cCustomerEmail').value = prefillOrder.customerEmail;
-        document.getElementById('cFamEmail').value = prefillOrder.famEmail;
+        document.getElementById('cPhone').value = prefillOrder.phone || '';
+        document.getElementById('cSource').value = ''; // Để trống theo yêu cầu
+        document.getElementById('cCustomerEmail').value = prefillOrder.customerEmail || '';
+        document.getElementById('cFamEmail').value = ''; // Để trống theo yêu cầu
         document.getElementById('cCustomEnd').value = '';
-        document.getElementById('cNote').value = prefillOrder.note;
-      } else if (!document.getElementById('cBuyDate').value) {
-        document.getElementById('cBuyDate').value = appState.today;
+        document.getElementById('cNote').value = prefillOrder.note || '';
+      } else {
+        if (!document.getElementById('cBuyDate').value) {
+          document.getElementById('cBuyDate').value = appState.today || new Date().toISOString().slice(0, 10);
+        }
+        document.getElementById('cSource').value = '';
+        document.getElementById('cFamEmail').value = '';
       }
       updateCreatePreview();
       document.getElementById('cCustomerName').focus();
@@ -6070,55 +6126,95 @@
 
     async function loadOrders({ silent = false } = {}) {
       const btn = document.getElementById('btnReload');
-      if (!silent) btn.disabled = true;
-      try {
-        const res = await fetch('/api/orders');
-        const data = await res.json();
-        if (res.status === 401 || data.authRequired) {
-          document.getElementById('authGate').hidden = false;
-          return;
+      if (!silent && btn) btn.disabled = true;
+
+      const isGhPages = window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
+      const authed = isAdminAuthenticated();
+
+      if (!authed) {
+        document.getElementById('authGate').hidden = false;
+        if (!silent && btn) btn.disabled = false;
+        return;
+      }
+
+      document.getElementById('authGate').hidden = true;
+      let loaded = null;
+
+      // 1. Thử gọi backend Node.js nếu KHÔNG PHẢI GitHub Pages
+      if (!isGhPages) {
+        try {
+          const res = await fetch('/api/orders');
+          const contentType = res.headers.get('content-type') || '';
+          if (res.status === 401) {
+            sessionStorage.removeItem('qlbh_authenticated');
+            document.getElementById('authGate').hidden = false;
+            if (!silent && btn) btn.disabled = false;
+            return;
+          }
+          if (res.ok && contentType.includes('application/json')) {
+            const data = await res.json();
+            if (data && data.ok) loaded = data;
+          }
+        } catch (err) {}
+      }
+
+      // 2. Thử gọi Google Apps Script Web App nếu có cấu hình
+      if (!loaded) {
+        const gasUrl = (localStorage.getItem('qlbh_gas_url') || '').trim();
+        if (gasUrl) {
+          try {
+            const sep = gasUrl.includes('?') ? '&' : '?';
+            const res = await fetch(gasUrl + sep + 'action=read');
+            const data = await res.json();
+            if (data && data.ok) {
+              loaded = data;
+              saveLocalOrders(loaded);
+            }
+          } catch (err) {
+            console.warn('Lỗi fetch Google Apps Script:', err);
+          }
         }
-        if (!data.ok) throw new Error(data.error || 'Lỗi tải dữ liệu');
+      }
 
-        document.getElementById('authGate').hidden = true;
-        const changed = silent && appState.dataHash && appState.dataHash !== data.dataHash;
-        appState = data;
+      // 3. Đọc từ LocalStorage
+      if (!loaded) {
+        try {
+          const cached = localStorage.getItem('qlbh_orders_data');
+          if (cached) loaded = JSON.parse(cached);
+        } catch (e) {}
+      }
 
-        const timeStr = new Date(data.syncedAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      // 4. Fallback dữ liệu 134 đơn hàng nhúng sẵn
+      if (!loaded && window.EMBEDDED_INITIAL_DATA) {
+        loaded = JSON.parse(JSON.stringify(window.EMBEDDED_INITIAL_DATA));
+        saveLocalOrders(loaded);
+      }
+
+      if (loaded) {
+        appState = loaded;
+        const timeStr = new Date(loaded.syncedAt || Date.now()).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         document.getElementById('syncStamp').textContent = `Đồng bộ 2 chiều: ${timeStr}`;
-        document.getElementById('sidebarNextRow').textContent = `Dòng trống kế: #${data.nextEmptyRow}`;
-        document.getElementById('composerTitleText').textContent = `+ Ghi đơn mới (Dòng #${data.nextEmptyRow})`;
+        document.getElementById('sidebarNextRow').textContent = `Dòng trống kế: #${loaded.nextEmptyRow || 142}`;
+        document.getElementById('composerTitleText').textContent = `+ Ghi đơn mới (Dòng #${loaded.nextEmptyRow || 142})`;
 
+        const todayStr = loaded.today || new Date().toISOString().slice(0, 10);
         if (!document.getElementById('cBuyDate').value) {
-          document.getElementById('cBuyDate').value = data.today;
+          document.getElementById('cBuyDate').value = todayStr;
           updateCreatePreview();
         }
         if (!document.getElementById('statSingleDate').value) {
-          document.getElementById('statSingleDate').value = data.today;
-          document.getElementById('statFromDate').value = data.today;
-          document.getElementById('statToDate').value = data.today;
+          document.getElementById('statSingleDate').value = todayStr;
+          document.getElementById('statFromDate').value = todayStr;
+          document.getElementById('statToDate').value = todayStr;
         }
 
-        const products = [...new Set(data.orders.map((o) => o.product.trim().toLowerCase()).filter(Boolean))];
-        document.getElementById('productDatalist').innerHTML = products.map((p) => `<option value="${esc(p)}"></option>`).join('');
-
-        const pSel = document.getElementById('productSelect');
-        const curP = pSel.value;
-        pSel.innerHTML =
-          `<option value="all">Tất cả mặt hàng (${products.length})</option>` +
-          products.map((p) => `<option value="${esc(p)}">${esc(p)}</option>`).join('');
-        if ([...pSel.options].some((opt) => opt.value === curP)) pSel.value = curP;
-
+        updateProductAndChannelDropdowns();
         renderAll();
-
-        if (changed) {
-          showToast('Đã tự động cập nhật thay đổi mới từ Google Sheet.');
-        }
-      } catch (err) {
-        if (!silent) showToast(err.message, true);
-      } finally {
-        btn.disabled = false;
+        renderTable();
+        renderOrderStats();
       }
+
+      if (!silent && btn) btn.disabled = false;
     }
 
     // --- Authentication & Password Reset Handlers ---
@@ -6398,6 +6494,14 @@
       document.body.classList.remove('composer-open');
     });
 
+    
+    document.querySelectorAll('.mini-chip[data-cchan]').forEach((b) => {
+      b.addEventListener('click', () => { document.getElementById('cChannel').value = b.dataset.cchan; });
+    });
+    document.querySelectorAll('.mini-chip[data-echan]').forEach((b) => {
+      b.addEventListener('click', () => { document.getElementById('eChannel').value = b.dataset.echan; });
+    });
+
     document.querySelectorAll('.mini-chip[data-cprod]').forEach((b) => {
       b.addEventListener('click', () => { document.getElementById('cProduct').value = b.dataset.cprod; });
     });
@@ -6422,43 +6526,152 @@
       updateCreatePreview();
     });
 
-    document.getElementById('createForm').addEventListener('submit', async (e) => {
+    
+    function processLocalOrderSave(payload, isEdit = false, targetRow = null) {
+      const todayStr = appState.today || new Date().toISOString().slice(0, 10);
+      const calc = calculateEndDate(payload.buyDate || todayStr, payload.months || 1);
+
+      if (isEdit && targetRow) {
+        const idx = (appState.orders || []).findIndex(o => o.rowNumber === targetRow);
+        if (idx !== -1) {
+          appState.orders[idx] = {
+            ...appState.orders[idx],
+            customerName: payload.customerName,
+            product: payload.product,
+            channel: payload.channel,
+            salePrice: payload.salePrice,
+            costPrice: payload.costPrice,
+            buyDate: payload.buyDate,
+            buyDateISO: payload.buyDate,
+            months: payload.months,
+            endDate: payload.customEndDate || calc.endDate,
+            endDateISO: payload.customEndDate || calc.endDateISO,
+            daysLeft: calc.daysLeft,
+            phone: payload.phone || '',
+            source: payload.source || '',
+            customerEmail: payload.customerEmail || '',
+            famEmail: payload.famEmail || '',
+            note: payload.note || ''
+          };
+        }
+      } else {
+        const nextRow = appState.nextEmptyRow || ((appState.orders || []).length + 8);
+        const newOrder = {
+          rowNumber: nextRow,
+          stt: String((appState.orders || []).length + 1),
+          customerName: payload.customerName,
+          product: payload.product,
+          channel: payload.channel,
+          salePrice: payload.salePrice,
+          costPrice: payload.costPrice,
+          buyDate: payload.buyDate,
+          buyDateISO: payload.buyDate,
+          months: payload.months,
+          endDate: payload.customEndDate || calc.endDate,
+          endDateISO: payload.customEndDate || calc.endDateISO,
+          daysLeft: calc.daysLeft,
+          phone: payload.phone || '',
+          source: payload.source || '',
+          customerEmail: payload.customerEmail || '',
+          famEmail: payload.famEmail || '',
+          note: payload.note || '',
+          syncedBefore3d: null,
+          syncedOnDay: null
+        };
+        if (!appState.orders) appState.orders = [];
+        appState.orders.unshift(newOrder);
+        appState.nextEmptyRow = nextRow + 1;
+      }
+
+      appState.kpis = recalculateKPIs(appState.orders);
+      saveLocalOrders(appState);
+      updateProductAndChannelDropdowns();
+      renderAll();
+      renderTable();
+      renderOrderStats();
+
+      // Đồng bộ ngầm lên Google Apps Script nếu có cấu hình
+      syncOrderToGas(isEdit ? 'update' : 'create', payload, targetRow || appState.nextEmptyRow - 1);
+    }
+
+document.getElementById('createForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('btnCreateSubmit');
       btn.disabled = true;
       try {
         const payload = {
-          customerName: document.getElementById('cCustomerName').value,
-          product: document.getElementById('cProduct').value,
-          channel: document.getElementById('cChannel').value,
-          salePrice: document.getElementById('cSalePrice').value,
-          costPrice: document.getElementById('cCostPrice').value,
+          customerName: document.getElementById('cCustomerName').value.trim(),
+          product: document.getElementById('cProduct').value.trim(),
+          channel: document.getElementById('cChannel').value.trim(),
+          salePrice: document.getElementById('cSalePrice').value.trim(),
+          costPrice: document.getElementById('cCostPrice').value.trim(),
           buyDate: document.getElementById('cBuyDate').value,
           months: document.getElementById('cMonths').value,
-          phone: document.getElementById('cPhone').value,
-          source: document.getElementById('cSource').value,
-          customerEmail: document.getElementById('cCustomerEmail').value,
-          famEmail: document.getElementById('cFamEmail').value,
+          phone: document.getElementById('cPhone').value.trim(),
+          source: document.getElementById('cSource').value.trim(), // để trống
+          customerEmail: document.getElementById('cCustomerEmail').value.trim(),
+          famEmail: document.getElementById('cFamEmail').value.trim(), // để trống
           customEndDate: document.getElementById('cCustomEnd').value,
-          note: document.getElementById('cNote').value,
+          note: document.getElementById('cNote').value.trim(),
           syncCalendar: document.getElementById('cSyncCal').checked,
         };
-        const res = await fetch('/api/orders', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-        const data = await res.json();
-        if (!data.ok) throw new Error(data.error);
 
-        const link = data.reminderSync?.created?.[0]?.htmlLink || '';
-        document.getElementById('createForm').reset();
-        document.getElementById('cBuyDate').value = appState.today;
-        document.getElementById('cMonths').value = '12';
-        document.getElementById('composerWin').hidden = true;
-        document.body.classList.remove('composer-open');
-        await loadOrders({ silent: true });
-        showToast(`Đã ghi đơn mới vào dòng #${data.targetRow} trên Google Sheet.`, false, link);
+        const isGhPages = window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
+
+        if (isGhPages || !navigator.onLine) {
+          processLocalOrderSave(payload, false);
+          document.getElementById('createForm').reset();
+          document.getElementById('cBuyDate').value = appState.today || new Date().toISOString().slice(0, 10);
+          document.getElementById('cMonths').value = '12';
+          document.getElementById('cSource').value = '';
+          document.getElementById('cFamEmail').value = '';
+          document.getElementById('composerWin').hidden = true;
+          document.body.classList.remove('composer-open');
+          showToast('Đã thêm đơn hàng mới thành công!');
+        } else {
+          try {
+            const res = await fetch('/api/orders', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            });
+            const contentType = res.headers.get('content-type') || '';
+            if (res.ok && contentType.includes('application/json')) {
+              const data = await res.json();
+              if (!data.ok) throw new Error(data.error);
+              document.getElementById('createForm').reset();
+              document.getElementById('cBuyDate').value = appState.today;
+              document.getElementById('cMonths').value = '12';
+              document.getElementById('cSource').value = '';
+              document.getElementById('cFamEmail').value = '';
+              document.getElementById('composerWin').hidden = true;
+              document.body.classList.remove('composer-open');
+              await loadOrders({ silent: true });
+              showToast(`Đã ghi đơn mới vào dòng #${data.targetRow} trên Google Sheet.`);
+            } else {
+              // Fallback local save nếu endpoint không trả JSON
+              processLocalOrderSave(payload, false);
+              document.getElementById('createForm').reset();
+              document.getElementById('cBuyDate').value = appState.today || new Date().toISOString().slice(0, 10);
+              document.getElementById('cMonths').value = '12';
+              document.getElementById('cSource').value = '';
+              document.getElementById('cFamEmail').value = '';
+              document.getElementById('composerWin').hidden = true;
+              document.body.classList.remove('composer-open');
+              showToast('Đã thêm đơn hàng mới thành công!');
+            }
+          } catch (fetchErr) {
+            processLocalOrderSave(payload, false);
+            document.getElementById('createForm').reset();
+            document.getElementById('cBuyDate').value = appState.today || new Date().toISOString().slice(0, 10);
+            document.getElementById('cMonths').value = '12';
+            document.getElementById('cSource').value = '';
+            document.getElementById('cFamEmail').value = '';
+            document.getElementById('composerWin').hidden = true;
+            document.body.classList.remove('composer-open');
+            showToast('Đã thêm đơn hàng mới thành công!');
+          }
+        }
       } catch (err) {
         showToast(err.message, true);
       } finally {
@@ -6478,32 +6691,53 @@
       btn.disabled = true;
       try {
         const payload = {
-          customerName: document.getElementById('eCustomerName').value,
-          product: document.getElementById('eProduct').value,
-          channel: document.getElementById('eChannel').value,
-          phone: document.getElementById('ePhone').value,
-          source: document.getElementById('eSource').value,
-          salePrice: document.getElementById('eSalePrice').value,
-          costPrice: document.getElementById('eCostPrice').value,
+          customerName: document.getElementById('eCustomerName').value.trim(),
+          product: document.getElementById('eProduct').value.trim(),
+          channel: document.getElementById('eChannel').value.trim(),
+          phone: document.getElementById('ePhone').value.trim(),
+          source: document.getElementById('eSource').value.trim(),
+          salePrice: document.getElementById('eSalePrice').value.trim(),
+          costPrice: document.getElementById('eCostPrice').value.trim(),
           buyDate: document.getElementById('eBuyDate').value,
           months: document.getElementById('eMonths').value,
           customEndDate: document.getElementById('eMonths').value ? '' : document.getElementById('eCustomEnd').value,
-          customerEmail: document.getElementById('eCustomerEmail').value,
-          famEmail: document.getElementById('eFamEmail').value,
-          note: document.getElementById('eNote').value,
+          customerEmail: document.getElementById('eCustomerEmail').value.trim(),
+          famEmail: document.getElementById('eFamEmail').value.trim(),
+          note: document.getElementById('eNote').value.trim(),
           syncCalendar: true,
         };
-        const res = await fetch(`/api/orders/${rowNumber}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-        const data = await res.json();
-        if (!data.ok) throw new Error(data.error);
-        const link = data.reminderSync?.updated?.[0]?.htmlLink || data.reminderSync?.created?.[0]?.htmlLink || '';
-        closeDetailDrawer();
-        await loadOrders({ silent: true });
-        showToast(`Đã cập nhật dòng #${rowNumber} trực tiếp lên Google Sheet.`, false, link);
+
+        const isGhPages = window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
+
+        if (isGhPages || !navigator.onLine) {
+          processLocalOrderSave(payload, true, rowNumber);
+          closeDetailDrawer();
+          showToast(`Đã cập nhật đơn hàng dòng #${rowNumber} thành công!`);
+        } else {
+          try {
+            const res = await fetch(`/api/orders/${rowNumber}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            });
+            const contentType = res.headers.get('content-type') || '';
+            if (res.ok && contentType.includes('application/json')) {
+              const data = await res.json();
+              if (!data.ok) throw new Error(data.error);
+              closeDetailDrawer();
+              await loadOrders({ silent: true });
+              showToast(`Đã cập nhật dòng #${rowNumber} trực tiếp lên Google Sheet.`);
+            } else {
+              processLocalOrderSave(payload, true, rowNumber);
+              closeDetailDrawer();
+              showToast(`Đã cập nhật đơn hàng dòng #${rowNumber} thành công!`);
+            }
+          } catch (fetchErr) {
+            processLocalOrderSave(payload, true, rowNumber);
+            closeDetailDrawer();
+            showToast(`Đã cập nhật đơn hàng dòng #${rowNumber} thành công!`);
+          }
+        }
       } catch (err) {
         showToast(err.message, true);
       } finally {
