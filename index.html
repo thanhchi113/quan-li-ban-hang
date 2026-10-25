@@ -2108,13 +2108,15 @@
                 <option value="furthest">Hạn dùng: Còn hạn xa nhất</option>
                 <option value="priceDesc">Giá bán: Cao xuống thấp</option>
                 <option value="priceAsc">Giá bán: Thấp lên cao</option>
+                <option value="nameAsc">Tên khách: A → Z</option>
+                <option value="nameDesc">Tên khách: Z → A</option>
               </select>
               <button type="button" class="btn" id="btnToggleSortDirection" title="Đảo ngược chiều thứ tự hiển thị" style="gap:5px;height:34px;padding:0 10px;font-size:12.5px;cursor:pointer;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2;"><polyline points="7 16 12 21 17 16"/><line x1="12" y1="21" x2="12" y2="3"/><polyline points="17 8 12 3 7 8"/></svg>
                 <span id="sortDirectionText">Đảo thứ tự</span>
               </button>
             </div>
-            <span class="panel-meta">Tiêu đề cột được ghim cố định khi cuộn · Bấm vào dòng bất kỳ để xem &amp; sửa</span>
+            <span class="panel-meta">Tiêu đề cột được ghim cố định khi cuộn · Bấm vào tiêu đề cột để đổi chiều sắp xếp nhanh</span>
           </div>
 
           <div class="table-container">
@@ -2130,11 +2132,11 @@
               </colgroup>
               <thead>
                 <tr>
-                  <th class="num">STT</th>
-                  <th>Khách hàng</th>
+                  <th class="num" style="cursor:pointer;user-select:none;" title="Bấm để đổi chiều STT (Đầu ⇄ Cuối)" onclick="handleHeaderSort('stt')">STT ↕</th>
+                  <th style="cursor:pointer;user-select:none;" title="Bấm để sắp xếp theo tên khách (A ⇄ Z)" onclick="handleHeaderSort('name')">Khách hàng ↕</th>
                   <th>Mặt hàng</th>
-                  <th class="num hide-sm">Giá bán (VNĐ)</th>
-                  <th class="num">Ngày kết thúc</th>
+                  <th class="num hide-sm" style="cursor:pointer;user-select:none;" title="Bấm để sắp xếp theo giá bán (Cao ⇄ Thấp)" onclick="handleHeaderSort('price')">Giá bán (VNĐ) ↕</th>
+                  <th class="num" style="cursor:pointer;user-select:none;" title="Bấm để sắp xếp theo hạn dùng (Gần ⇄ Xa)" onclick="handleHeaderSort('date')">Ngày kết thúc ↕</th>
                   <th class="hide-sm">Trạng thái hạn</th>
                   <th class="num hide-sm">Thao tác</th>
                 </tr>
@@ -6076,6 +6078,10 @@
           return list.sort((a, b) => parseToVndAmount(b.salePrice) - parseToVndAmount(a.salePrice));
         case 'priceAsc':
           return list.sort((a, b) => parseToVndAmount(a.salePrice) - parseToVndAmount(b.salePrice));
+        case 'nameAsc':
+          return list.sort((a, b) => (a.customerName || '').localeCompare(b.customerName || '', 'vi'));
+        case 'nameDesc':
+          return list.sort((a, b) => (b.customerName || '').localeCompare(a.customerName || '', 'vi'));
         default:
           return list.reverse();
       }
@@ -6084,7 +6090,17 @@
     function updateSortDirectionButtonText() {
       const btnText = document.getElementById('sortDirectionText');
       if (btnText) {
-        btnText.textContent = currentSortOrder === 'oldest' ? 'Đầu → Cuối' : (currentSortOrder === 'newest' ? 'Cuối → Đầu' : 'Đảo chiều');
+        btnText.textContent = currentSortOrder === 'oldest' ? 'Đầu → Cuối (Cũ trước)' :
+                              currentSortOrder === 'newest' ? 'Cuối → Đầu (Mới trước)' :
+                              currentSortOrder === 'soonest' ? 'Hạn gần trước' :
+                              currentSortOrder === 'furthest' ? 'Hạn xa trước' :
+                              currentSortOrder === 'priceDesc' ? 'Giá cao → thấp' :
+                              currentSortOrder === 'priceAsc' ? 'Giá thấp → cao' :
+                              currentSortOrder === 'nameAsc' ? 'Tên A → Z' : 'Tên Z → A';
+      }
+      const sortSel = document.getElementById('sortSelect');
+      if (sortSel && sortSel.value !== currentSortOrder) {
+        sortSel.value = currentSortOrder;
       }
     }
 
@@ -6094,11 +6110,12 @@
       else if (currentSortOrder === 'soonest') currentSortOrder = 'furthest';
       else if (currentSortOrder === 'furthest') currentSortOrder = 'soonest';
       else if (currentSortOrder === 'priceDesc') currentSortOrder = 'priceAsc';
-      else currentSortOrder = 'newest';
+      else if (currentSortOrder === 'priceAsc') currentSortOrder = 'priceDesc';
+      else if (currentSortOrder === 'nameAsc') currentSortOrder = 'nameDesc';
+      else if (currentSortOrder === 'nameDesc') currentSortOrder = 'nameAsc';
+      else currentSortOrder = 'oldest';
 
       localStorage.setItem('qlbh_sort_order', currentSortOrder);
-      const sortSel = document.getElementById('sortSelect');
-      if (sortSel) sortSel.value = currentSortOrder;
       updateSortDirectionButtonText();
       renderTable();
 
@@ -6106,8 +6123,33 @@
                     currentSortOrder === 'newest' ? 'Mới nhất trước (Từ cuối lên đầu)' :
                     currentSortOrder === 'soonest' ? 'Gần hết hạn nhất' :
                     currentSortOrder === 'furthest' ? 'Còn hạn xa nhất' :
-                    currentSortOrder === 'priceDesc' ? 'Giá bán cao xuống thấp' : 'Giá bán thấp lên cao';
+                    currentSortOrder === 'priceDesc' ? 'Giá bán cao xuống thấp' :
+                    currentSortOrder === 'priceAsc' ? 'Giá bán thấp lên cao' :
+                    currentSortOrder === 'nameAsc' ? 'Tên khách hàng (A → Z)' : 'Tên khách hàng (Z → A)';
       showToast(`Đang hiển thị: ${label}`);
+    }
+
+    function handleHeaderSort(col) {
+      if (col === 'stt') {
+        currentSortOrder = (currentSortOrder === 'newest') ? 'oldest' : 'newest';
+      } else if (col === 'price') {
+        currentSortOrder = (currentSortOrder === 'priceDesc') ? 'priceAsc' : 'priceDesc';
+      } else if (col === 'date') {
+        currentSortOrder = (currentSortOrder === 'soonest') ? 'furthest' : 'soonest';
+      } else if (col === 'name') {
+        currentSortOrder = (currentSortOrder === 'nameAsc') ? 'nameDesc' : 'nameAsc';
+      }
+      localStorage.setItem('qlbh_sort_order', currentSortOrder);
+      updateSortDirectionButtonText();
+      renderTable();
+      const label = currentSortOrder === 'oldest' ? 'STT từ đầu đến cuối (1 → hết)' :
+                    currentSortOrder === 'newest' ? 'STT mới nhất trước (từ cuối lên đầu)' :
+                    currentSortOrder === 'soonest' ? 'Gần hết hạn nhất trước' :
+                    currentSortOrder === 'furthest' ? 'Còn hạn xa nhất trước' :
+                    currentSortOrder === 'priceDesc' ? 'Giá bán cao xuống thấp' :
+                    currentSortOrder === 'priceAsc' ? 'Giá bán thấp lên cao' :
+                    currentSortOrder === 'nameAsc' ? 'Tên khách hàng (A → Z)' : 'Tên khách hàng (Z → A)';
+      showToast(`Sắp xếp: ${label}`);
     }
 
     async function deleteOrder(rowNumber) {
@@ -6973,6 +7015,14 @@ document.getElementById('createForm').addEventListener('submit', async (e) => {
       if (o) openComposerWindow(o);
     });
 
+    const btnDrawerDel = document.getElementById('btnDrawerDelete');
+    if (btnDrawerDel) {
+      btnDrawerDel.addEventListener('click', () => {
+        const rowNumber = Number(document.getElementById('eRowNumber').value);
+        if (rowNumber) deleteOrder(rowNumber);
+      });
+    }
+
     document.getElementById('btnDrawerCopy').addEventListener('click', async () => {
       const rowNumber = Number(document.getElementById('eRowNumber').value);
       const o = appState.orders.find((x) => x.rowNumber === rowNumber);
@@ -7601,6 +7651,24 @@ document.getElementById('createForm').addEventListener('submit', async (e) => {
     document.getElementById('searchInput').addEventListener('input', renderTable);
     document.getElementById('productSelect').addEventListener('change', renderTable);
     document.getElementById('channelSelect').addEventListener('change', renderTable);
+
+    const btnToggleSort = document.getElementById('btnToggleSortDirection');
+    if (btnToggleSort) {
+      btnToggleSort.addEventListener('click', toggleSortDirection);
+    }
+    const sortSelectEl = document.getElementById('sortSelect');
+    if (sortSelectEl) {
+      sortSelectEl.value = currentSortOrder;
+      sortSelectEl.addEventListener('change', (e) => {
+        currentSortOrder = e.target.value;
+        localStorage.setItem('qlbh_sort_order', currentSortOrder);
+        updateSortDirectionButtonText();
+        renderTable();
+        const label = e.target.options[e.target.selectedIndex]?.text || currentSortOrder;
+        showToast(`Đã đổi sắp xếp: ${label}`);
+      });
+    }
+    updateSortDirectionButtonText();
 
     setInterval(() => {
       if (document.getElementById('toggleAutoSync').checked && document.visibilityState === 'visible') {
