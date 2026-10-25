@@ -63,6 +63,12 @@ function doPost(e) {
       return jsonResponse({ ok: true, ...result });
     }
 
+    if (action === 'delete') {
+      const rowNumber = payload.rowNumber;
+      const result = deleteOrder(rowNumber);
+      return jsonResponse({ ok: true, ...result });
+    }
+
     return jsonResponse({ ok: false, error: 'Hành động không hỗ trợ: ' + action });
   } catch (err) {
     return jsonResponse({ ok: false, error: err.message });
@@ -189,6 +195,16 @@ function updateOrder(rowNumber, order) {
   sheet.getRange(rowNumber, 3, 1, rowData.length).setValues([rowData]);
 
   return { rowNumber: rowNumber, message: 'Đã cập nhật đơn hàng thành công!' };
+}
+
+
+function deleteOrder(rowNumber) {
+  const ss = getSpreadsheet();
+  const sheet = ss.getSheetByName(SHEET_NAME) || ss.getSheets()[0];
+  if (rowNumber && rowNumber >= 8) {
+    sheet.getRange(rowNumber, 3, 1, 11).clearContent();
+  }
+  return { rowNumber: rowNumber, message: 'Đã xóa đơn hàng trên Google Sheet thành công!' };
 }
 
 function formatDateISO(val, disp) {

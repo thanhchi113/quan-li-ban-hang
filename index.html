@@ -2094,15 +2094,25 @@
           </div>
 
           <div class="table-toolbar">
-            <div class="toolbar-left">
+            <div class="toolbar-left" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
               <select id="productSelect" class="select-control" aria-label="Lọc mặt hàng">
                 <option value="all">Tất cả mặt hàng</option>
               </select>
               <select id="channelSelect" class="select-control" aria-label="Lọc kênh mua">
                 <option value="all">Tất cả kênh mua</option>
-                <option value="Zalo">Kênh Zalo</option>
-                <option value="Facebook">Kênh Facebook</option>
               </select>
+              <select id="sortSelect" class="select-control" aria-label="Tùy chọn sắp xếp thứ tự">
+                <option value="newest">Thứ tự: Mới nhất trước (Cuối lên đầu)</option>
+                <option value="oldest">Thứ tự: Cũ nhất trước (Từ đầu đến cuối)</option>
+                <option value="soonest">Hạn dùng: Gần hết hạn nhất</option>
+                <option value="furthest">Hạn dùng: Còn hạn xa nhất</option>
+                <option value="priceDesc">Giá bán: Cao xuống thấp</option>
+                <option value="priceAsc">Giá bán: Thấp lên cao</option>
+              </select>
+              <button type="button" class="btn" id="btnToggleSortDirection" title="Đảo ngược chiều thứ tự hiển thị" style="gap:5px;height:34px;padding:0 10px;font-size:12.5px;cursor:pointer;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2;"><polyline points="7 16 12 21 17 16"/><line x1="12" y1="21" x2="12" y2="3"/><polyline points="17 8 12 3 7 8"/></svg>
+                <span id="sortDirectionText">Đảo thứ tự</span>
+              </button>
             </div>
             <span class="panel-meta">Tiêu đề cột được ghim cố định khi cuộn · Bấm vào dòng bất kỳ để xem &amp; sửa</span>
           </div>
@@ -2355,10 +2365,14 @@
       </form>
 
       <footer class="drawer-foot">
-        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
           <button type="button" class="btn" id="btnDrawerRenew">Gia hạn đơn mới</button>
           <button type="button" class="btn" id="btnDrawerCopy">Copy tin nhắc</button>
           <button type="button" class="btn" id="btnDrawerSyncCal">Đặt lịch ĐT</button>
+          <button type="button" class="btn text-btn" id="btnDrawerDelete" style="color:var(--danger, #dc2626);border:1px solid rgba(220,38,38,0.3);background:rgba(220,38,38,0.06);gap:4px;" title="Xóa đơn hàng này">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            <span>Xóa đơn này</span>
+          </button>
         </div>
         <button type="submit" form="editForm" class="btn primary" id="btnEditSubmit">
           Lưu thay đổi lên Sheet
@@ -6005,13 +6019,99 @@
       renderTable();
     }
 
+    
+    let currentSortOrder = localStorage.getItem('qlbh_sort_order') || 'newest';
+
+    function applySorting(ordersList) {
+      const list = [...ordersList];
+      switch (currentSortOrder) {
+        case 'oldest':
+          return list.sort((a, b) => (Number(a.stt) || a.rowNumber) - (Number(b.stt) || b.rowNumber));
+        case 'newest':
+          return list.sort((a, b) => (Number(b.stt) || b.rowNumber) - (Number(a.stt) || a.rowNumber));
+        case 'soonest':
+          return list.sort((a, b) => {
+            const da = a.daysLeft !== null && a.daysLeft !== undefined ? a.daysLeft : 99999;
+            const db = b.daysLeft !== null && b.daysLeft !== undefined ? b.daysLeft : 99999;
+            return da - db;
+          });
+        case 'furthest':
+          return list.sort((a, b) => {
+            const da = a.daysLeft !== null && a.daysLeft !== undefined ? a.daysLeft : -99999;
+            const db = b.daysLeft !== null && b.daysLeft !== undefined ? b.daysLeft : -99999;
+            return db - da;
+          });
+        case 'priceDesc':
+          return list.sort((a, b) => parseToVndAmount(b.salePrice) - parseToVndAmount(a.salePrice));
+        case 'priceAsc':
+          return list.sort((a, b) => parseToVndAmount(a.salePrice) - parseToVndAmount(b.salePrice));
+        default:
+          return list.reverse();
+      }
+    }
+
+    function updateSortDirectionButtonText() {
+      const btnText = document.getElementById('sortDirectionText');
+      if (btnText) {
+        btnText.textContent = currentSortOrder === 'oldest' ? 'Đầu → Cuối' : (currentSortOrder === 'newest' ? 'Cuối → Đầu' : 'Đảo chiều');
+      }
+    }
+
+    function toggleSortDirection() {
+      if (currentSortOrder === 'newest') currentSortOrder = 'oldest';
+      else if (currentSortOrder === 'oldest') currentSortOrder = 'newest';
+      else if (currentSortOrder === 'soonest') currentSortOrder = 'furthest';
+      else if (currentSortOrder === 'furthest') currentSortOrder = 'soonest';
+      else if (currentSortOrder === 'priceDesc') currentSortOrder = 'priceAsc';
+      else currentSortOrder = 'newest';
+
+      localStorage.setItem('qlbh_sort_order', currentSortOrder);
+      const sortSel = document.getElementById('sortSelect');
+      if (sortSel) sortSel.value = currentSortOrder;
+      updateSortDirectionButtonText();
+      renderTable();
+
+      const label = currentSortOrder === 'oldest' ? 'Từ đầu đến cuối (STT 1 → hết)' :
+                    currentSortOrder === 'newest' ? 'Mới nhất trước (Từ cuối lên đầu)' :
+                    currentSortOrder === 'soonest' ? 'Gần hết hạn nhất' :
+                    currentSortOrder === 'furthest' ? 'Còn hạn xa nhất' :
+                    currentSortOrder === 'priceDesc' ? 'Giá bán cao xuống thấp' : 'Giá bán thấp lên cao';
+      showToast(`Đang hiển thị: ${label}`);
+    }
+
+    async function deleteOrder(rowNumber) {
+      const o = (appState.orders || []).find((x) => x.rowNumber === rowNumber);
+      if (!o) return;
+
+      const confirmed = confirm(`Bạn có chắc chắn muốn xóa đơn hàng của khách "${o.customerName}" (Mặt hàng: ${o.product}) không?\n\nThao tác này sẽ xóa đơn và tính toán lại toàn bộ doanh thu, chi phí, lợi nhuận.`);
+      if (!confirmed) return;
+
+      appState.orders = (appState.orders || []).filter((x) => x.rowNumber !== rowNumber);
+      appState.kpis = recalculateKPIs(appState.orders);
+      saveLocalOrders(appState);
+      updateProductAndChannelDropdowns();
+      renderAll();
+      closeDetailDrawer();
+
+      syncOrderToGas('delete', null, rowNumber);
+
+      const isGhPages = window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
+      if (!isGhPages && navigator.onLine) {
+        try {
+          await fetch(`/api/orders/${rowNumber}`, { method: 'DELETE' });
+        } catch (e) {}
+      }
+
+      showToast(`Đã xóa đơn hàng của "${o.customerName}" thành công!`);
+    }
+
     function renderTable() {
       const q = document.getElementById('searchInput').value.trim().toLowerCase();
       const prodFilter = document.getElementById('productSelect').value;
       const chanFilter = document.getElementById('channelSelect').value;
       const tbody = document.getElementById('ordersBody');
 
-      const filtered = [...appState.orders].reverse().filter((o) => {
+      const filtered = applySorting(appState.orders).filter((o) => {
         if (activeFilter === 'soon30' && !(o.daysLeft !== null && o.daysLeft >= 0 && o.daysLeft <= 30 && !o.renewedByRow)) return false;
         if (activeFilter === 'soon7' && !(o.daysLeft !== null && o.daysLeft >= 0 && o.daysLeft <= 7 && !o.renewedByRow)) return false;
         if (activeFilter === 'unsynced' && !(o.daysLeft !== null && o.daysLeft >= 0 && !o.renewedByRow && !o.syncedOnDay)) return false;
@@ -6053,7 +6153,12 @@
           <td class="num mono">${esc(o.endDateISO || o.endDate || '—')}</td>
           <td class="hide-sm">${statusPillForOrder(o)}</td>
           <td class="num hide-sm">
-            <button type="button" class="btn text-btn" onclick="event.stopPropagation();openDetailDrawer(${o.rowNumber})">Chi tiết &amp; Sửa</button>
+            <div style="display:inline-flex;gap:4px;align-items:center;">
+              <button type="button" class="btn text-btn" onclick="event.stopPropagation();openDetailDrawer(${o.rowNumber})">Chi tiết &amp; Sửa</button>
+              <button type="button" class="btn text-btn" onclick="event.stopPropagation();deleteOrder(${o.rowNumber})" title="Xóa đơn hàng này" style="color:var(--danger,#dc2626);padding:4px 6px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:13px;height:13px;stroke-width:2;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
           </td>
         </tr>`
         )
