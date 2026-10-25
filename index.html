@@ -1035,7 +1035,7 @@
     }
     .stat-metrics-strip {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
       gap: 10px;
       margin-bottom: 14px;
     }
@@ -1117,6 +1117,186 @@
     }
     .stat-q-row:hover {
       background: var(--active);
+    }
+
+    /* Workspace Screen Switcher Tabs & Dedicated Screen Banners */
+    .workspace-tabs {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px;
+      background: var(--raised);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 16px;
+      overflow-x: auto;
+      flex-wrap: wrap;
+    }
+    .ws-tab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 14px;
+      border-radius: 7px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 140ms ease;
+    }
+    .ws-tab-btn svg {
+      width: 15px;
+      height: 15px;
+      stroke-width: 2;
+      flex-shrink: 0;
+    }
+    .ws-tab-btn:hover {
+      color: var(--text);
+      background: var(--surface);
+    }
+    .ws-tab-btn[aria-selected="true"] {
+      background: var(--accent-tint);
+      color: var(--accent);
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+    .ws-badge {
+      padding: 1px 6px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--pill-warning-bg);
+      color: var(--pill-warning-ink);
+    }
+
+    /* Chart Container & Line Chart Styles */
+    .chart-container-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 16px;
+      margin-bottom: 14px;
+      position: relative;
+    }
+    .chart-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .chart-title-group h3 {
+      font-size: 14.5px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 0;
+    }
+    .chart-title-group p {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 2px 0 0;
+    }
+    .chart-mode-pills {
+      display: inline-flex;
+      background: var(--raised);
+      padding: 3px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      gap: 3px;
+      flex-wrap: wrap;
+    }
+    .chart-mode-btn {
+      padding: 5px 10px;
+      border-radius: 6px;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .chart-mode-btn.active {
+      background: var(--surface);
+      color: var(--accent);
+      font-weight: 600;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .chart-svg-stage {
+      width: 100%;
+      overflow-x: auto;
+      position: relative;
+      padding-bottom: 4px;
+    }
+    .chart-svg-stage svg {
+      display: block;
+      width: 100%;
+      min-width: 580px;
+      height: 290px;
+      overflow: visible;
+    }
+    .chart-node-group {
+      cursor: pointer;
+    }
+    .chart-node-circle {
+      transition: r 140ms ease, stroke-width 140ms ease;
+    }
+    .chart-node-group:hover .chart-node-circle {
+      r: 7px;
+      stroke-width: 3px;
+    }
+    .chart-tooltip-box {
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: var(--raised);
+      border: 1px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-size: 12.5px;
+      margin-top: 10px;
+    }
+    .stat-table-wrap {
+      max-height: 340px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+    .stat-mini-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    .stat-mini-table th {
+      position: sticky;
+      top: 0;
+      background: var(--raised);
+      padding: 8px 10px;
+      text-align: left;
+      font-weight: 600;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      z-index: 2;
+    }
+    .stat-mini-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .stat-mini-table tr:hover td {
+      background: var(--active);
+    }
+    .stat-mini-table tfoot td {
+      position: sticky;
+      bottom: 0;
+      background: var(--raised);
+      font-weight: 700;
+      border-top: 2px solid var(--border);
     }
 
     /* Floating Compact Composer Window (Ghi đơn mới) */
@@ -1781,14 +1961,22 @@
       </div>
 
       <div class="nav-group-label">Không gian làm việc</div>
-      <button type="button" class="nav-item" aria-current="page" data-filter-nav="all">
+      <button type="button" class="nav-item" aria-current="page" data-workspace-view="overview" id="navViewOverview">
+        <span class="nav-item-left">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Màn hình tổng</span>
+        </span>
+      </button>
+
+      <button type="button" class="nav-item" data-workspace-view="orders" id="navViewOrders">
         <span class="nav-item-left">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
           <span>Tổng quan &amp; sổ đơn</span>
         </span>
+        <span class="queue-badge num" id="navAllBadge" style="background:var(--active);color:var(--text);">0</span>
       </button>
 
-      <button type="button" class="nav-item" data-filter-nav="soon30">
+      <button type="button" class="nav-item" data-workspace-view="reminders" id="navViewReminders">
         <span class="nav-item-left">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
           <span>Đơn cần nhắc hạn</span>
@@ -1796,14 +1984,15 @@
         <span class="queue-badge num" id="navSoonBadge">0</span>
       </button>
 
-      <button type="button" class="nav-item" data-filter-nav="unsynced">
+      <button type="button" class="nav-item" data-workspace-view="unsynced" id="navViewUnsynced">
         <span class="nav-item-left">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
           <span>Chưa đặt lịch ĐT</span>
         </span>
+        <span class="queue-badge num" id="navUnsyncedBadge" style="background:var(--pill-negative-bg);color:var(--pill-negative-ink);">0</span>
       </button>
 
-      <button type="button" class="nav-item" id="navBtnSalesStats">
+      <button type="button" class="nav-item" data-workspace-view="stats" id="navBtnSalesStats">
         <span class="nav-item-left">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
           <span>Thống kê đơn bán</span>
@@ -1930,8 +2119,35 @@
 
         <div id="toast" role="status" aria-live="polite"></div>
 
+        <!-- Thanh chuyển đổi 5 màn hình làm việc (Workspace Screen Tabs) -->
+        <nav class="workspace-tabs" id="workspaceTabBar" aria-label="Chuyển đổi màn hình chức năng">
+          <button type="button" class="ws-tab-btn" data-workspace-view="overview" aria-selected="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>Màn hình tổng</span>
+          </button>
+          <button type="button" class="ws-tab-btn" data-workspace-view="orders" aria-selected="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+            <span>Tổng quan &amp; sổ đơn</span>
+            <span class="ws-badge mono" id="wsBadgeAll" style="background:var(--active);color:var(--text);">0</span>
+          </button>
+          <button type="button" class="ws-tab-btn" data-workspace-view="reminders" aria-selected="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            <span>Đơn cần nhắc hạn</span>
+            <span class="ws-badge mono" id="wsBadgeSoon">0</span>
+          </button>
+          <button type="button" class="ws-tab-btn" data-workspace-view="unsynced" aria-selected="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <span>Chưa đặt lịch ĐT</span>
+            <span class="ws-badge mono" id="wsBadgeUnsynced" style="background:var(--pill-negative-bg);color:var(--pill-negative-ink);">0</span>
+          </button>
+          <button type="button" class="ws-tab-btn" data-workspace-view="stats" aria-selected="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span>Thống kê đơn bán &amp; Biểu đồ</span>
+          </button>
+        </nav>
+
         <!-- Colorful Divided KPI Strip -->
-        <section class="kpi-strip" aria-label="Chỉ số tổng hợp từ Google Sheet">
+        <section class="kpi-strip" id="kpiStripSection" aria-label="Chỉ số tổng hợp từ Google Sheet">
           <div class="kpi-cell lead">
             <div class="kpi-label"><span class="kpi-dot"></span>Tổng doanh thu (D5)</div>
             <div class="kpi-val mono" id="kpiRev">67.165.000<small>đ</small></div>
@@ -1954,8 +2170,37 @@
           </div>
         </section>
 
+        <!-- Banner riêng cho màn hình: Đơn cần nhắc hạn -->
+        <section class="panel" id="remindersDedicatedBanner" style="display:none;margin-bottom:16px;border-left:4px solid var(--warning);">
+          <div class="panel-head" style="margin-bottom:10px;">
+            <div>
+              <h2>Trung tâm chăm sóc &amp; Nhắc gia hạn đơn hàng</h2>
+              <p class="panel-meta">Tập trung xử lý các đơn hàng sắp hết hạn hoặc đã quá hạn chưa nối gói. Bấm vào từng đơn để Copy lời nhắn nhắc hoặc Gia hạn 1 chạm.</p>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button type="button" class="btn" onclick="setFilterMode('soon7')">Khẩn cấp ≤ 7 ngày (<span id="remBannerSoon7">0</span>)</button>
+              <button type="button" class="btn primary" onclick="setFilterMode('soon30')">Sắp hết hạn ≤ 30 ngày (<span id="remBannerSoon30">0</span>)</button>
+              <button type="button" class="btn" onclick="setFilterMode('expired')">Quá hạn chưa nối gói (<span id="remBannerExpired">0</span>)</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Banner riêng cho màn hình: Chưa đặt lịch ĐT -->
+        <section class="panel" id="unsyncedDedicatedBanner" style="display:none;margin-bottom:16px;border-left:4px solid var(--accent);">
+          <div class="panel-head" style="margin-bottom:10px;">
+            <div>
+              <h2>Trung tâm đồng bộ Lịch nhắc Điện thoại (Google Calendar)</h2>
+              <p class="panel-meta" id="unsyncedBannerDesc">Tự động tạo 2 mốc nhắc hẹn trên điện thoại (trước 3 ngày &amp; đúng ngày hết hạn lúc 09:00 sáng) cho các đơn chưa đặt lịch.</p>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button type="button" class="btn primary" onclick="triggerSync60Days()">Đồng bộ lịch 60 ngày tới</button>
+              <button type="button" class="btn accent-outline" onclick="document.getElementById('navBtnTestPhone').click()">Bắn thử báo ĐT (1 phút)</button>
+            </div>
+          </div>
+        </section>
+
         <!-- Paired Row: Urgent Queue (left 7 cols) + Product Breakdown (right 5 cols) -->
-        <section class="pair-grid">
+        <section class="pair-grid" id="pairGridSection">
           <div class="panel">
             <div class="panel-head">
               <h2>Hàng đợi sắp hết hạn (≤ 30 ngày)</h2>
@@ -1973,78 +2218,164 @@
           </div>
         </section>
 
-        <!-- Section: Thống kê đơn hàng bán ra theo ngày & khoảng thời gian -->
+        <!-- Section: Màn hình Thống kê đơn bán chi tiết & Biểu đồ đoạn thẳng -->
         <section class="panel" id="salesStatsSection">
           <div class="panel-head">
             <div>
               <h2 style="display:flex;align-items:center;gap:8px;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:18px;height:18px;color:var(--accent);stroke-width:2;"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                <span>Thống kê đơn bán theo ngày &amp; khoảng thời gian</span>
+                <span>Thống kê chi tiết &amp; Biểu đồ bán hàng (Ngày · Tháng · Năm)</span>
               </h2>
-              <p class="panel-meta" id="statPeriodSummary">Chọn ngày hoặc khoảng thời gian để xem số đơn và doanh thu</p>
+              <p class="panel-meta" id="statPeriodSummary">Biểu đồ đoạn thẳng thể hiện số lượng đơn hàng, doanh thu và lợi nhuận theo từng ngày, tháng, năm</p>
             </div>
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-              <button type="button" class="btn accent-outline" id="btnFilterTableByPeriod">Lọc bảng đơn theo kỳ này</button>
+              <button type="button" class="btn accent-outline" id="btnFilterTableByPeriod">Mở lọc trên Sổ đơn</button>
               <button type="button" class="btn text-btn" id="btnClearDateFilter" style="display:none;">Bỏ lọc ngày</button>
             </div>
           </div>
 
-          <!-- Controls: Presets + Date Inputs -->
+          <!-- Controls: Presets + Date/Month/Year Inputs -->
           <div class="stat-controls-row">
-            <div class="chip-row" role="group" aria-label="Chọn kỳ thống kê nhanh">
-              <button type="button" class="mini-chip stat-preset-btn active" data-preset="today">Hôm nay</button>
+            <div class="chip-row" role="group" aria-label="Chọn chế độ thống kê">
+              <button type="button" class="mini-chip stat-preset-btn active" data-preset="byMonth">Theo tháng (Ngày 1→31)</button>
+              <button type="button" class="mini-chip stat-preset-btn" data-preset="byYear">Theo năm (12 tháng)</button>
+              <button type="button" class="mini-chip stat-preset-btn" data-preset="singleDay">Xem 1 ngày</button>
+              <button type="button" class="mini-chip stat-preset-btn" data-preset="today">Hôm nay</button>
               <button type="button" class="mini-chip stat-preset-btn" data-preset="yesterday">Hôm qua</button>
               <button type="button" class="mini-chip stat-preset-btn" data-preset="last7">7 ngày qua</button>
               <button type="button" class="mini-chip stat-preset-btn" data-preset="last30">30 ngày qua</button>
-              <button type="button" class="mini-chip stat-preset-btn" data-preset="thisMonth">Tháng này</button>
-              <button type="button" class="mini-chip stat-preset-btn" data-preset="lastMonth">Tháng trước</button>
-              <button type="button" class="mini-chip stat-preset-btn" data-preset="singleDay">Chọn 1 ngày</button>
-              <button type="button" class="mini-chip stat-preset-btn" data-preset="customRange">Tùy chọn khoảng ngày</button>
+              <button type="button" class="mini-chip stat-preset-btn" data-preset="allYears">Tất cả các năm</button>
+              <button type="button" class="mini-chip stat-preset-btn" data-preset="customRange">Khoảng ngày tùy chọn</button>
             </div>
 
             <div class="stat-inputs-wrap">
-              <div id="statSingleWrap" style="display:flex;align-items:center;gap:6px;">
-                <label for="statSingleDate" style="font-size:12px;font-weight:500;color:var(--muted);white-space:nowrap;">Ngày bán:</label>
-                <input type="date" id="statSingleDate" class="mono select-control" style="width:145px;height:32px;" />
+              <!-- Chọn Tháng -->
+              <div id="statMonthWrap" style="display:flex;align-items:center;gap:6px;">
+                <label for="statMonthSelect" style="font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;">Chọn tháng:</label>
+                <select id="statMonthSelect" class="mono select-control" style="height:32px;min-width:165px;"></select>
               </div>
+              <!-- Chọn Năm -->
+              <div id="statYearWrap" style="display:none;align-items:center;gap:6px;">
+                <label for="statYearSelect" style="font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;">Chọn năm:</label>
+                <select id="statYearSelect" class="mono select-control" style="height:32px;min-width:130px;"></select>
+              </div>
+              <!-- Chọn 1 Ngày -->
+              <div id="statSingleWrap" style="display:none;align-items:center;gap:6px;flex-wrap:wrap;">
+                <label for="statSingleDate" style="font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;">Ngày bán:</label>
+                <input type="date" id="statSingleDate" class="mono select-control" style="width:142px;height:32px;" />
+                <select id="statActiveDaysQuick" class="mono select-control" style="height:32px;max-width:190px;" title="Chọn nhanh ngày có phát sinh đơn bán">
+                  <option value="">-- Ngày có đơn gần đây --</option>
+                </select>
+              </div>
+              <!-- Chọn Khoảng Ngày -->
               <div id="statRangeWrap" style="display:none;align-items:center;gap:6px;flex-wrap:wrap;">
-                <label for="statFromDate" style="font-size:12px;font-weight:500;color:var(--muted);white-space:nowrap;">Từ:</label>
-                <input type="date" id="statFromDate" class="mono select-control" style="width:140px;height:32px;" />
-                <label for="statToDate" style="font-size:12px;font-weight:500;color:var(--muted);white-space:nowrap;">Đến:</label>
-                <input type="date" id="statToDate" class="mono select-control" style="width:140px;height:32px;" />
+                <label for="statFromDate" style="font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;">Từ:</label>
+                <input type="date" id="statFromDate" class="mono select-control" style="width:138px;height:32px;" />
+                <label for="statToDate" style="font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;">Đến:</label>
+                <input type="date" id="statToDate" class="mono select-control" style="width:138px;height:32px;" />
               </div>
             </div>
           </div>
 
-          <!-- 4 Stat Summary Metric Cells -->
+          <!-- 6 Stat Summary Metric Cells -->
           <div class="stat-metrics-strip">
             <div class="stat-metric-cell">
-              <span class="stat-m-label">Đơn bán trong kỳ</span>
+              <span class="stat-m-label">Tổng số đơn bán</span>
               <div class="stat-m-val mono" id="statCountVal">0<small>đơn</small></div>
               <span class="stat-m-sub" id="statCountSub">0% tổng số đơn</span>
             </div>
             <div class="stat-metric-cell s-rev">
               <span class="stat-m-label">Doanh thu bán ra</span>
               <div class="stat-m-val mono" id="statRevVal">0<small>đ</small></div>
-              <span class="stat-m-sub" id="statRevSub">Cột Giá bán (G)</span>
+              <span class="stat-m-sub" id="statRevSub">Tổng giá bán trong kỳ</span>
+            </div>
+            <div class="stat-metric-cell" style="border-top:3px solid var(--warning);">
+              <span class="stat-m-label">Tổng chi phí vốn</span>
+              <div class="stat-m-val mono" id="statCostVal">0<small>đ</small></div>
+              <span class="stat-m-sub" id="statCostSub">Tổng giá nhập</span>
             </div>
             <div class="stat-metric-cell s-profit">
-              <span class="stat-m-label">Lợi nhuận ước tính</span>
+              <span class="stat-m-label">Lợi nhuận ròng</span>
               <div class="stat-m-val mono" id="statProfitVal">0<small>đ</small></div>
               <span class="stat-m-sub" id="statProfitSub">Sau khi trừ giá vốn</span>
             </div>
             <div class="stat-metric-cell s-avg">
-              <span class="stat-m-label">Giá trị trung bình / đơn</span>
+              <span class="stat-m-label">Trung bình / đơn</span>
               <div class="stat-m-val mono" id="statAvgVal">0<small>đ</small></div>
-              <span class="stat-m-sub" id="statCostTotal">Chi phí nhập: 0 đ</span>
+              <span class="stat-m-sub" id="statCostTotal">Lãi TB: 0 đ/đơn</span>
+            </div>
+            <div class="stat-metric-cell" style="border-top:3px solid var(--accent);">
+              <span class="stat-m-label">Mốc cao điểm nhất</span>
+              <div class="stat-m-val mono" id="statPeakVal" style="font-size:16px;">—</div>
+              <span class="stat-m-sub" id="statPeakSub">Chưa có dữ liệu</span>
             </div>
           </div>
 
-          <!-- Product breakdown for this period + List of orders sold -->
+          <!-- BIỂU ĐỒ ĐOẠN THẲNG TƯƠNG TÁC (LINE CHART) -->
+          <div class="chart-container-card">
+            <div class="chart-top-bar">
+              <div class="chart-title-group">
+                <h3 id="chartMainTitle">Biểu đồ đoạn thẳng thể hiện số đơn hàng bán ra</h3>
+                <p id="chartSubTitle">Di chuột hoặc bấm vào từng điểm nút trên biểu đồ để xem chi tiết số đơn, doanh thu và lợi nhuận tại mốc đó</p>
+              </div>
+              <div class="chart-mode-pills" role="group" aria-label="Chọn chỉ số biểu đồ">
+                <button type="button" class="chart-mode-btn active" data-chart-mode="orders">📈 Đoạn thẳng: Số đơn hàng</button>
+                <button type="button" class="chart-mode-btn" data-chart-mode="revenue">💰 Đoạn thẳng: Doanh thu &amp; Lãi</button>
+                <button type="button" class="chart-mode-btn" data-chart-mode="combo">📊 Kết hợp: Cột &amp; Đoạn thẳng</button>
+              </div>
+            </div>
+
+            <div class="chart-svg-stage" id="salesLineChartStage"></div>
+
+            <div class="chart-tooltip-box" id="chartActivePointInfo">
+              <div>
+                <strong id="chartPointLabel">Mốc thời gian: Tất cả kỳ đang chọn</strong>
+                <span class="panel-meta" id="chartPointMeta" style="margin-left:8px;">Bấm vào một điểm trên biểu đồ đoạn thẳng để lọc riêng đơn hàng của mốc đó</span>
+              </div>
+              <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;" class="mono" id="chartPointNumbers"></div>
+            </div>
+          </div>
+
+          <!-- Bảng thống kê chi tiết theo từng mốc thời gian + Danh sách đơn bán -->
+          <div class="stat-details-grid" style="margin-bottom:12px;">
+            <div class="stat-subpanel">
+              <div style="font-size:13px;font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+                <span id="statTimelineTableTitle">Bảng chi tiết theo từng mốc thời gian</span>
+                <span class="panel-meta" id="statTimelineMeta">0 mốc</span>
+              </div>
+              <div class="stat-table-wrap">
+                <table class="stat-mini-table">
+                  <thead>
+                    <tr>
+                      <th>Thời gian</th>
+                      <th class="num">Số đơn</th>
+                      <th class="num">Doanh thu</th>
+                      <th class="num">Giá vốn</th>
+                      <th class="num">Lợi nhuận</th>
+                    </tr>
+                  </thead>
+                  <tbody id="statTimelineBreakdownBody"></tbody>
+                  <tfoot id="statTimelineBreakdownFoot"></tfoot>
+                </table>
+              </div>
+            </div>
+
+            <div class="stat-subpanel">
+              <div style="font-size:13px;font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+                <span id="statOrderListTitle">Danh sách đơn hàng bán ra trong kỳ</span>
+                <span class="panel-meta" id="statOrderListMeta">0 đơn</span>
+              </div>
+              <div id="statOrderQuickList" class="stat-quick-rows" style="max-height:340px;">
+                <div class="panel-meta">Chưa có đơn hàng nào trong khoảng thời gian này.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product & Channel breakdown for this period -->
           <div class="stat-details-grid">
             <div class="stat-subpanel">
               <div style="font-size:13px;font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;">
-                <span>Mặt hàng bán chạy trong kỳ</span>
+                <span>Chi tiết theo Mặt hàng trong kỳ</span>
                 <span class="panel-meta" id="statProdCountMeta">0 mặt hàng</span>
               </div>
               <div id="statProductBreakdown" class="bar-list">
@@ -2053,18 +2384,18 @@
             </div>
             <div class="stat-subpanel">
               <div style="font-size:13px;font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;">
-                <span>Danh sách đơn hàng bán ra</span>
-                <span class="panel-meta" id="statOrderListMeta">0 đơn</span>
+                <span>Chi tiết theo Kênh mua (Zalo / Facebook / ...)</span>
+                <span class="panel-meta" id="statChanCountMeta">0 kênh</span>
               </div>
-              <div id="statOrderQuickList" class="stat-quick-rows">
-                <div class="panel-meta">Chưa có đơn hàng nào trong khoảng thời gian này.</div>
+              <div id="statChannelBreakdown" class="bar-list">
+                <div class="panel-meta">Chưa có dữ liệu kênh mua trong kỳ này.</div>
               </div>
             </div>
           </div>
         </section>
 
         <!-- Full Order Ledger with Sticky Header & Scrollable Body -->
-        <section class="panel">
+        <section class="panel" id="orderLedgerSection">
           <div class="panel-head">
             <h2>Sổ đơn hàng đồng bộ 2 chiều (Trang tính1)</h2>
             <span class="panel-meta" id="tableSummaryMeta">Hiển thị 0 đơn hàng</span>
@@ -5656,7 +5987,11 @@
     let activeFilter = 'all';
     let selectedRowNumber = null;
     let statDateFilter = null;
-    let currentPreset = 'today';
+    let currentPreset = 'byMonth';
+    let currentChartMode = 'orders';
+    let selectedChartBucketKey = null;
+    let lastRenderedBuckets = [];
+    let currentWorkspaceView = localStorage.getItem('qlbh_workspace_view') || 'overview';
 
     const AVATAR_PALETTE = [
       ['#e0f2fe', '#0369a1'],
@@ -5769,147 +6104,728 @@
       return dt.toISOString().slice(0, 10);
     }
 
-    function getPresetRange(preset, todayISO) {
-      if (!todayISO) return { from: '', to: '' };
-      const [y, m, d] = todayISO.split('-').map(Number);
-      if (preset === 'today') {
-        return { from: todayISO, to: todayISO };
+    function switchWorkspaceView(viewName, { scroll = true } = {}) {
+      const validViews = ['overview', 'orders', 'reminders', 'unsynced', 'stats'];
+      if (!validViews.includes(viewName)) viewName = 'overview';
+      currentWorkspaceView = viewName;
+      try { localStorage.setItem('qlbh_workspace_view', viewName); } catch (e) {}
+
+      // Cập nhật trạng thái nút trên Sidebar & Thanh Tab ngang
+      document.querySelectorAll('[data-workspace-view]').forEach((btn) => {
+        const isMatch = btn.dataset.workspaceView === viewName;
+        if (btn.classList.contains('nav-item')) {
+          if (isMatch) btn.setAttribute('aria-current', 'page');
+          else btn.removeAttribute('aria-current');
+        } else {
+          btn.setAttribute('aria-selected', String(isMatch));
+        }
+      });
+
+      const kpiSec = document.getElementById('kpiStripSection');
+      const remBanner = document.getElementById('remindersDedicatedBanner');
+      const unsyncedBanner = document.getElementById('unsyncedDedicatedBanner');
+      const pairSec = document.getElementById('pairGridSection');
+      const statsSec = document.getElementById('salesStatsSection');
+      const ledgerSec = document.getElementById('orderLedgerSection');
+      const titleH1 = document.querySelector('.title-row h1');
+
+      if (viewName === 'overview') {
+        if (titleH1) titleH1.textContent = 'Màn hình tổng — Quản lí đơn hàng & nhắc hẹn';
+        if (kpiSec) kpiSec.style.display = '';
+        if (remBanner) remBanner.style.display = 'none';
+        if (unsyncedBanner) unsyncedBanner.style.display = 'none';
+        if (pairSec) pairSec.style.display = '';
+        if (statsSec) statsSec.style.display = '';
+        if (ledgerSec) ledgerSec.style.display = '';
+        setFilterMode('all');
+      } else if (viewName === 'orders') {
+        if (titleH1) titleH1.textContent = 'Tổng quan & Sổ đơn hàng (Đồng bộ 2 chiều)';
+        if (kpiSec) kpiSec.style.display = '';
+        if (remBanner) remBanner.style.display = 'none';
+        if (unsyncedBanner) unsyncedBanner.style.display = 'none';
+        if (pairSec) pairSec.style.display = 'none';
+        if (statsSec) statsSec.style.display = 'none';
+        if (ledgerSec) ledgerSec.style.display = '';
+        setFilterMode('all');
+      } else if (viewName === 'reminders') {
+        if (titleH1) titleH1.textContent = 'Màn hình Đơn cần nhắc hạn & Gia hạn';
+        if (kpiSec) kpiSec.style.display = 'none';
+        if (remBanner) remBanner.style.display = '';
+        if (unsyncedBanner) unsyncedBanner.style.display = 'none';
+        if (pairSec) pairSec.style.display = '';
+        if (statsSec) statsSec.style.display = 'none';
+        if (ledgerSec) ledgerSec.style.display = '';
+        setFilterMode('soon30');
+      } else if (viewName === 'unsynced') {
+        if (titleH1) titleH1.textContent = 'Màn hình Đơn chưa đặt lịch nhắc Điện thoại';
+        if (kpiSec) kpiSec.style.display = 'none';
+        if (remBanner) remBanner.style.display = 'none';
+        if (unsyncedBanner) unsyncedBanner.style.display = '';
+        if (pairSec) pairSec.style.display = 'none';
+        if (statsSec) statsSec.style.display = 'none';
+        if (ledgerSec) ledgerSec.style.display = '';
+        setFilterMode('unsynced');
+      } else if (viewName === 'stats') {
+        if (titleH1) titleH1.textContent = 'Màn hình Thống kê chi tiết & Biểu đồ bán hàng';
+        if (kpiSec) kpiSec.style.display = 'none';
+        if (remBanner) remBanner.style.display = 'none';
+        if (unsyncedBanner) unsyncedBanner.style.display = 'none';
+        if (pairSec) pairSec.style.display = 'none';
+        if (statsSec) statsSec.style.display = '';
+        if (ledgerSec) ledgerSec.style.display = 'none';
+        updateSalesStats();
       }
+
+      if (scroll) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    function populateStatsSelectors() {
+      const orders = appState.orders || [];
+      const todayISO = appState.today || new Date().toISOString().slice(0, 10);
+      const curYear = todayISO.slice(0, 4) || '2026';
+
+      const monthCounts = new Map();
+      const yearCounts = new Map();
+      const dayCounts = new Map();
+
+      // Khởi tạo đủ 12 tháng của năm hiện tại để người dùng chọn bất kỳ tháng nào
+      for (let m = 1; m <= 12; m++) {
+        const ym = `${curYear}-${String(m).padStart(2, '0')}`;
+        monthCounts.set(ym, 0);
+      }
+      yearCounts.set(curYear, 0);
+
+      for (const o of orders) {
+        if (!o.buyDateISO || !/^\d{4}-\d{2}-\d{2}$/.test(o.buyDateISO)) continue;
+        const ym = o.buyDateISO.slice(0, 7);
+        const y = o.buyDateISO.slice(0, 4);
+        monthCounts.set(ym, (monthCounts.get(ym) || 0) + 1);
+        yearCounts.set(y, (yearCounts.get(y) || 0) + 1);
+        dayCounts.set(o.buyDateISO, (dayCounts.get(o.buyDateISO) || 0) + 1);
+      }
+
+      const monthSel = document.getElementById('statMonthSelect');
+      if (monthSel) {
+        const prevVal = monthSel.value;
+        const sortedMonths = [...monthCounts.entries()].sort((a, b) => b[0].localeCompare(a[0]));
+        monthSel.innerHTML = sortedMonths
+          .map(([ym, cnt]) => {
+            const [yr, mo] = ym.split('-');
+            return `<option value="${ym}">Tháng ${mo}/${yr} (${cnt} đơn)</option>`;
+          })
+          .join('');
+        // Chọn tháng gần nhất có đơn nếu chưa chọn
+        const latestWithOrders = sortedMonths.find(([, c]) => c > 0)?.[0] || todayISO.slice(0, 7);
+        if (prevVal && monthCounts.has(prevVal)) monthSel.value = prevVal;
+        else monthSel.value = latestWithOrders;
+      }
+
+      const yearSel = document.getElementById('statYearSelect');
+      if (yearSel) {
+        const prevY = yearSel.value;
+        const sortedYears = [...yearCounts.entries()].sort((a, b) => b[0].localeCompare(a[0]));
+        yearSel.innerHTML = sortedYears
+          .map(([yr, cnt]) => `<option value="${yr}">Năm ${yr} (${cnt} đơn)</option>`)
+          .join('');
+        if (prevY && yearCounts.has(prevY)) yearSel.value = prevY;
+        else yearSel.value = curYear;
+      }
+
+      const quickDaysSel = document.getElementById('statActiveDaysQuick');
+      const singleDateInput = document.getElementById('statSingleDate');
+      const sortedDays = [...dayCounts.entries()].sort((a, b) => b[0].localeCompare(a[0]));
+      if (quickDaysSel) {
+        quickDaysSel.innerHTML =
+          `<option value="">-- Chọn ngày có đơn (${sortedDays.length} ngày) --</option>` +
+          sortedDays
+            .slice(0, 60)
+            .map(([iso, cnt]) => {
+              const [yr, mo, da] = iso.split('-');
+              return `<option value="${iso}">${da}/${mo}/${yr} (${cnt} đơn)</option>`;
+            })
+            .join('');
+      }
+      if (singleDateInput && (!singleDateInput.value || singleDateInput.value === todayISO)) {
+        if (!dayCounts.has(todayISO) && sortedDays.length > 0) {
+          singleDateInput.value = sortedDays[0][0];
+        }
+      }
+    }
+
+    function getPresetRange(preset, todayISO) {
+      if (!todayISO) todayISO = new Date().toISOString().slice(0, 10);
+      const [y, m] = todayISO.split('-').map(Number);
+      if (preset === 'today') return { from: todayISO, to: todayISO };
       if (preset === 'yesterday') {
         const yest = shiftDaysISO(todayISO, -1);
         return { from: yest, to: yest };
       }
-      if (preset === 'last7') {
-        return { from: shiftDaysISO(todayISO, -6), to: todayISO };
-      }
-      if (preset === 'last30') {
-        return { from: shiftDaysISO(todayISO, -29), to: todayISO };
-      }
+      if (preset === 'last7') return { from: shiftDaysISO(todayISO, -6), to: todayISO };
+      if (preset === 'last30') return { from: shiftDaysISO(todayISO, -29), to: todayISO };
       if (preset === 'thisMonth') {
-        const from = `${y}-${String(m).padStart(2, '0')}-01`;
-        return { from, to: todayISO };
-      }
-      if (preset === 'lastMonth') {
-        const prevM = m === 1 ? 12 : m - 1;
-        const prevY = m === 1 ? y - 1 : y;
-        const lastDay = new Date(Date.UTC(prevY, prevM, 0)).getUTCDate();
+        const lastDay = new Date(Date.UTC(y, m, 0)).getUTCDate();
         return {
-          from: `${prevY}-${String(prevM).padStart(2, '0')}-01`,
-          to: `${prevY}-${String(prevM).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`,
+          from: `${y}-${String(m).padStart(2, '0')}-01`,
+          to: `${y}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
         };
+      }
+      if (preset === 'byMonth') {
+        const ym = document.getElementById('statMonthSelect')?.value || todayISO.slice(0, 7);
+        const [yr, mo] = ym.split('-').map(Number);
+        const lastDay = new Date(Date.UTC(yr, mo, 0)).getUTCDate();
+        return {
+          from: `${yr}-${String(mo).padStart(2, '0')}-01`,
+          to: `${yr}-${String(mo).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
+        };
+      }
+      if (preset === 'byYear') {
+        const yr = document.getElementById('statYearSelect')?.value || String(y);
+        return { from: `${yr}-01-01`, to: `${yr}-12-31` };
+      }
+      if (preset === 'allYears') {
+        return { from: '2020-01-01', to: '2035-12-31' };
       }
       return { from: todayISO, to: todayISO };
     }
 
+    function selectChartBucket(bucketKey) {
+      if (selectedChartBucketKey === bucketKey) {
+        selectedChartBucketKey = null;
+      } else {
+        selectedChartBucketKey = bucketKey;
+      }
+      updateSalesStats();
+    }
+
+    function renderSalesLineChart(buckets, chartTitle, subTitle, highlightKey = null) {
+      const stage = document.getElementById('salesLineChartStage');
+      if (!stage) return;
+      document.getElementById('chartMainTitle').textContent = chartTitle;
+      document.getElementById('chartSubTitle').textContent = subTitle;
+
+      if (!buckets || !buckets.length) {
+        stage.innerHTML = `<div class="panel-meta" style="padding:36px;text-align:center;">Chưa có dữ liệu biểu đồ cho khoảng thời gian này.</div>`;
+        return;
+      }
+
+      const n = buckets.length;
+      const svgW = Math.max(660, n * 34 + 90);
+      const svgH = 285;
+      const padL = 56;
+      const padR = 26;
+      const padT = 32;
+      const padB = 46;
+      const plotW = svgW - padL - padR;
+      const plotH = svgH - padT - padB;
+
+      const maxOrders = Math.max(1, ...buckets.map(b => b.count));
+      const maxRev = Math.max(100000, ...buckets.map(b => b.revVnd));
+
+      // Tính bậc chia trục tung (Y-Axis)
+      const isRevMode = currentChartMode === 'revenue';
+      const maxVal = isRevMode ? maxRev : maxOrders;
+      const gridSteps = 4;
+
+      const getX = (i) => (n === 1 ? padL + plotW / 2 : padL + (i / (n - 1)) * plotW);
+      const getYOrders = (cnt) => padT + plotH - (cnt / maxOrders) * plotH;
+      const getYRev = (val) => padT + plotH - (val / maxRev) * plotH;
+
+      // Vẽ đường lưới ngang (Gridlines)
+      let gridHtml = '';
+      for (let s = 0; s <= gridSteps; s++) {
+        const ratio = s / gridSteps;
+        const yPos = Math.round(padT + plotH - ratio * plotH);
+        const labelVal = isRevMode
+          ? (Math.round((maxRev * ratio) / 1000).toLocaleString('vi-VN') + 'k')
+          : Math.round(maxOrders * ratio);
+        gridHtml += `
+          <line x1="${padL}" y1="${yPos}" x2="${svgW - padR}" y2="${yPos}" stroke="var(--border)" stroke-dasharray="${s === 0 ? 'none' : '4 4'}" stroke-width="1" />
+          <text x="${padL - 8}" y="${yPos + 4}" text-anchor="end" fill="var(--muted)" font-size="11" class="mono">${labelVal}</text>
+        `;
+      }
+
+      // Tạo tọa độ các điểm cho biểu đồ đoạn thẳng
+      const orderPoints = buckets.map((b, i) => ({ x: getX(i), y: getYOrders(b.count), b }));
+      const revPoints = buckets.map((b, i) => ({ x: getX(i), y: getYRev(b.revVnd), b }));
+      const profitPoints = buckets.map((b, i) => ({ x: getX(i), y: getYRev(Math.max(0, b.profitVnd)), b }));
+
+      const buildLinePath = (pts) => pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+      const buildAreaPath = (pts) => {
+        if (!pts.length) return '';
+        const base = padT + plotH;
+        return `${buildLinePath(pts)} L${pts[pts.length - 1].x.toFixed(1)},${base} L${pts[0].x.toFixed(1)},${base} Z`;
+      };
+
+      let pathsHtml = '';
+      let barsHtml = '';
+      let nodesHtml = '';
+
+      if (currentChartMode === 'combo') {
+        const barW = Math.max(8, Math.min(24, Math.floor((plotW / Math.max(n, 1)) * 0.55)));
+        barsHtml = buckets
+          .map((b, i) => {
+            const x = getX(i) - barW / 2;
+            const y = getYRev(b.revVnd);
+            const h = Math.max(0, padT + plotH - y);
+            const isSelected = highlightKey === b.key || selectedChartBucketKey === b.key;
+            return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW}" height="${h.toFixed(1)}" rx="3" fill="var(--chart-2)" opacity="${isSelected ? '0.85' : '0.32'}" style="cursor:pointer;" onclick="selectChartBucket('${esc(b.key)}')" />`;
+          })
+          .join('');
+      }
+
+      if (currentChartMode === 'revenue') {
+        pathsHtml = `
+          <path d="${buildAreaPath(revPoints)}" fill="url(#chartGradPrimary)" />
+          <path d="${buildLinePath(revPoints)}" fill="none" stroke="var(--accent)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="${buildLinePath(profitPoints)}" fill="none" stroke="var(--positive)" stroke-width="2.2" stroke-dasharray="5 3" stroke-linecap="round" stroke-linejoin="round" />
+        `;
+      } else {
+        pathsHtml = `
+          <path d="${buildAreaPath(orderPoints)}" fill="url(#chartGradPrimary)" />
+          <path d="${buildLinePath(orderPoints)}" fill="none" stroke="var(--accent)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" />
+        `;
+      }
+
+      // Vẽ các nút điểm (nodes) và nhãn trục hoành (X-axis)
+      const activePts = isRevMode ? revPoints : orderPoints;
+      const showEveryX = n > 24 ? 2 : 1;
+
+      nodesHtml = activePts
+        .map((pt, i) => {
+          const b = pt.b;
+          const isHigh = highlightKey === b.key || selectedChartBucketKey === b.key;
+          const hasData = b.count > 0;
+          const circleR = isHigh ? 6.5 : hasData ? 4.5 : 3;
+          const fillCol = isHigh ? 'var(--warning)' : hasData ? 'var(--accent)' : 'var(--surface)';
+          const strokeCol = isHigh ? 'var(--text)' : 'var(--accent)';
+          const valBadge = isRevMode
+            ? (b.revVnd > 0 ? Math.round(b.revVnd / 1000).toLocaleString('vi-VN') + 'k' : '')
+            : (b.count > 0 ? String(b.count) : '');
+
+          const showXLabel = (i % showEveryX === 0) || i === n - 1 || isHigh || hasData;
+
+          return `
+            <g class="chart-node-group" onclick="selectChartBucket('${esc(b.key)}')">
+              <title>${esc(b.fullLabel)}: ${b.count} đơn · Doanh thu: ${formatMoneyVND(b.revVnd)} đ · Lãi: ${formatMoneyVND(b.profitVnd)} đ</title>
+              ${isHigh ? `<line x1="${pt.x.toFixed(1)}" y1="${padT}" x2="${pt.x.toFixed(1)}" y2="${padT + plotH}" stroke="var(--warning)" stroke-width="1.5" stroke-dasharray="3 3" />` : ''}
+              <circle class="chart-node-circle" cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="${circleR}" fill="${fillCol}" stroke="${strokeCol}" stroke-width="2" />
+              ${valBadge ? `<text x="${pt.x.toFixed(1)}" y="${(pt.y - 9).toFixed(1)}" text-anchor="middle" fill="${isHigh ? 'var(--warning)' : 'var(--text)'}" font-size="11" font-weight="700" class="mono">${valBadge}</text>` : ''}
+              ${showXLabel ? `<text x="${pt.x.toFixed(1)}" y="${padT + plotH + 18}" text-anchor="middle" fill="${isHigh ? 'var(--accent)' : 'var(--muted)'}" font-weight="${isHigh || hasData ? '600' : '400'}" font-size="10.5" class="mono">${esc(b.shortLabel)}</text>` : ''}
+            </g>
+          `;
+        })
+        .join('');
+
+      stage.innerHTML = `
+        <svg viewBox="0 0 ${svgW} ${svgH}" role="img" aria-label="${esc(chartTitle)}">
+          <defs>
+            <linearGradient id="chartGradPrimary" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.26" />
+              <stop offset="100%" stop-color="var(--accent)" stop-opacity="0.01" />
+            </linearGradient>
+          </defs>
+          ${gridHtml}
+          ${barsHtml}
+          ${pathsHtml}
+          ${nodesHtml}
+        </svg>
+      `;
+    }
+
     function renderOrderStats() { updateSalesStats(); }
     function updateSalesStats() {
+      const orders = appState.orders || [];
+      const todayISO = appState.today || new Date().toISOString().slice(0, 10);
+
       let fromISO = '';
       let toISO = '';
+      let periodLabel = '';
+      let chartTitle = '';
+      let chartSub = '';
+      let highlightBucketKey = null;
+      let buckets = [];
 
-      if (currentPreset === 'singleDay') {
-        fromISO = document.getElementById('statSingleDate').value;
+      const createBucket = (key, shortLabel, fullLabel) => ({
+        key,
+        shortLabel,
+        fullLabel,
+        orders: [],
+        count: 0,
+        revVnd: 0,
+        costVnd: 0,
+        profitVnd: 0
+      });
+
+      const addOrderToBucket = (b, o) => {
+        const rev = parseToVndAmount(o.salePrice);
+        const cost = parseToVndAmount(o.costPrice);
+        b.orders.push(o);
+        b.count += 1;
+        b.revVnd += rev;
+        b.costVnd += cost;
+        b.profitVnd += (rev - cost);
+      };
+
+      if (currentPreset === 'byMonth') {
+        const ym = document.getElementById('statMonthSelect')?.value || todayISO.slice(0, 7);
+        const [yr, mo] = ym.split('-').map(Number);
+        const lastDay = new Date(Date.UTC(yr, mo, 0)).getUTCDate();
+        fromISO = `${yr}-${String(mo).padStart(2, '0')}-01`;
+        toISO = `${yr}-${String(mo).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+        periodLabel = `Tháng ${String(mo).padStart(2, '0')}/${yr}`;
+        chartTitle = `Biểu đồ đoạn thẳng số đơn bán từng ngày — Tháng ${String(mo).padStart(2, '0')}/${yr}`;
+        chartSub = `Diễn biến số lượng đơn hàng từ ngày 01/${String(mo).padStart(2, '0')} đến ${lastDay}/${String(mo).padStart(2, '0')}/${yr}`;
+
+        const map = new Map();
+        for (let d = 1; d <= lastDay; d++) {
+          const iso = `${yr}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+          const b = createBucket(iso, `${String(d).padStart(2, '0')}/${String(mo).padStart(2, '0')}`, `Ngày ${String(d).padStart(2, '0')}/${String(mo).padStart(2, '0')}/${yr}`);
+          map.set(iso, b);
+          buckets.push(b);
+        }
+        for (const o of orders) {
+          if (o.buyDateISO && map.has(o.buyDateISO)) addOrderToBucket(map.get(o.buyDateISO), o);
+        }
+      } else if (currentPreset === 'byYear') {
+        const yr = document.getElementById('statYearSelect')?.value || todayISO.slice(0, 4);
+        fromISO = `${yr}-01-01`;
+        toISO = `${yr}-12-31`;
+        periodLabel = `Năm ${yr}`;
+        chartTitle = `Biểu đồ đoạn thẳng số đơn hàng theo 12 tháng — Năm ${yr}`;
+        chartSub = `So sánh sản lượng đơn bán và doanh thu từ Tháng 01 đến Tháng 12/${yr}`;
+
+        const map = new Map();
+        for (let m = 1; m <= 12; m++) {
+          const ym = `${yr}-${String(m).padStart(2, '0')}`;
+          const b = createBucket(ym, `T${m}`, `Tháng ${String(m).padStart(2, '0')}/${yr}`);
+          map.set(ym, b);
+          buckets.push(b);
+        }
+        for (const o of orders) {
+          if (o.buyDateISO && o.buyDateISO.startsWith(yr + '-')) {
+            const ym = o.buyDateISO.slice(0, 7);
+            if (map.has(ym)) addOrderToBucket(map.get(ym), o);
+          }
+        }
+      } else if (currentPreset === 'allYears') {
+        fromISO = '2020-01-01';
+        toISO = '2035-12-31';
+        periodLabel = 'Tất cả các năm';
+        chartTitle = 'Biểu đồ đoạn thẳng tổng hợp đơn hàng qua các năm';
+        chartSub = 'Thống kê lũy kế toàn bộ lịch sử bán hàng theo từng năm';
+
+        const yearsSet = new Set([todayISO.slice(0, 4)]);
+        for (const o of orders) {
+          if (o.buyDateISO && /^\d{4}/.test(o.buyDateISO)) yearsSet.add(o.buyDateISO.slice(0, 4));
+        }
+        const sortedY = [...yearsSet].sort();
+        const map = new Map();
+        for (const yr of sortedY) {
+          const b = createBucket(yr, `Năm ${yr}`, `Năm ${yr}`);
+          map.set(yr, b);
+          buckets.push(b);
+        }
+        for (const o of orders) {
+          if (o.buyDateISO && /^\d{4}/.test(o.buyDateISO)) {
+            const yr = o.buyDateISO.slice(0, 4);
+            if (map.has(yr)) addOrderToBucket(map.get(yr), o);
+          }
+        }
+      } else if (currentPreset === 'singleDay' || currentPreset === 'today' || currentPreset === 'yesterday') {
+        if (currentPreset === 'today') {
+          fromISO = todayISO;
+        } else if (currentPreset === 'yesterday') {
+          fromISO = shiftDaysISO(todayISO, -1);
+        } else {
+          fromISO = document.getElementById('statSingleDate')?.value || todayISO;
+        }
         toISO = fromISO;
-      } else if (currentPreset === 'customRange') {
-        fromISO = document.getElementById('statFromDate').value;
-        toISO = document.getElementById('statToDate').value;
+        highlightBucketKey = fromISO;
+        const [yr, mo, da] = fromISO.split('-').map(Number);
+        const lastDay = new Date(Date.UTC(yr, mo, 0)).getUTCDate();
+        periodLabel = `Ngày ${String(da).padStart(2, '0')}/${String(mo).padStart(2, '0')}/${yr}`;
+        chartTitle = `Biểu đồ đoạn thẳng ngày ${String(da).padStart(2, '0')}/${String(mo).padStart(2, '0')}/${yr} (Đặt trong контекst Tháng ${String(mo).padStart(2, '0')}/${yr})`;
+        chartSub = `Điểm màu vàng đánh dấu ngày ${String(da).padStart(2, '0')}/${String(mo).padStart(2, '0')}/${yr} so với các ngày khác trong cùng tháng`;
+
+        const map = new Map();
+        for (let d = 1; d <= lastDay; d++) {
+          const iso = `${yr}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+          const b = createBucket(iso, `${String(d).padStart(2, '0')}/${String(mo).padStart(2, '0')}`, `Ngày ${String(d).padStart(2, '0')}/${String(mo).padStart(2, '0')}/${yr}`);
+          map.set(iso, b);
+          buckets.push(b);
+        }
+        for (const o of orders) {
+          if (o.buyDateISO && map.has(o.buyDateISO)) addOrderToBucket(map.get(o.buyDateISO), o);
+        }
       } else {
-        const rng = getPresetRange(currentPreset, appState.today);
-        fromISO = rng.from;
-        toISO = rng.to;
+        // last7, last30, customRange
+        if (currentPreset === 'customRange') {
+          fromISO = document.getElementById('statFromDate')?.value || shiftDaysISO(todayISO, -29);
+          toISO = document.getElementById('statToDate')?.value || todayISO;
+        } else {
+          const rng = getPresetRange(currentPreset, todayISO);
+          fromISO = rng.from;
+          toISO = rng.to;
+        }
+        if (fromISO > toISO) { const tmp = fromISO; fromISO = toISO; toISO = tmp; }
+        const diffD = Math.max(0, calculateDaysDiff(toISO, fromISO) || 0);
+        periodLabel = `Từ ${fromISO} đến ${toISO} (${diffD + 1} ngày)`;
+        chartTitle = `Biểu đồ đoạn thẳng số đơn bán (${fromISO} → ${toISO})`;
+        chartSub = `Diễn biến chi tiết từng mốc thời gian trong khoảng đã chọn`;
+
+        if (diffD <= 62) {
+          const map = new Map();
+          for (let i = 0; i <= diffD; i++) {
+            const iso = shiftDaysISO(fromISO, i);
+            const [, mo, da] = iso.split('-');
+            const b = createBucket(iso, `${da}/${mo}`, `Ngày ${da}/${mo}/${iso.slice(0, 4)}`);
+            map.set(iso, b);
+            buckets.push(b);
+          }
+          for (const o of orders) {
+            if (o.buyDateISO && map.has(o.buyDateISO)) addOrderToBucket(map.get(o.buyDateISO), o);
+          }
+        } else {
+          // Nhóm theo tháng nếu khoảng ngày > 62 ngày
+          const map = new Map();
+          for (const o of orders) {
+            if (o.buyDateISO && o.buyDateISO >= fromISO && o.buyDateISO <= toISO) {
+              const ym = o.buyDateISO.slice(0, 7);
+              if (!map.has(ym)) {
+                const [yr, mo] = ym.split('-');
+                const b = createBucket(ym, `${mo}/${yr.slice(2)}`, `Tháng ${mo}/${yr}`);
+                map.set(ym, b);
+              }
+              addOrderToBucket(map.get(ym), o);
+            }
+          }
+          buckets = [...map.values()].sort((a, b) => a.key.localeCompare(b.key));
+        }
       }
 
-      if (!fromISO || !toISO) return;
-      if (fromISO > toISO) {
-        const tmp = fromISO; fromISO = toISO; toISO = tmp;
+      lastRenderedBuckets = buckets;
+
+      // Xác định tập đơn hàng của kỳ đang chọn (hoặc điểm đang click trên biểu đồ)
+      let matched = orders.filter((o) => o.buyDateISO && o.buyDateISO >= fromISO && o.buyDateISO <= toISO);
+      let activeBucketObj = null;
+      if (selectedChartBucketKey) {
+        activeBucketObj = buckets.find(b => b.key === selectedChartBucketKey) || null;
+        if (activeBucketObj) {
+          matched = activeBucketObj.orders;
+        } else {
+          selectedChartBucketKey = null;
+        }
+      } else if (highlightBucketKey) {
+        activeBucketObj = buckets.find(b => b.key === highlightBucketKey) || null;
       }
 
-      const matched = appState.orders.filter(
-        (o) => o.buyDateISO && o.buyDateISO >= fromISO && o.buyDateISO <= toISO
-      );
-
-      let totalRev = 0;
-      let totalCost = 0;
-      const countsByProd = new Map();
+      let totalRevVnd = 0;
+      let totalCostVnd = 0;
+      const statsByProd = new Map();
+      const statsByChan = new Map();
 
       for (const o of matched) {
-        const s = Number(String(o.salePrice || '').replace(/[.\s,]/g, '')) || 0;
-        const c = Number(String(o.costPrice || '').replace(/[.\s,]/g, '')) || 0;
-        totalRev += s;
-        totalCost += c;
+        const s = parseToVndAmount(o.salePrice);
+        const c = parseToVndAmount(o.costPrice);
+        totalRevVnd += s;
+        totalCostVnd += c;
+
         const p = (o.product || 'Khác').trim().toLowerCase();
-        countsByProd.set(p, (countsByProd.get(p) || 0) + 1);
+        const curP = statsByProd.get(p) || { count: 0, rev: 0, profit: 0 };
+        curP.count += 1;
+        curP.rev += s;
+        curP.profit += (s - c);
+        statsByProd.set(p, curP);
+
+        const ch = (o.channel || 'Khác').trim() || 'Khác';
+        const curC = statsByChan.get(ch) || { count: 0, rev: 0, profit: 0 };
+        curC.count += 1;
+        curC.rev += s;
+        curC.profit += (s - c);
+        statsByChan.set(ch, curC);
       }
 
-      const profit = totalRev - totalCost;
-      const avg = matched.length ? Math.round(totalRev / matched.length) : 0;
-      const pct = appState.orders.length ? Math.round((matched.length / appState.orders.length) * 100) : 0;
+      const profitVnd = totalRevVnd - totalCostVnd;
+      const avgRevVnd = matched.length ? Math.round(totalRevVnd / matched.length) : 0;
+      const avgProfitVnd = matched.length ? Math.round(profitVnd / matched.length) : 0;
+      const pct = orders.length ? Math.round((matched.length / orders.length) * 100) : 0;
 
-      const summaryText = fromISO === toISO
-        ? `Ngày ${fromISO}: có ${matched.length} đơn bán ra (${totalRev.toLocaleString('vi-VN')} nghìn đ)`
-        : `Từ ${fromISO} đến ${toISO}: có ${matched.length} đơn bán ra (${totalRev.toLocaleString('vi-VN')} nghìn đ)`;
-      document.getElementById('statPeriodSummary').textContent = summaryText;
+      // Tìm mốc cao điểm nhất (Peak bucket)
+      const peakBucket = [...buckets].sort((a, b) => b.count - a.count || b.revVnd - a.revVnd)[0];
+
+      const effectiveLabel = activeBucketObj ? activeBucketObj.fullLabel : periodLabel;
+      document.getElementById('statPeriodSummary').textContent =
+        `${effectiveLabel}: có ${matched.length} đơn hàng · Doanh thu ${totalRevVnd.toLocaleString('vi-VN')} đ · Lợi nhuận ${profitVnd.toLocaleString('vi-VN')} đ`;
 
       document.getElementById('statCountVal').innerHTML = `${matched.length}<small>đơn</small>`;
-      document.getElementById('statCountSub').textContent = `${pct}% tổng số đơn (${appState.orders.length} đơn)`;
+      document.getElementById('statCountSub').textContent = `${pct}% tổng sổ (${orders.length} đơn)`;
 
-      const totalRevVnd = formatMoneyVND(totalRev);
-      const profitVnd = formatMoneyVND(profit);
-      const totalCostVnd = formatMoneyVND(totalCost);
-      const avgVnd = formatMoneyVND(avg);
+      document.getElementById('statRevVal').innerHTML = `${totalRevVnd.toLocaleString('vi-VN')}<small>đ</small>`;
+      document.getElementById('statRevSub').textContent = `Từ ${matched.length} đơn bán ra`;
 
-      document.getElementById('statRevVal').innerHTML = `${totalRevVnd}<small>đ</small>`;
-      document.getElementById('statRevSub').textContent = `Tổng giá bán từ ${matched.length} đơn`;
+      const costEl = document.getElementById('statCostVal');
+      if (costEl) {
+        costEl.innerHTML = `${totalCostVnd.toLocaleString('vi-VN')}<small>đ</small>`;
+        document.getElementById('statCostSub').textContent = `Chi phí nhập của ${matched.length} đơn`;
+      }
 
-      document.getElementById('statProfitVal').innerHTML = `${profitVnd}<small>đ</small>`;
-      document.getElementById('statProfitSub').textContent = `Tỷ suất: ${totalRev ? Math.round((profit / totalRev) * 100) : 0}% doanh thu`;
+      document.getElementById('statProfitVal').innerHTML = `${profitVnd.toLocaleString('vi-VN')}<small>đ</small>`;
+      document.getElementById('statProfitSub').textContent = `Tỷ suất lãi: ${totalRevVnd ? Math.round((profitVnd / totalRevVnd) * 100) : 0}% doanh thu`;
 
-      document.getElementById('statAvgVal').innerHTML = `${avgVnd}<small>đ / đơn</small>`;
-      document.getElementById('statCostTotal').textContent = `Tổng giá vốn nhập: ${totalCostVnd} đ`;
+      document.getElementById('statAvgVal').innerHTML = `${avgRevVnd.toLocaleString('vi-VN')}<small>đ</small>`;
+      document.getElementById('statCostTotal').textContent = `Lãi TB: ${avgProfitVnd.toLocaleString('vi-VN')} đ / đơn`;
 
-      const ranked = [...countsByProd.entries()].sort((a, b) => b[1] - a[1]);
-      document.getElementById('statProdCountMeta').textContent = `${ranked.length} mặt hàng`;
+      const peakValEl = document.getElementById('statPeakVal');
+      const peakSubEl = document.getElementById('statPeakSub');
+      if (peakValEl && peakSubEl) {
+        if (peakBucket && peakBucket.count > 0) {
+          peakValEl.innerHTML = `${esc(peakBucket.shortLabel)} · ${peakBucket.count}<small>đơn</small>`;
+          peakSubEl.textContent = `Thu: ${peakBucket.revVnd.toLocaleString('vi-VN')} đ`;
+        } else {
+          peakValEl.textContent = '0 đơn';
+          peakSubEl.textContent = 'Không phát sinh đơn';
+        }
+      }
+
+      // Vẽ biểu đồ đoạn thẳng SVG
+      renderSalesLineChart(buckets, chartTitle, chartSub, highlightBucketKey);
+
+      // Cập nhật hộp thông tin điểm đang chọn dưới biểu đồ
+      const ptLabel = document.getElementById('chartPointLabel');
+      const ptMeta = document.getElementById('chartPointMeta');
+      const ptNums = document.getElementById('chartPointNumbers');
+      if (ptLabel && ptNums) {
+        ptLabel.textContent = `Đang xem: ${effectiveLabel}`;
+        ptMeta.innerHTML = selectedChartBucketKey
+          ? `<button type="button" class="btn text-btn" style="padding:2px 8px;height:24px;font-size:11.5px;" onclick="selectChartBucket('${esc(selectedChartBucketKey)}')">× Bỏ chọn điểm (Xem toàn kỳ)</button>`
+          : `(Bấm vào điểm bất kỳ trên biểu đồ đoạn thẳng để lọc riêng mốc đó)`;
+        ptNums.innerHTML = `
+          <span>Số đơn: <strong>${matched.length} đơn</strong></span>
+          <span>Doanh thu: <strong style="color:var(--accent);">${totalRevVnd.toLocaleString('vi-VN')} đ</strong></span>
+          <span>Giá vốn: <strong>${totalCostVnd.toLocaleString('vi-VN')} đ</strong></span>
+          <span>Lợi nhuận: <strong style="color:var(--positive);">${profitVnd.toLocaleString('vi-VN')} đ</strong></span>
+        `;
+      }
+
+      // Cập nhật Bảng chi tiết theo từng mốc thời gian (Ngày / Tháng / Năm)
+      const tlBody = document.getElementById('statTimelineBreakdownBody');
+      const tlFoot = document.getElementById('statTimelineBreakdownFoot');
+      const tlMeta = document.getElementById('statTimelineMeta');
+      if (tlBody && tlFoot) {
+        const nonEmptyBuckets = buckets.filter(b => b.count > 0);
+        const rowsToShow = nonEmptyBuckets.length > 0 ? [...buckets].reverse() : buckets;
+        if (tlMeta) tlMeta.textContent = `${nonEmptyBuckets.length}/${buckets.length} mốc có đơn`;
+        tlBody.innerHTML = rowsToShow
+          .map((b) => {
+            const isSel = selectedChartBucketKey === b.key || highlightBucketKey === b.key;
+            return `
+              <tr style="cursor:pointer;${isSel ? 'background:var(--accent-tint);font-weight:600;' : (b.count === 0 ? 'opacity:0.55;' : '')}" onclick="selectChartBucket('${esc(b.key)}')">
+                <td>${esc(b.fullLabel)}</td>
+                <td class="num mono"><strong>${b.count}</strong> đơn</td>
+                <td class="num mono">${b.revVnd.toLocaleString('vi-VN')} đ</td>
+                <td class="num mono">${b.costVnd.toLocaleString('vi-VN')} đ</td>
+                <td class="num mono" style="color:var(--positive);font-weight:600;">${b.profitVnd.toLocaleString('vi-VN')} đ</td>
+              </tr>
+            `;
+          })
+          .join('');
+        const sumCount = buckets.reduce((a, b) => a + b.count, 0);
+        const sumRev = buckets.reduce((a, b) => a + b.revVnd, 0);
+        const sumCost = buckets.reduce((a, b) => a + b.costVnd, 0);
+        const sumProf = buckets.reduce((a, b) => a + b.profitVnd, 0);
+        tlFoot.innerHTML = `
+          <tr>
+            <td>TỔNG CỘNG (${buckets.length} mốc)</td>
+            <td class="num mono">${sumCount} đơn</td>
+            <td class="num mono">${sumRev.toLocaleString('vi-VN')} đ</td>
+            <td class="num mono">${sumCost.toLocaleString('vi-VN')} đ</td>
+            <td class="num mono" style="color:var(--positive);">${sumProf.toLocaleString('vi-VN')} đ</td>
+          </tr>
+        `;
+      }
+
+      // Cập nhật Mặt hàng bán chạy trong kỳ
+      const rankedProd = [...statsByProd.entries()].sort((a, b) => b[1].count - a[1].count || b[1].rev - a[1].rev);
+      document.getElementById('statProdCountMeta').textContent = `${rankedProd.length} mặt hàng`;
       const prodBox = document.getElementById('statProductBreakdown');
-      if (!ranked.length) {
+      if (!rankedProd.length) {
         prodBox.innerHTML = `<div class="panel-meta" style="padding:10px 0;">Không có đơn hàng nào bán ra trong kỳ này.</div>`;
       } else {
-        const maxC = ranked[0][1] || 1;
-        prodBox.innerHTML = ranked
+        const maxC = rankedProd[0][1].count || 1;
+        prodBox.innerHTML = rankedProd
           .map(
-            ([p, cnt], idx) => `
+            ([p, info], idx) => `
           <div class="bar-item" onclick="filterByProduct('${esc(p)}')">
             <div class="bar-top">
               <span>${productTagHtml(p, '')}</span>
-              <span class="mono" style="font-weight:600;">${cnt} đơn</span>
+              <span class="mono" style="font-weight:600;font-size:12px;">${info.count} đơn · ${info.rev.toLocaleString('vi-VN')} đ (Lãi: ${info.profit.toLocaleString('vi-VN')} đ)</span>
             </div>
             <div class="bar-track">
-              <div class="bar-fill bf-${idx % 5}" style="width:${Math.max(8, Math.round((cnt / maxC) * 100))}%;"></div>
+              <div class="bar-fill bf-${idx % 5}" style="width:${Math.max(8, Math.round((info.count / maxC) * 100))}%;"></div>
             </div>
           </div>`
           )
           .join('');
       }
 
+      // Cập nhật Kênh mua trong kỳ
+      const rankedChan = [...statsByChan.entries()].sort((a, b) => b[1].count - a[1].count || b[1].rev - a[1].rev);
+      const chanMeta = document.getElementById('statChanCountMeta');
+      const chanBox = document.getElementById('statChannelBreakdown');
+      if (chanMeta && chanBox) {
+        chanMeta.textContent = `${rankedChan.length} kênh`;
+        if (!rankedChan.length) {
+          chanBox.innerHTML = `<div class="panel-meta" style="padding:10px 0;">Không có dữ liệu kênh mua trong kỳ này.</div>`;
+        } else {
+          const maxCh = rankedChan[0][1].count || 1;
+          chanBox.innerHTML = rankedChan
+            .map(
+              ([ch, info], idx) => `
+            <div class="bar-item">
+              <div class="bar-top">
+                <span>${channelBadgeHtml(ch)}</span>
+                <span class="mono" style="font-weight:600;font-size:12px;">${info.count} đơn (${Math.round((info.count / Math.max(1, matched.length)) * 100)}%) · ${info.rev.toLocaleString('vi-VN')} đ</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill bf-${(idx + 2) % 5}" style="width:${Math.max(8, Math.round((info.count / maxCh) * 100))}%;"></div>
+              </div>
+            </div>`
+            )
+            .join('');
+        }
+      }
+
+      // Danh sách đơn hàng bán ra trong kỳ
       document.getElementById('statOrderListMeta').textContent = `${matched.length} đơn`;
+      const listTitle = document.getElementById('statOrderListTitle');
+      if (listTitle) listTitle.textContent = `Danh sách đơn bán (${effectiveLabel})`;
       const listBox = document.getElementById('statOrderQuickList');
       if (!matched.length) {
-        listBox.innerHTML = `<div class="panel-meta" style="padding:10px 0;">Không có đơn hàng nào bán ra trong kỳ này.</div>`;
+        listBox.innerHTML = `<div class="panel-meta" style="padding:10px 0;">Không có đơn hàng nào bán ra trong ${effectiveLabel}.</div>`;
       } else {
         listBox.innerHTML = matched
           .slice()
-          .reverse()
+          .sort((a, b) => (b.buyDateISO || '').localeCompare(a.buyDateISO || '') || (Number(b.stt) - Number(a.stt)))
           .map(
-            (o) => `
+            (o) => {
+              const sVnd = formatMoneyVND(o.salePrice);
+              const pVnd = (parseToVndAmount(o.salePrice) - parseToVndAmount(o.costPrice)).toLocaleString('vi-VN');
+              return `
           <div class="stat-q-row" onclick="openDetailDrawer(${o.rowNumber})">
             <div style="display:flex;align-items:center;gap:8px;min-width:0;">
               <span class="avatar" style="${avatarStyle(o.customerName)};width:22px;height:22px;font-size:11px;">${esc(initials(o.customerName))}</span>
               <span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">#${esc(o.stt)} · ${esc(o.customerName)}</span>
-              ${channelBadgeHtml(o.channel)}
+              <span class="mono" style="font-size:11px;color:var(--muted);">${esc(o.buyDateISO || o.buyDate)}</span>
             </div>
             <div style="display:flex;align-items:center;gap:8px;flex:none;">
-              ${productTagHtml(o.product, '')}
-              <span class="mono" style="font-weight:600;color:var(--text);">${o.salePrice ? `${esc(o.salePrice)}k` : '—'}</span>
+              ${productTagHtml(o.product, o.months)}
+              <span class="mono" style="font-weight:600;color:var(--text);">${sVnd} đ</span>
+              <span class="pill pos" style="font-size:10.5px;">Lãi ${pVnd} đ</span>
             </div>
-          </div>`
+          </div>`;
+            }
           )
           .join('');
       }
@@ -5920,7 +6836,6 @@
       }
     }
 
-    
     function updateProductAndChannelDropdowns() {
       const orders = appState.orders || [];
       const defaultProducts = ['gemini', 'chat gpt', 'netflix', 'office', 'canva', 'youtube', 'spotify'];
@@ -5982,6 +6897,30 @@
       document.getElementById('fcExpired').textContent = String(expired.length);
       document.getElementById('navSoonBadge').textContent = String(soon30.length);
 
+      const navAllB = document.getElementById('navAllBadge');
+      if (navAllB) navAllB.textContent = String(orders.length);
+      const navUnsyncB = document.getElementById('navUnsyncedBadge');
+      if (navUnsyncB) navUnsyncB.textContent = String(unsynced.length);
+
+      const wsAll = document.getElementById('wsBadgeAll');
+      if (wsAll) wsAll.textContent = String(orders.length);
+      const wsSoon = document.getElementById('wsBadgeSoon');
+      if (wsSoon) wsSoon.textContent = String(soon30.length);
+      const wsUnsync = document.getElementById('wsBadgeUnsynced');
+      if (wsUnsync) wsUnsync.textContent = String(unsynced.length);
+
+      const remS7 = document.getElementById('remBannerSoon7');
+      if (remS7) remS7.textContent = String(soon7.length);
+      const remS30 = document.getElementById('remBannerSoon30');
+      if (remS30) remS30.textContent = String(soon30.length);
+      const remExp = document.getElementById('remBannerExpired');
+      if (remExp) remExp.textContent = String(expired.length);
+
+      const unsyncDesc = document.getElementById('unsyncedBannerDesc');
+      if (unsyncDesc) {
+        unsyncDesc.textContent = `Hiện có ${unsynced.length} đơn hàng còn hạn chưa được đặt lịch nhắc trên Google Calendar Điện thoại (Đã đồng bộ ${orders.length - unsynced.length} đơn).`;
+      }
+
       const revFormatted = formatMoneyVND(appState.kpis?.revenue || 0);
       const profitFormatted = formatMoneyVND(appState.kpis?.profit || 0);
       const costFormatted = formatMoneyVND(appState.kpis?.totalCost || 0);
@@ -6005,7 +6944,7 @@
         : `Tất cả ${orders.length} đơn hàng đang hoạt động ổn định.`;
 
       const urgentBox = document.getElementById('urgentList');
-      const urgentItems = [...soon30].sort((a, b) => a.daysLeft - b.daysLeft).slice(0, 5);
+      const urgentItems = [...soon30].sort((a, b) => a.daysLeft - b.daysLeft).slice(0, 8);
       if (!urgentItems.length) {
         urgentBox.innerHTML = `<div class="panel-meta">Không có đơn hàng nào hết hạn trong 30 ngày tới.</div>`;
       } else {
@@ -6025,6 +6964,8 @@
           )
           .join('');
       }
+
+      populateStatsSelectors();
 
       const countsByProd = new Map();
       for (const o of orders) {
@@ -6246,16 +7187,15 @@
       document.querySelectorAll('.f-card[data-fcard]').forEach((btn) => {
         btn.setAttribute('aria-pressed', String(btn.dataset.fcard === mode));
       });
-      document.querySelectorAll('.nav-item[data-filter-nav]').forEach((btn) => {
-        if (btn.dataset.filterNav === mode) btn.setAttribute('aria-current', 'page');
-        else btn.removeAttribute('aria-current');
-      });
       renderTable();
     }
 
     function filterByProduct(prod) {
       const sel = document.getElementById('productSelect');
       sel.value = sel.value === prod ? 'all' : prod;
+      if (currentWorkspaceView === 'stats') {
+        switchWorkspaceView('orders', { scroll: false });
+      }
       renderTable();
     }
 
@@ -6473,6 +7413,7 @@
 
         updateProductAndChannelDropdowns();
         renderAll();
+        switchWorkspaceView(currentWorkspaceView, { scroll: false });
 
         if (!silent) {
           showToast(`Đã đồng bộ mới nhất từ Google Sheet! (${normalizedOrders.length} đơn hàng)`);
@@ -6718,10 +7659,11 @@
     document.querySelectorAll('.f-card[data-fcard]').forEach((btn) => {
       btn.addEventListener('click', () => setFilterMode(btn.dataset.fcard));
     });
-    document.querySelectorAll('.nav-item[data-filter-nav]').forEach((btn) => {
+    document.querySelectorAll('[data-workspace-view]').forEach((btn) => {
       btn.addEventListener('click', () => {
-        setFilterMode(btn.dataset.filterNav);
-        document.getElementById('sidebar').classList.remove('open');
+        switchWorkspaceView(btn.dataset.workspaceView);
+        const sb = document.getElementById('sidebar');
+        if (sb) sb.classList.remove('open');
       });
     });
 
@@ -7098,46 +8040,104 @@ document.getElementById('createForm').addEventListener('submit', async (e) => {
         document.querySelectorAll('.stat-preset-btn').forEach((b) => b.classList.remove('active'));
         btn.classList.add('active');
         currentPreset = btn.dataset.preset;
+        selectedChartBucketKey = null;
 
+        const monthWrap = document.getElementById('statMonthWrap');
+        const yearWrap = document.getElementById('statYearWrap');
         const singleWrap = document.getElementById('statSingleWrap');
         const rangeWrap = document.getElementById('statRangeWrap');
 
-        if (currentPreset === 'singleDay') {
-          singleWrap.style.display = 'flex';
-          rangeWrap.style.display = 'none';
-        } else if (currentPreset === 'customRange') {
-          singleWrap.style.display = 'none';
-          rangeWrap.style.display = 'flex';
-        } else {
-          singleWrap.style.display = 'none';
-          rangeWrap.style.display = 'none';
-        }
+        if (monthWrap) monthWrap.style.display = currentPreset === 'byMonth' ? 'flex' : 'none';
+        if (yearWrap) yearWrap.style.display = currentPreset === 'byYear' ? 'flex' : 'none';
+        if (singleWrap) singleWrap.style.display = currentPreset === 'singleDay' ? 'flex' : 'none';
+        if (rangeWrap) rangeWrap.style.display = currentPreset === 'customRange' ? 'flex' : 'none';
+
         updateSalesStats();
       });
     });
 
-    document.getElementById('statSingleDate').addEventListener('change', updateSalesStats);
-    document.getElementById('statFromDate').addEventListener('change', updateSalesStats);
-    document.getElementById('statToDate').addEventListener('change', updateSalesStats);
+    const statMonthSel = document.getElementById('statMonthSelect');
+    if (statMonthSel) {
+      statMonthSel.addEventListener('change', () => {
+        selectedChartBucketKey = null;
+        updateSalesStats();
+      });
+    }
+    const statYearSel = document.getElementById('statYearSelect');
+    if (statYearSel) {
+      statYearSel.addEventListener('change', () => {
+        selectedChartBucketKey = null;
+        updateSalesStats();
+      });
+    }
+    const statActiveDaysSel = document.getElementById('statActiveDaysQuick');
+    if (statActiveDaysSel) {
+      statActiveDaysSel.addEventListener('change', (e) => {
+        if (e.target.value) {
+          document.getElementById('statSingleDate').value = e.target.value;
+          selectedChartBucketKey = null;
+          updateSalesStats();
+        }
+      });
+    }
+
+    document.getElementById('statSingleDate').addEventListener('change', () => {
+      selectedChartBucketKey = null;
+      updateSalesStats();
+    });
+    document.getElementById('statFromDate').addEventListener('change', () => {
+      selectedChartBucketKey = null;
+      updateSalesStats();
+    });
+    document.getElementById('statToDate').addEventListener('change', () => {
+      selectedChartBucketKey = null;
+      updateSalesStats();
+    });
+
+    document.querySelectorAll('.chart-mode-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.chart-mode-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentChartMode = btn.dataset.chartMode || 'orders';
+        updateSalesStats();
+      });
+    });
 
     document.getElementById('btnFilterTableByPeriod').addEventListener('click', () => {
       let fromISO = '';
       let toISO = '';
-      if (currentPreset === 'singleDay') {
-        fromISO = document.getElementById('statSingleDate').value;
-        toISO = fromISO;
-      } else if (currentPreset === 'customRange') {
-        fromISO = document.getElementById('statFromDate').value;
-        toISO = document.getElementById('statToDate').value;
-      } else {
-        const rng = getPresetRange(currentPreset, appState.today);
-        fromISO = rng.from;
-        toISO = rng.to;
+      if (selectedChartBucketKey) {
+        const b = lastRenderedBuckets.find(x => x.key === selectedChartBucketKey);
+        if (b && b.key.length === 10) {
+          fromISO = b.key;
+          toISO = b.key;
+        } else if (b && b.key.length === 7) {
+          const [yr, mo] = b.key.split('-').map(Number);
+          const lastD = new Date(Date.UTC(yr, mo, 0)).getUTCDate();
+          fromISO = `${b.key}-01`;
+          toISO = `${b.key}-${String(lastD).padStart(2, '0')}`;
+        }
+      }
+      if (!fromISO || !toISO) {
+        if (currentPreset === 'singleDay') {
+          fromISO = document.getElementById('statSingleDate').value;
+          toISO = fromISO;
+        } else if (currentPreset === 'customRange') {
+          fromISO = document.getElementById('statFromDate').value;
+          toISO = document.getElementById('statToDate').value;
+        } else {
+          const rng = getPresetRange(currentPreset, appState.today);
+          fromISO = rng.from;
+          toISO = rng.to;
+        }
       }
       if (!fromISO || !toISO) return;
       if (fromISO > toISO) { const tmp = fromISO; fromISO = toISO; toISO = tmp; }
       statDateFilter = { from: fromISO, to: toISO };
       document.getElementById('btnClearDateFilter').style.display = 'inline-flex';
+      if (currentWorkspaceView === 'stats') {
+        switchWorkspaceView('orders', { scroll: false });
+      }
       renderTable();
       document.getElementById('ordersBody').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       showToast(`Đang lọc bảng đơn hàng bán từ ${fromISO} đến ${toISO}`);
@@ -7148,11 +8148,6 @@ document.getElementById('createForm').addEventListener('submit', async (e) => {
       document.getElementById('btnClearDateFilter').style.display = 'none';
       renderTable();
       showToast('Đã xóa bộ lọc ngày, hiển thị lại toàn bộ đơn hàng.');
-    });
-
-    document.getElementById('navBtnSalesStats').addEventListener('click', () => {
-      document.getElementById('sidebar').classList.remove('open');
-      document.getElementById('salesStatsSection').scrollIntoView({ behavior: 'smooth' });
     });
 
     function toggleSidebar(forceState = null) {
