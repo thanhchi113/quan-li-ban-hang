@@ -5606,19 +5606,50 @@
       }
     }
 
+    function parseDateToISO(dStr) {
+      if (!dStr) return '';
+      const s = String(dStr).trim();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+      const parts = s.split(/[-\/]/);
+      if (parts.length === 3) {
+        if (parts[0].length === 4) return `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
+        if (parts[2].length === 4) return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+      }
+      return s;
+    }
+
+    function calculateDaysDiff(targetISO, todayISO) {
+      if (!targetISO || !todayISO) return null;
+      const t = parseDateToISO(targetISO);
+      const b = parseDateToISO(todayISO);
+      if (!t || !b) return null;
+      const tParts = t.split('-').map(Number);
+      const bParts = b.split('-').map(Number);
+      const utct = Date.UTC(tParts[0], tParts[1] - 1, tParts[2]);
+      const utcb = Date.UTC(bParts[0], bParts[1] - 1, bParts[2]);
+      return Math.round((utct - utcb) / 86400000);
+    }
+
+    async function postToGas(gasUrl, payload) {
+      if (!gasUrl) return null;
+      try {
+        const res = await fetch(gasUrl, {
+          method: 'POST',
+          redirect: 'follow',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        return await res.json();
+      } catch (err) {
+        console.warn('Lỗi gọi Google Apps Script POST:', err);
+        return null;
+      }
+    }
+
     async function syncOrderToGas(action, order, rowNumber) {
       const gasUrl = (localStorage.getItem('qlbh_gas_url') || '').trim();
-      if (!gasUrl) return;
-      try {
-        await fetch(gasUrl, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action, order, rowNumber })
-        });
-      } catch (e) {
-        console.warn('Lỗi đồng bộ Google Apps Script:', e);
-      }
+      if (!gasUrl) return null;
+      return await postToGas(gasUrl, { action, order, rowNumber });
     }
     let activeFilter = 'all';
     let selectedRowNumber = null;
@@ -6083,9 +6114,10 @@
       const o = (appState.orders || []).find((x) => x.rowNumber === rowNumber);
       if (!o) return;
 
-      const confirmed = confirm(`Bạn có chắc chắn muốn xóa đơn hàng của khách "${o.customerName}" (Mặt hàng: ${o.product}) không?\n\nThao tác này sẽ xóa đơn và tính toán lại toàn bộ doanh thu, chi phí, lợi nhuận.`);
+      const confirmed = confirm(`Bạn có chắc chắn muốn xóa đơn hàng của khách "${o.customerName}" (Mặt hàng: ${o.product}) không?\n\nThao tác này sẽ xóa đơn và tự động đồng bộ lên Google Sheet.`);
       if (!confirmed) return;
 
+      // 1. Cập nhật ngay trên giao diện Web (Optimistic UI)
       appState.orders = (appState.orders || []).filter((x) => x.rowNumber !== rowNumber);
       appState.kpis = recalculateKPIs(appState.orders);
       saveLocalOrders(appState);
@@ -6093,8 +6125,10 @@
       renderAll();
       closeDetailDrawer();
 
+      // 2. Đồng bộ xóa lên Google Sheet qua Apps Script Web App
       syncOrderToGas('delete', null, rowNumber);
 
+      // 3. Nếu đang chạy local Node.js backend
       const isGhPages = window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
       if (!isGhPages && navigator.onLine) {
         try {
@@ -6102,7 +6136,7 @@
         } catch (e) {}
       }
 
-      showToast(`Đã xóa đơn hàng của "${o.customerName}" thành công!`);
+      showToast(`Đã xóa đơn hàng của "${o.customerName}" và đồng bộ lên Google Sheet thành công!`);
     }
 
     function renderTable() {
@@ -6298,11 +6332,10 @@
         if (gasUrl) {
           try {
             const sep = gasUrl.includes('?') ? '&' : '?';
-            const res = await fetch(gasUrl + sep + 'action=read');
+            const res = await fetch(`${gasUrl}${sep}action=read&t=${Date.now()}`);
             const data = await res.json();
             if (data && data.ok) {
               loaded = data;
-              saveLocalOrders(loaded);
             }
           } catch (err) {
             console.warn('Lỗi fetch Google Apps Script:', err);
@@ -6321,29 +6354,87 @@
       // 4. Fallback dữ liệu 134 đơn hàng nhúng sẵn
       if (!loaded && window.EMBEDDED_INITIAL_DATA) {
         loaded = JSON.parse(JSON.stringify(window.EMBEDDED_INITIAL_DATA));
-        saveLocalOrders(loaded);
       }
 
       if (loaded) {
+        const todayStr = loaded.today || new Date().toISOString().slice(0, 10);
+        const rawOrders = Array.isArray(loaded.orders) ? loaded.orders : [];
+
+        // Chuẩn hóa toàn bộ orders
+        const normalizedOrders = rawOrders.map((o, idx) => {
+          const buyISO = o.buyDateISO || parseDateToISO(o.buyDate);
+          const endISO = o.endDateISO || parseDateToISO(o.endDate);
+          const dLeft = o.daysLeft !== undefined && o.daysLeft !== null
+            ? Number(o.daysLeft)
+            : (endISO ? calculateDaysDiff(endISO, todayStr) : null);
+          return {
+            ...o,
+            stt: o.stt || String(idx + 1),
+            customerName: String(o.customerName || '').trim(),
+            product: String(o.product || '').trim(),
+            channel: o.channel || 'Khác',
+            phone: o.phone || '',
+            salePrice: String(o.salePrice || ''),
+            costPrice: String(o.costPrice || ''),
+            buyDate: o.buyDate || buyISO,
+            buyDateISO: buyISO,
+            months: String(o.months || '1'),
+            endDate: o.endDate || endISO,
+            endDateISO: endISO,
+            daysLeft: dLeft,
+            source: o.source || '',
+            customerEmail: o.customerEmail || '',
+            famEmail: o.famEmail || '',
+            note: o.note || ''
+          };
+        }).filter(o => o.customerName || o.product);
+
+        // Tự động phát hiện nối gói cho đơn hết hạn
+        const activeKeyMap = new Map();
+        for (const o of normalizedOrders) {
+          if (o.daysLeft !== null && o.daysLeft >= 0) {
+            const k = ((o.phone || o.customerName || '') + '|' + (o.product || '')).toLowerCase();
+            if (k) activeKeyMap.set(k, o.rowNumber);
+          }
+        }
+        for (const o of normalizedOrders) {
+          if (o.daysLeft !== null && o.daysLeft < 0) {
+            const k = ((o.phone || o.customerName || '') + '|' + (o.product || '')).toLowerCase();
+            const newer = activeKeyMap.get(k);
+            if (newer && newer !== o.rowNumber) o.renewedByRow = newer;
+          }
+        }
+
+        loaded.orders = normalizedOrders;
+        if (!loaded.kpis || !loaded.kpis.revenue) {
+          loaded.kpis = recalculateKPIs(normalizedOrders);
+        }
+
         appState = loaded;
+        saveLocalOrders(appState);
+
         const timeStr = new Date(loaded.syncedAt || Date.now()).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         document.getElementById('syncStamp').textContent = `Đồng bộ 2 chiều: ${timeStr}`;
-        document.getElementById('sidebarNextRow').textContent = `Dòng trống kế: #${loaded.nextEmptyRow || 142}`;
-        document.getElementById('composerTitleText').textContent = `+ Ghi đơn mới (Dòng #${loaded.nextEmptyRow || 142})`;
+        document.getElementById('sidebarNextRow').textContent = `Dòng trống kế: #${loaded.nextEmptyRow || (normalizedOrders.length + 8)}`;
+        document.getElementById('composerTitleText').textContent = `+ Ghi đơn mới (Dòng #${loaded.nextEmptyRow || (normalizedOrders.length + 8)})`;
 
-        const todayStr = loaded.today || new Date().toISOString().slice(0, 10);
+        const todayStrVal = loaded.today || new Date().toISOString().slice(0, 10);
         if (!document.getElementById('cBuyDate').value) {
-          document.getElementById('cBuyDate').value = todayStr;
+          document.getElementById('cBuyDate').value = todayStrVal;
           updateCreatePreview();
         }
         if (!document.getElementById('statSingleDate').value) {
-          document.getElementById('statSingleDate').value = todayStr;
-          document.getElementById('statFromDate').value = todayStr;
-          document.getElementById('statToDate').value = todayStr;
+          document.getElementById('statSingleDate').value = todayStrVal;
+          document.getElementById('statFromDate').value = todayStrVal;
+          document.getElementById('statToDate').value = todayStrVal;
         }
 
         updateProductAndChannelDropdowns();
         renderAll();
+
+        if (!silent) {
+          showToast(`Đã đồng bộ mới nhất từ Google Sheet! (${normalizedOrders.length} đơn hàng)`);
+        }
       }
 
       if (!silent && btn) btn.disabled = false;

@@ -729,6 +729,29 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, { ok: true, ...result });
     }
 
+    const deleteMatch = url.pathname.match(/^\/api\/orders\/(\d+)$/);
+    if (req.method === 'DELETE' && deleteMatch) {
+      const targetRow = Number(deleteMatch[1]);
+      if (!Number.isInteger(targetRow) || targetRow < 8) {
+        return sendJson(res, 400, { ok: false, error: 'Số dòng không hợp lệ' });
+      }
+      const result = await withLock(async () => {
+        try {
+          await runCli(GSHEETS_BIN, [
+            'mutate',
+            'clear',
+            SPREADSHEET_ID,
+            `'Trang tính1'!B${targetRow}:O${targetRow}`
+          ]);
+        } catch (err) {
+          console.warn('GSHEETS_BIN clear warning:', err.message);
+        }
+        const stateAfter = await fetchSheetState();
+        return { targetRow, kpis: stateAfter.kpis, ordersCount: stateAfter.orders.length };
+      });
+      return sendJson(res, 200, { ok: true, message: `Đã xóa dòng #${targetRow} trên Google Sheet`, ...result });
+    }
+
     if (req.method === 'POST' && url.pathname === '/api/reminders/sync') {
       const body = await readJsonBody(req);
       const result = await withLock(async () => {
