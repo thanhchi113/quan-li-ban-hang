@@ -1,5 +1,5 @@
 {
-  "name": "quan-li-nhac-hen",
+  "name": "quan-li-ban-hang",
   "version": "1.0.0",
   "description": "Quản lý đơn hàng & nhắc hẹn đồng bộ Google Sheets và Google Calendar",
   "main": "server.js",

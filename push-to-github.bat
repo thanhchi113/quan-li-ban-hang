@@ -8,8 +8,8 @@ cd /d "%~dp0"
 
 git status --short
 
-set /p REPO_URL="Nhập URL repository (mặc định: https://github.com/thanhchi113/quan-li-nhac-hen.git): "
-if "%REPO_URL%"=="" set REPO_URL=https://github.com/thanhchi113/quan-li-nhac-hen.git
+set /p REPO_URL="Nhập URL repository (mặc định: https://github.com/thanhchi113/quan-li-ban-hang.git): "
+if "%REPO_URL%"=="" set REPO_URL=https://github.com/thanhchi113/quan-li-ban-hang.git
 
 git remote remove origin 2>nul
 git remote add origin %REPO_URL%
