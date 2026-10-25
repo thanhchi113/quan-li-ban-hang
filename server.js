@@ -28,7 +28,9 @@ const HOST = process.env.HOST || '127.0.0.1';
 const SYNC_FILE = path.join(__dirname, 'synced-reminders.json');
 const AUTH_FILE = path.join(__dirname, 'auth-config.json');
 const PUBLIC_URL_FILE = path.join(__dirname, 'public-url.txt');
-const INDEX_FILE = path.join(__dirname, 'public', 'index.html');
+const INDEX_FILE = fs.existsSync(path.join(__dirname, 'index.html'))
+  ? path.join(__dirname, 'index.html')
+  : path.join(__dirname, 'public', 'index.html');
 
 function resolveCliBinary(toolName) {
   const appData = process.env.ANTIGRAVITY_APP_DATA_DIR || path.join(os.homedir(), '.gemini', 'antigravity');
