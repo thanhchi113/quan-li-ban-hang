@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@400;500;600;700;800&display=swap"
     rel="stylesheet"
   />
   <style>
@@ -79,7 +79,7 @@
       --fs-kpi: 28px;
       --fs-body: 14px;
       --fs-small: 13px;
-      --font: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+      --font: "Be Vietnam Pro", "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       color-scheme: light;
     }
 
@@ -254,7 +254,7 @@
     }
 
     h1, h2, h3, p { margin: 0; }
-    button, input, select, textarea { font: inherit; color: inherit; }
+    button, input, select, textarea, svg text { font: inherit; font-family: var(--font); color: inherit; }
     a { color: inherit; text-decoration: none; }
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
@@ -1710,47 +1710,53 @@
       gap: 8px;
     }
 
-    /* Customer Detail & 2-Way Edit Slide-Over Drawer */
+    /* Centered Modal for Customer Detail & 2-Way Edit (Hiển thị bảng nằm chính giữa khung hình) */
     .drawer-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.36);
-      z-index: 60;
-      display: flex;
-      justify-content: flex-end;
+      background: rgba(9, 13, 22, 0.56);
+      backdrop-filter: blur(4px);
+      z-index: 80;
+      display: grid;
+      place-items: center;
+      padding: 16px;
+      animation: fadeSlideUp 150ms ease;
     }
     .drawer-backdrop[hidden] { display: none !important; }
 
     .detail-drawer {
-      width: 480px;
-      max-width: 100vw;
-      height: 100%;
+      width: 780px;
+      max-width: calc(100vw - 24px);
+      max-height: calc(100vh - 24px);
+      height: auto;
       background: var(--surface);
-      border-left: 1px solid var(--border); /* taste-skill-ignore */
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 28px 70px rgba(0, 0, 0, 0.42); /* taste-skill-ignore */
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      animation: drawerSlideIn 220ms cubic-bezier(0.22, 1, 0.36, 1);
+      animation: fadeSlideUp 180ms cubic-bezier(0.22, 1, 0.36, 1);
     }
     .drawer-head {
-      padding: 16px 20px;
+      padding: 15px 20px;
       border-bottom: 1px solid var(--border); /* taste-skill-ignore */
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
       gap: 12px;
       background: var(--raised);
     }
     .drawer-body {
-      padding: 20px;
+      padding: 14px 18px;
       overflow-y: auto;
       flex: 1;
       display: grid;
-      gap: 16px;
+      gap: 14px;
       align-content: start;
     }
     .drawer-foot {
-      padding: 14px 20px;
+      padding: 12px 18px;
       border-top: 1px solid var(--border); /* taste-skill-ignore */
       background: var(--raised);
       display: flex;
@@ -1758,6 +1764,10 @@
       justify-content: space-between;
       gap: 8px;
       flex-wrap: wrap;
+    }
+    .drawer-foot .btn {
+      padding: 6px 11px;
+      font-size: 12.5px;
     }
 
     /* Floating Back-To-Top Button (Nút bật lên trang đầu) */
@@ -3029,35 +3039,48 @@
     </footer>
   </section>
 
-  <!-- CUSTOMER DETAIL & EDIT DRAWER (Xem đầy đủ thông tin & chỉnh sửa 2 chiều) -->
+  <!-- CENTERED EXECUTIVE MODAL FOR CUSTOMER DETAIL & EDIT (Bảng sửa thông tin khách hàng nằm chính giữa khung hình) -->
   <div class="drawer-backdrop" id="detailBackdrop" hidden>
     <aside class="detail-drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
       <header class="drawer-head">
-        <div>
-          <h2 id="drawerTitle" style="font-size:18px;font-weight:600;">Chi tiết đơn hàng</h2>
-          <p class="panel-meta mono" id="drawerMeta">STT #- · Dòng Sheet #-</p>
+        <div class="composer-head-left">
+          <div class="composer-head-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:18px;height:18px;stroke-width:2.1;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </div>
+          <div>
+            <div class="composer-title">
+              <span id="drawerTitle">Chi tiết &amp; Sửa thông tin khách hàng</span>
+              <span id="drawerStatusPill"></span>
+              <span class="pill pos mono" id="eHeaderProfitBadge" style="font-size:11px;padding:2px 8px;">Lãi: 0 đ</span>
+            </div>
+            <div class="composer-subtitle">
+              <span class="mono" id="drawerMeta">STT #- · Dòng Sheet #-</span>
+              <span> · Lịch nhắc ĐT: </span>
+              <span id="drawerCalLinks" class="mono">-</span>
+            </div>
+          </div>
         </div>
-        <button type="button" class="win-btn" id="btnCloseDrawer" aria-label="Đóng chi tiết">×</button>
+        <button type="button" class="win-btn" id="btnCloseDrawer" aria-label="Đóng chi tiết" title="Đóng bảng">×</button>
       </header>
 
       <form id="editForm" class="drawer-body">
         <input type="hidden" id="eRowNumber" />
 
-        <div class="kv-well">
-          <div class="kv-line">
-            <span>Trạng thái thời hạn:</span>
-            <span id="drawerStatusPill"></span>
+        <!-- KHỐI 1: THÔNG TIN KHÁCH HÀNG & MẶT HÀNG -->
+        <div class="composer-section">
+          <div class="composer-sec-head">
+            <span class="composer-sec-title">1. Khách hàng &amp; Sản phẩm</span>
+            <span class="panel-meta" style="font-size:11.5px;">Chỉnh sửa trực tiếp &amp; đồng bộ 2 chiều</span>
           </div>
-          <div class="kv-line">
-            <span>Lịch nhắc Google Calendar (07:30 sáng):</span>
-            <span id="drawerCalLinks" class="mono">-</span>
-          </div>
-        </div>
 
-        <div class="f-grid">
-          <div class="field f-full">
+          <div class="field">
             <label for="eCustomerName"><span>Tên khách hàng *</span></label>
-            <input id="eCustomerName" required />
+            <input id="eCustomerName" required autocomplete="off" />
+          </div>
+
+          <div class="field">
+            <label for="ePhone"><span>Số điện thoại</span></label>
+            <input id="ePhone" class="mono" placeholder="Chưa có SĐT" autocomplete="off" />
           </div>
 
           <div class="field">
@@ -3066,6 +3089,14 @@
               <input id="eProduct" required autocomplete="off" />
               <svg class="combo-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
               <div class="combo-menu" id="eProdComboMenu"></div>
+            </div>
+            <div class="chip-row">
+              <button type="button" class="mini-chip" data-eprod="gemini">gemini</button>
+              <button type="button" class="mini-chip" data-eprod="chat gpt">chat gpt</button>
+              <button type="button" class="mini-chip" data-eprod="netflix">netflix</button>
+              <button type="button" class="mini-chip" data-eprod="office">office</button>
+              <button type="button" class="mini-chip" data-eprod="canva">canva</button>
+              <button type="button" class="mini-chip" data-eprod="youtube">youtube</button>
             </div>
           </div>
 
@@ -3084,10 +3115,82 @@
               <button type="button" class="mini-chip" data-echan="Shopee">Shopee</button>
             </div>
           </div>
+        </div>
+
+        <!-- KHỐI 2: GIÁ TIỀN & THỜI HẠN THEO THÁNG / NGÀY -->
+        <div class="composer-section">
+          <div class="composer-sec-head">
+            <span class="composer-sec-title">2. Giá tiền &amp; Thời hạn (Theo Tháng hoặc Theo Ngày)</span>
+            <div class="dur-unit-switch" role="group" aria-label="Đơn vị thời hạn">
+              <button type="button" class="dur-unit-btn active" data-edur-unit="months" id="eUnitMonthsBtn">Theo tháng</button>
+              <button type="button" class="dur-unit-btn" data-edur-unit="days" id="eUnitDaysBtn">Theo ngày</button>
+            </div>
+          </div>
 
           <div class="field">
-            <label for="ePhone"><span>Số điện thoại</span></label>
-            <input id="ePhone" class="mono" placeholder="Chưa có SĐT" />
+            <label for="eSalePrice">
+              <span>Giá bán (VNĐ)</span>
+              <span class="mono" id="eSalePricePreview" style="color:var(--accent);font-size:11px;">0 đ</span>
+            </label>
+            <input id="eSalePrice" class="mono" inputmode="numeric" />
+          </div>
+
+          <div class="field">
+            <label for="eCostPrice">
+              <span>Giá nhập (VNĐ)</span>
+              <span class="mono" id="eCostPricePreview" style="color:var(--muted);font-size:11px;">0 đ</span>
+            </label>
+            <input id="eCostPrice" class="mono" inputmode="numeric" />
+          </div>
+
+          <div class="field">
+            <label for="eBuyDate"><span>Ngày mua / Bắt đầu *</span></label>
+            <input id="eBuyDate" type="date" class="mono" required />
+          </div>
+
+          <div class="field">
+            <label for="eMonths">
+              <span id="eDurationLabelText">Thời hạn (Số tháng)</span>
+            </label>
+            <div class="dur-input-wrap">
+              <input id="eMonths" type="number" class="mono" min="1" max="3650" />
+              <span class="dur-unit-suffix" id="eDurUnitSuffix">tháng</span>
+            </div>
+            <div class="chip-row" id="eDurQuickChips">
+              <button type="button" class="mini-chip" data-em="7" data-eunit="days">7 ngày</button>
+              <button type="button" class="mini-chip" data-em="15" data-eunit="days">15 ngày</button>
+              <button type="button" class="mini-chip" data-em="30" data-eunit="days">30 ngày</button>
+              <button type="button" class="mini-chip" data-em="1" data-eunit="months">1 tháng</button>
+              <button type="button" class="mini-chip" data-em="3" data-eunit="months">3 tháng</button>
+              <button type="button" class="mini-chip" data-em="6" data-eunit="months">6 tháng</button>
+              <button type="button" class="mini-chip" data-em="12" data-eunit="months">12 tháng</button>
+            </div>
+          </div>
+
+          <div class="field f-full">
+            <label for="eCustomEnd">
+              <span>Ngày kết thúc / Hết hạn (Tự tính theo Tháng/Ngày hoặc chọn ngày riêng)</span>
+              <span class="mono" style="color:var(--positive);font-weight:700;" id="ePreviewEnd">-</span>
+            </label>
+            <input id="eCustomEnd" type="date" class="mono" />
+          </div>
+        </div>
+
+        <!-- KHỐI 3: TÀI KHOẢN & GHI CHÚ BỔ SUNG -->
+        <div class="composer-section">
+          <div class="composer-sec-head">
+            <span class="composer-sec-title">3. Tài khoản &amp; Ghi chú bổ sung</span>
+            <span class="panel-meta" style="font-size:11.5px;">Thông tin email &amp; lưu ý nhắc hẹn</span>
+          </div>
+
+          <div class="field">
+            <label for="eCustomerEmail"><span>Mail khách hàng</span></label>
+            <input id="eCustomerEmail" type="email" placeholder="Chưa có email khách" />
+          </div>
+
+          <div class="field">
+            <label for="eFamEmail"><span>Mail Fam / Tài khoản cấp</span></label>
+            <input id="eFamEmail" placeholder="(Để trống)" />
           </div>
 
           <div class="field">
@@ -3096,61 +3199,8 @@
           </div>
 
           <div class="field">
-            <label for="eSalePrice"><span>Giá bán (VNĐ)</span></label>
-            <input id="eSalePrice" class="mono" inputmode="numeric" />
-          </div>
-
-          <div class="field">
-            <label for="eCostPrice"><span>Giá nhập (VNĐ)</span></label>
-            <input id="eCostPrice" class="mono" inputmode="numeric" />
-          </div>
-
-          <div class="field">
-            <label for="eBuyDate"><span>Ngày mua *</span></label>
-            <input id="eBuyDate" type="date" class="mono" required />
-          </div>
-
-          <div class="field">
-            <label for="eMonths">
-              <span id="eDurationLabelText">Thời hạn</span>
-              <span class="dur-unit-switch" role="group" aria-label="Đơn vị thời hạn">
-                <button type="button" class="dur-unit-btn active" data-edur-unit="months" id="eUnitMonthsBtn">Tháng</button>
-                <button type="button" class="dur-unit-btn" data-edur-unit="days" id="eUnitDaysBtn">Ngày</button>
-              </span>
-            </label>
-            <div class="dur-input-wrap">
-              <input id="eMonths" type="number" class="mono" min="1" max="3650" />
-              <span class="dur-unit-suffix" id="eDurUnitSuffix">tháng</span>
-            </div>
-            <div class="chip-row" id="eDurQuickChips">
-              <button type="button" class="mini-chip" data-em="7" data-eunit="days">7N</button>
-              <button type="button" class="mini-chip" data-em="15" data-eunit="days">15N</button>
-              <button type="button" class="mini-chip" data-em="30" data-eunit="days">30N</button>
-              <button type="button" class="mini-chip" data-em="1" data-eunit="months">1T</button>
-              <button type="button" class="mini-chip" data-em="3" data-eunit="months">3T</button>
-              <button type="button" class="mini-chip" data-em="6" data-eunit="months">6T</button>
-              <button type="button" class="mini-chip" data-em="12" data-eunit="months">12T</button>
-            </div>
-          </div>
-
-          <div class="field f-full">
-            <label for="eCustomEnd"><span>Ngày kết thúc (tự tính theo Tháng/Ngày hoặc chọn ngày riêng)</span></label>
-            <input id="eCustomEnd" type="date" class="mono" />
-          </div>
-
-          <div class="field f-full">
-            <label for="eCustomerEmail"><span>Mail khách hàng</span></label>
-            <input id="eCustomerEmail" type="email" placeholder="Chưa có email khách" />
-          </div>
-
-          <div class="field f-full">
-            <label for="eFamEmail"><span>Mail Fam / Tài khoản cấp</span></label>
-            <input id="eFamEmail" placeholder="(Để trống)" />
-          </div>
-
-          <div class="field f-full">
             <label for="eNote"><span>Lưu ý / Ghi chú nhắc hẹn</span></label>
-            <textarea id="eNote" rows="3" placeholder="Ghi chú..."></textarea>
+            <input id="eNote" placeholder="Ghi chú..." />
           </div>
         </div>
       </form>
@@ -3165,9 +3215,12 @@
             <span>Xóa đơn này</span>
           </button>
         </div>
-        <button type="submit" form="editForm" class="btn primary" id="btnEditSubmit">
-          Lưu thay đổi lên Sheet
-        </button>
+        <div style="display:flex;gap:8px;align-items:center;margin-left:auto;">
+          <button type="button" class="btn" id="btnCloseDrawerFoot">Đóng</button>
+          <button type="submit" form="editForm" class="btn primary" id="btnEditSubmit" style="padding:0 18px;font-weight:600;">
+            Lưu thay đổi lên Sheet
+          </button>
+        </div>
       </footer>
     </aside>
   </div>
@@ -6744,18 +6797,44 @@
       }
     }
 
-    function updateEditPreview() {
+    function updateEditPreview({ syncEndDateInput = true } = {}) {
       const buyISO = document.getElementById('eBuyDate').value;
       const durVal = document.getElementById('eMonths').value.trim();
-      if (buyISO && durVal) {
+      const customEl = document.getElementById('eCustomEnd');
+      if (syncEndDateInput && buyISO && durVal) {
         const computed = computeEndPreview(buyISO, durVal, '', eDurationUnit);
         if (computed && computed !== '-') {
-          document.getElementById('eCustomEnd').value = computed;
+          customEl.value = computed;
         }
       }
       document.querySelectorAll('#eDurQuickChips .mini-chip[data-em]').forEach((b) => {
         b.classList.toggle('active', b.dataset.eunit === eDurationUnit && b.dataset.em === durVal);
       });
+
+      const finalISO = customEl.value || computeEndPreview(buyISO, durVal, '', eDurationUnit);
+      const previewEl = document.getElementById('ePreviewEnd');
+      if (previewEl) {
+        if (finalISO && finalISO !== '-') {
+          const [y, m, d] = finalISO.split('-');
+          const diff = buyISO ? calculateDaysDiff(finalISO, buyISO) : null;
+          previewEl.textContent = `${d}/${m}/${y}${diff !== null ? ` (Tổng ${diff} ngày)` : ''}`;
+        } else {
+          previewEl.textContent = '-';
+        }
+      }
+
+      const saleVnd = parseToVndAmount(document.getElementById('eSalePrice')?.value || '');
+      const costVnd = parseToVndAmount(document.getElementById('eCostPrice')?.value || '');
+      const profitVnd = saleVnd - costVnd;
+      const salePrev = document.getElementById('eSalePricePreview');
+      const costPrev = document.getElementById('eCostPricePreview');
+      const headProfit = document.getElementById('eHeaderProfitBadge');
+      if (salePrev) salePrev.textContent = `${saleVnd.toLocaleString('vi-VN')} đ`;
+      if (costPrev) costPrev.textContent = `${costVnd.toLocaleString('vi-VN')} đ`;
+      if (headProfit) {
+        headProfit.textContent = `Lãi: ${profitVnd >= 0 ? '+' : ''}${profitVnd.toLocaleString('vi-VN')} đ`;
+        headProfit.className = `pill ${profitVnd >= 0 ? 'pos' : 'neg'} mono`;
+      }
     }
 
     function shiftDaysISO(iso, days) {
@@ -7962,7 +8041,13 @@
       document.getElementById('eCustomerEmail').value = o.customerEmail;
       document.getElementById('eFamEmail').value = o.famEmail;
       document.getElementById('eNote').value = o.note;
-      updateEditPreview();
+      document.querySelectorAll('.mini-chip[data-eprod]').forEach((b) => {
+        b.classList.toggle('active', (o.product || '').toLowerCase() === b.dataset.eprod.toLowerCase());
+      });
+      document.querySelectorAll('.mini-chip[data-echan]').forEach((b) => {
+        b.classList.toggle('active', (o.channel || 'Zalo').toLowerCase() === b.dataset.echan.toLowerCase());
+      });
+      updateEditPreview({ syncEndDateInput: !o.endDateISO });
 
       document.getElementById('detailBackdrop').hidden = false;
     }
@@ -8481,6 +8566,12 @@
         document.querySelectorAll('.mini-chip[data-cprod]').forEach(x => x.classList.toggle('active', x === b));
       });
     });
+    document.querySelectorAll('.mini-chip[data-eprod]').forEach((b) => {
+      b.addEventListener('click', () => {
+        document.getElementById('eProduct').value = b.dataset.eprod;
+        document.querySelectorAll('.mini-chip[data-eprod]').forEach(x => x.classList.toggle('active', x === b));
+      });
+    });
 
     // Chuyển đổi đơn vị thời hạn (Theo tháng / Theo ngày) trong Bảng Ghi Đơn Mới
     document.querySelectorAll('[data-cdur-unit]').forEach((btn) => {
@@ -8496,7 +8587,7 @@
     document.querySelectorAll('[data-edur-unit]').forEach((btn) => {
       btn.addEventListener('click', () => {
         setEditDurationUnit(btn.dataset.edurUnit);
-        updateEditPreview();
+        updateEditPreview({ syncEndDateInput: true });
       });
     });
 
@@ -8510,7 +8601,7 @@
     document.querySelectorAll('#eDurQuickChips .mini-chip[data-em]').forEach((b) => {
       b.addEventListener('click', () => {
         setEditDurationUnit(b.dataset.eunit || 'months', b.dataset.em);
-        updateEditPreview();
+        updateEditPreview({ syncEndDateInput: true });
       });
     });
 
@@ -8530,8 +8621,10 @@
       updateCreatePreview({ syncEndDateInput: false });
     });
 
-    document.getElementById('eBuyDate').addEventListener('change', updateEditPreview);
-    document.getElementById('eMonths').addEventListener('input', updateEditPreview);
+    document.getElementById('eBuyDate').addEventListener('change', () => updateEditPreview({ syncEndDateInput: true }));
+    document.getElementById('eMonths').addEventListener('input', () => updateEditPreview({ syncEndDateInput: true }));
+    document.getElementById('eSalePrice').addEventListener('input', () => updateEditPreview({ syncEndDateInput: false }));
+    document.getElementById('eCostPrice').addEventListener('input', () => updateEditPreview({ syncEndDateInput: false }));
     document.getElementById('eCustomEnd').addEventListener('change', (e) => {
       const endISO = e.target.value;
       const buyISO = document.getElementById('eBuyDate').value;
@@ -8541,6 +8634,7 @@
           setEditDurationUnit('days', diffD);
         }
       }
+      updateEditPreview({ syncEndDateInput: false });
     });
 
     document.getElementById('btnCreateClear').addEventListener('click', () => {
@@ -8693,6 +8787,8 @@
     });
 
     document.getElementById('btnCloseDrawer').addEventListener('click', closeDetailDrawer);
+    const btnCloseFoot = document.getElementById('btnCloseDrawerFoot');
+    if (btnCloseFoot) btnCloseFoot.addEventListener('click', closeDetailDrawer);
     document.getElementById('detailBackdrop').addEventListener('click', (e) => {
       if (e.target.id === 'detailBackdrop') closeDetailDrawer();
     });
@@ -8709,7 +8805,7 @@
           ? (eDurationUnit === 'days' ? `${rawDur} ngày` : rawDur)
           : '';
         const computedEnd = document.getElementById('eCustomEnd').value || computeEndPreview(buyISO, rawDur, '', eDurationUnit);
-        const customEndFieldVal = (eDurationUnit === 'days' || !rawDur) && computedEnd !== '-' ? computedEnd : '';
+        const customEndFieldVal = (eDurationUnit === 'days' || !rawDur) && computedEnd !== '-' ? computedEnd : (document.getElementById('eCustomEnd').value || '');
 
         const payload = {
           customerName: document.getElementById('eCustomerName').value.trim(),
