@@ -5754,6 +5754,7 @@
       return { from: todayISO, to: todayISO };
     }
 
+    function renderOrderStats() { updateSalesStats(); }
     function updateSalesStats() {
       let fromISO = '';
       let toISO = '';
@@ -5918,6 +5919,7 @@
     }
 
     function renderAll() {
+      if (!appState.kpis || !appState.kpis.revenue) { appState.kpis = recalculateKPIs(appState.orders || []); }
       const orders = appState.orders;
       const soon30 = orders.filter((o) => !o.renewedByRow && o.daysLeft !== null && o.daysLeft >= 0 && o.daysLeft <= 30);
       const soon60 = orders.filter((o) => !o.renewedByRow && o.daysLeft !== null && o.daysLeft >= 0 && o.daysLeft <= 60);
@@ -5940,7 +5942,8 @@
       document.getElementById('kpiRev').innerHTML = `${revFormatted}<small>đ</small>`;
       document.getElementById('kpiProfit').innerHTML = `${profitFormatted}<small>đ</small>`;
       document.getElementById('kpiCostNote').textContent = `Tổng chi phí nhập: ${costFormatted} đ`;
-      document.getElementById('kpiOrders').innerHTML = `${esc(appState.kpis.totalOrders)}<small>đơn</small>`;
+      const totalOrdersCount = (appState.kpis && appState.kpis.totalOrders) ? appState.kpis.totalOrders : String((orders || []).length);
+      document.getElementById('kpiOrders').innerHTML = `${esc(totalOrdersCount)}<small>đơn</small>`;
       document.getElementById('kpiRowNote').textContent = `Dòng ghi kế tiếp: #${appState.nextEmptyRow}`;
       document.getElementById('kpiSoon').innerHTML = `${soon30.length}<small>đơn</small>`;
       document.getElementById('kpiCalNote').textContent = `Đã đặt lịch nhắc ĐT: ${syncedSoon30}/${soon30.length} đơn`;
@@ -6236,8 +6239,6 @@
 
         updateProductAndChannelDropdowns();
         renderAll();
-        renderTable();
-        renderOrderStats();
       }
 
       if (!silent && btn) btn.disabled = false;
@@ -6613,8 +6614,6 @@
       saveLocalOrders(appState);
       updateProductAndChannelDropdowns();
       renderAll();
-      renderTable();
-      renderOrderStats();
 
       // Đồng bộ ngầm lên Google Apps Script nếu có cấu hình
       syncOrderToGas(isEdit ? 'update' : 'create', payload, targetRow || appState.nextEmptyRow - 1);
