@@ -243,7 +243,7 @@
       padding: 0;
       width: 100%;
       max-width: 100%;
-      overflow-x: hidden;
+      overflow-x: clip;
       background: var(--ground);
       color: var(--text);
       font: 400 var(--fs-body)/20px var(--font);
@@ -417,20 +417,26 @@
     }
 
     .topbar {
-      height: 48px;
-      padding: 0 16px;
+      position: sticky;
+      top: 0;
+      z-index: 48;
+      min-height: 52px;
+      padding: 6px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 10px;
       background: var(--ground);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 3px 12px rgba(15, 23, 42, 0.06); /* taste-skill-ignore */
     }
 
     .topbar-left {
       display: flex;
       align-items: center;
       gap: 10px;
-      min-width: 0;
+      flex: 1;
+      min-width: 220px;
     }
 
     .btn.menu-btn, .win-btn.menu-btn {
@@ -439,8 +445,9 @@
 
     .search-wrap {
       position: relative;
-      width: 420px;
-      max-width: 100%;
+      flex: 1;
+      max-width: 380px;
+      min-width: 180px;
     }
     .search-wrap svg {
       position: absolute;
@@ -482,10 +489,19 @@
       font-size: 12px;
       color: var(--muted);
       white-space: nowrap;
-      padding: 4px 10px;
+      height: var(--control-height);
+      padding: 0 11px;
       border-radius: 999px;
       background: var(--surface);
       border: 1px solid var(--border);
+      cursor: pointer;
+      transition: border-color 150ms ease, background-color 150ms ease, transform 120ms ease;
+    }
+    .sync-indicator:hover {
+      border-color: var(--accent);
+      background: var(--raised);
+      color: var(--text);
+      transform: translateY(-1px);
     }
     .sync-dot {
       width: 8px;
@@ -2066,10 +2082,10 @@
         </div>
 
         <div class="topbar-right">
-          <div class="sync-indicator">
+          <button type="button" class="sync-indicator" id="btnSyncIndicator" title="Bấm để đồng bộ 2 chiều ngay với Google Sheet">
             <span class="sync-dot" id="syncDot"></span>
             <span id="syncStamp">Đã kết nối Google Sheet (2 chiều)</span>
-          </div>
+          </button>
           <button type="button" class="btn" id="btnHeaderHome" title="Cuộn lên trang đầu">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             <span>Trang đầu</span>
@@ -8643,7 +8659,16 @@ document.getElementById('createForm').addEventListener('submit', async (e) => {
     })();
 
     document.getElementById('btnReload').addEventListener('click', () => loadOrders({ silent: false }));
-    document.getElementById('searchInput').addEventListener('input', renderTable);
+    const btnSyncInd = document.getElementById('btnSyncIndicator');
+    if (btnSyncInd) {
+      btnSyncInd.addEventListener('click', () => loadOrders({ silent: false }));
+    }
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      if (currentWorkspaceView === 'stats' && e.target.value.trim()) {
+        switchWorkspaceView('orders', { scroll: false });
+      }
+      renderTable();
+    });
     document.getElementById('productSelect').addEventListener('change', renderTable);
     document.getElementById('channelSelect').addEventListener('change', renderTable);
 
