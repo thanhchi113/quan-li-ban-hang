@@ -69,6 +69,17 @@ function doPost(e) {
       return jsonResponse({ ok: true, ...result });
     }
 
+    if (action === 'syncReminders') {
+      const orders = Array.isArray(payload.orders) ? payload.orders : [];
+      const result = syncCalendarReminders(orders);
+      return jsonResponse({ ok: true, ...result });
+    }
+
+    if (action === 'testReminder') {
+      const result = createTestPhoneReminder();
+      return jsonResponse({ ok: true, ...result });
+    }
+
     return jsonResponse({ ok: false, error: 'Hành động không hỗ trợ: ' + action });
   } catch (err) {
     return jsonResponse({ ok: false, error: err.message });
@@ -285,6 +296,55 @@ function formatDateVN(iso) {
     return `${parts[0]}-${parts[1]}-${parts[2]}`;
   }
   return iso;
+}
+
+function syncCalendarReminders(orders) {
+  const cal = CalendarApp.getDefaultCalendar();
+  const created = [];
+  for (let i = 0; i < orders.length; i++) {
+    const o = orders[i];
+    if (!o || !o.endDateISO) continue;
+    const offsets = [3, 0];
+    for (let j = 0; j < offsets.length; j++) {
+      const off = offsets[j];
+      const p = o.endDateISO.split('-').map(Number);
+      const startDt = new Date(p[0], p[1] - 1, p[2] - off, 8, 0, 0);
+      const endDt = new Date(p[0], p[1] - 1, p[2] - off, 8, 30, 0);
+      const prefix = off === 3 ? '[Còn 3 ngày]' : '[HẾT HẠN HÔM NAY]';
+      const title = prefix + ' ' + (o.customerName || '') + ' - ' + (o.product || '');
+      const desc = [
+        'Khách hàng: ' + (o.customerName || ''),
+        'Mặt hàng: ' + (o.product || ''),
+        'Ngày hết hạn: ' + (o.endDate || o.endDateISO),
+        o.phone ? 'SĐT: ' + o.phone : '',
+        o.channel ? 'Kênh: ' + o.channel : '',
+        o.note ? 'Ghi chú: ' + o.note : ''
+      ].filter(Boolean).join('\n');
+      const ev = cal.createEvent(title, startDt, endDt, { description: desc });
+      ev.removeAllReminders();
+      ev.addPopupReminder(30);
+      ev.addPopupReminder(0);
+      ev.addEmailReminder(30);
+      created.push({ rowNumber: o.rowNumber, offsetDays: off, eventId: ev.getId() });
+    }
+  }
+  return { createdCount: created.length, created: created };
+}
+
+function createTestPhoneReminder() {
+  const cal = CalendarApp.getDefaultCalendar();
+  const startDt = new Date(Date.now() + 2 * 60 * 1000);
+  const endDt = new Date(startDt.getTime() + 15 * 60 * 1000);
+  const ev = cal.createEvent(
+    '[Test Nhắc Hẹn] Kiểm tra thông báo Điện thoại - Quản lí bán hàng',
+    startDt,
+    endDt,
+    { description: 'Sự kiện kiểm tra kết nối từ Web App Quản lí bán hàng.' }
+  );
+  ev.removeAllReminders();
+  ev.addPopupReminder(1);
+  ev.addEmailReminder(1);
+  return { eventId: ev.getId(), message: 'Đã tạo lịch nhắc thử trên Google Calendar!' };
 }
 
 function jsonResponse(obj) {
