@@ -783,6 +783,41 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, { ok: true, message: `Đã xóa dòng #${targetRow} trên Google Sheet`, ...result });
     }
 
+    if (req.method === 'POST' && url.pathname === '/api/orders/sync-all') {
+      const body = await readJsonBody(req);
+      const orders = Array.isArray(body.orders) ? body.orders : [];
+      if (!orders.length) {
+        return sendJson(res, 400, { ok: false, error: 'Danh sách đơn hàng trống' });
+      }
+      const result = await withLock(async () => {
+        const allOps = [];
+        for (const order of orders) {
+          const rowNumber = Number(order.rowNumber);
+          if (rowNumber >= 8) {
+            try {
+              const { ops } = buildBatchRowWrite(rowNumber, order);
+              allOps.push(...ops);
+            } catch (e) {
+              console.warn(`Bỏ qua dòng #${rowNumber}:`, e.message);
+            }
+          }
+        }
+        if (allOps.length > 0) {
+          for (let i = 0; i < allOps.length; i += 80) {
+            await executeBatchOps(allOps.slice(i, i + 80));
+          }
+        }
+        const stateAfter = await fetchSheetState();
+        return {
+          totalSynced: orders.length,
+          opsCount: allOps.length,
+          kpis: stateAfter.kpis,
+          nextEmptyRow: stateAfter.nextEmptyRow
+        };
+      });
+      return sendJson(res, 200, { ok: true, ...result });
+    }
+
     if (req.method === 'POST' && url.pathname === '/api/reminders/sync') {
       const body = await readJsonBody(req);
       const result = await withLock(async () => {
@@ -805,6 +840,17 @@ const server = http.createServer(async (req, res) => {
           } else {
             throw new Error(`Không tìm thấy đơn hàng ở dòng ${body.rowNumber}`);
           }
+        } else if (Array.isArray(body.orders) && body.orders.length > 0) {
+          targets = body.orders;
+        } else if (body.allUnsynced) {
+          const syncedMap = loadSyncedMap();
+          targets = state.orders.filter((o) => {
+            if (o.renewedByRow) return false;
+            const endISO = o.endDateISO || o.endDate;
+            if (!endISO) return false;
+            const k0 = `${o.rowNumber}:${endISO}:0`;
+            return !syncedMap[k0];
+          });
         } else {
           const withinDays = Number(body.withinDays || 60);
           targets = state.orders.filter(
@@ -815,7 +861,7 @@ const server = http.createServer(async (req, res) => {
           forceUpdateRow: Boolean(body.rowNumber),
           notifyAttendee: true,
         });
-        return { matchedOrders: targets.length, ...syncRes };
+        return { matchedOrders: targets.length, ...syncRes, syncedMap: loadSyncedMap() };
       });
       return sendJson(res, 200, { ok: true, ...result });
     }
