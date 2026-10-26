@@ -2294,7 +2294,7 @@
       <form id="loginForm" style="display:grid;gap:12px;">
         <div class="field">
           <label for="loginPassword">Mật khẩu truy cập *</label>
-            <div style="font-size:12px;color:var(--muted);margin-bottom:6px;line-height:1.4;">
+            <div id="authPasswordHint" style="font-size:12px;color:var(--muted);margin-bottom:6px;line-height:1.4;">
               Mật khẩu mặc định: <strong style="color:var(--accent,#0969da);background:var(--subtle,#f0f7ff);padding:2px 6px;border-radius:4px;user-select:all;">badao132</strong> (hoặc mật khẩu bạn đã đổi)
             </div>
           <input id="loginPassword" type="password" required placeholder="Nhập mật khẩu của bạn..." autocomplete="current-password" />
@@ -3461,7 +3461,7 @@
           <div class="f-full" style="font-weight:600;">3. Đổi mật khẩu truy cập Web</div>
           <div class="field f-full">
             <label for="cpCurrent">Mật khẩu hiện tại *</label>
-            <input id="cpCurrent" type="password" required placeholder="Mặc định ban đầu: badao132" />
+            <input id="cpCurrent" type="password" required placeholder="Nhập mật khẩu hiện tại..." />
           </div>
           <div class="field f-full">
             <label for="cpNew">Mật khẩu mới (ít nhất 6 ký tự) *</label>
@@ -10323,6 +10323,18 @@
     }
 
     // --- Authentication & Password Reset Handlers ---
+    function updateAuthGatePrompt() {
+      const hint = document.getElementById('authPasswordHint');
+      if (!hint) return;
+      const customPass = localStorage.getItem('qlbh_admin_password');
+      if (customPass && customPass !== 'badao132') {
+        hint.innerHTML = 'Nhập mật khẩu bạn đã đổi để truy cập Web (mật khẩu mặc định cũ không còn hiệu lực).';
+      } else {
+        hint.innerHTML = 'Mật khẩu mặc định ban đầu: <strong style="color:var(--accent,#0969da);background:var(--subtle,#f0f7ff);padding:2px 6px;border-radius:4px;user-select:all;">badao132</strong>';
+      }
+    }
+    updateAuthGatePrompt();
+
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const inputPass = document.getElementById('loginPassword').value.trim();
@@ -10333,7 +10345,7 @@
         const adminPass = localStorage.getItem('qlbh_admin_password') || 'badao132';
 
         if (isGhPages || !navigator.onLine) {
-          if (inputPass === adminPass || inputPass === 'badao132') {
+          if (inputPass === adminPass) {
             sessionStorage.setItem('qlbh_authenticated', 'true');
             document.getElementById('loginPassword').value = '';
             document.getElementById('authNotice').style.display = 'none';
@@ -10354,26 +10366,36 @@
             body: JSON.stringify({ password: inputPass }),
           });
           const data = await res.json();
-          if (!data.ok) throw new Error(data.error || 'Mật khẩu không đúng');
-          sessionStorage.setItem('qlbh_authenticated', 'true');
-          document.getElementById('loginPassword').value = '';
-          document.getElementById('authNotice').style.display = 'none';
-          document.getElementById('authGate').hidden = true;
-          await loadOrders();
-        } catch (err) {
-          if (inputPass === adminPass || inputPass === 'badao132') {
+          if (data && data.ok) {
             sessionStorage.setItem('qlbh_authenticated', 'true');
             document.getElementById('loginPassword').value = '';
             document.getElementById('authNotice').style.display = 'none';
             document.getElementById('authGate').hidden = true;
             showToast('Đăng nhập Quản lý thành công!');
             await loadOrders();
-          } else {
-            showAuthNotice(err.message, true);
+            btn.disabled = false;
+            return;
+          } else if (data && data.error) {
+            showAuthNotice(data.error, true);
+            btn.disabled = false;
+            return;
           }
-        } finally {
-          btn.disabled = false;
+        } catch (netErr) {
+          // Lỗi mạng hoặc không có backend -> kiểm tra với mật khẩu đã lưu
+          if (inputPass === adminPass) {
+            sessionStorage.setItem('qlbh_authenticated', 'true');
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('authNotice').style.display = 'none';
+            document.getElementById('authGate').hidden = true;
+            showToast('Đăng nhập Quản lý thành công!');
+            await loadOrders();
+            btn.disabled = false;
+            return;
+          }
         }
+
+        showAuthNotice('Mật khẩu không chính xác! Vui lòng thử lại.', true);
+        btn.disabled = false;
       });
 
       document.getElementById('btnShowResetView').addEventListener('click', () => {
@@ -10426,6 +10448,11 @@
         });
         const data = await res.json();
         if (!data.ok) throw new Error(data.error);
+        const newPwd = document.getElementById('resetNewPassword').value.trim();
+        if (newPwd) {
+          localStorage.setItem('qlbh_admin_password', newPwd);
+          updateAuthGatePrompt();
+        }
         document.getElementById('resetForm').reset();
         document.getElementById('resetForm').style.display = 'none';
         document.getElementById('loginForm').style.display = 'grid';
@@ -10499,53 +10526,46 @@
         const isGhPages = window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
         const adminPass = localStorage.getItem('qlbh_admin_password') || 'badao132';
 
-        if (isGhPages || !navigator.onLine) {
-          if (cpCurrent !== adminPass && cpCurrent !== 'badao132') {
-            showToast('Mật khẩu hiện tại không đúng!', true);
-            btn.disabled = false;
-            return;
-          }
-          if (cpNew.length < 6) {
-            showToast('Mật khẩu mới phải từ 6 ký tự trở lên!', true);
-            btn.disabled = false;
-            return;
-          }
-          localStorage.setItem('qlbh_admin_password', cpNew);
-          document.getElementById('changePwdForm').reset();
-          document.getElementById('securityBackdrop').hidden = true;
-          showToast('Đã đổi mật khẩu truy cập Web thành công!');
+        if (cpCurrent !== adminPass) {
+          showToast('Mật khẩu hiện tại không đúng!', true);
           btn.disabled = false;
           return;
         }
 
-        try {
-          const res = await fetch('/api/auth/change-password', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              currentPassword: cpCurrent,
-              newPassword: cpNew,
-              gmailAppPassword: document.getElementById('cpGmailAppPass').value,
-            }),
-          });
-          const data = await res.json();
-          if (!data.ok) throw new Error(data.error);
-          localStorage.setItem('qlbh_admin_password', cpNew);
-          document.getElementById('changePwdForm').reset();
-          document.getElementById('securityBackdrop').hidden = true;
-          showToast(data.message);
-        } catch (err) {
-          if (cpCurrent === adminPass || cpCurrent === 'badao132') {
-            localStorage.setItem('qlbh_admin_password', cpNew);
-            document.getElementById('changePwdForm').reset();
-            document.getElementById('securityBackdrop').hidden = true;
-            showToast('Đã đổi mật khẩu truy cập Web thành công!');
-          } else {
-            showToast(err.message, true);
-          }
-        } finally {
+        if (cpNew.length < 6) {
+          showToast('Mật khẩu mới phải từ 6 ký tự trở lên!', true);
           btn.disabled = false;
+          return;
         }
+
+        if (!isGhPages && navigator.onLine) {
+          try {
+            const res = await fetch('/api/auth/change-password', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                currentPassword: cpCurrent,
+                newPassword: cpNew,
+                gmailAppPassword: document.getElementById('cpGmailAppPass').value,
+              }),
+            });
+            const data = await res.json();
+            if (data && !data.ok) {
+              showToast(data.error || 'Lỗi cập nhật mật khẩu trên máy chủ!', true);
+              btn.disabled = false;
+              return;
+            }
+          } catch (netErr) {
+            console.warn('Lỗi kết nối máy chủ đổi mật khẩu, lưu cục bộ:', netErr);
+          }
+        }
+
+        localStorage.setItem('qlbh_admin_password', cpNew);
+        updateAuthGatePrompt();
+        document.getElementById('changePwdForm').reset();
+        document.getElementById('securityBackdrop').hidden = true;
+        showToast('Đã đổi mật khẩu truy cập Web thành công! Mật khẩu cũ không còn hiệu lực.');
+        btn.disabled = false;
       });
 
     document.getElementById('btnLogout').addEventListener('click', async () => {

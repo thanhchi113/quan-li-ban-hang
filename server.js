@@ -153,7 +153,7 @@ function getSessionFromReq(req) {
   if (verified) return verified;
 
   const ownerPass = String(req.headers['x-owner-pass'] || '').trim();
-  if (ownerPass && (ownerPass === DEFAULT_INITIAL_PASSWORD || verifyPassword(ownerPass, cfg.hash, cfg.salt))) {
+  if (ownerPass && verifyPassword(ownerPass, cfg.hash, cfg.salt)) {
     return { email: OWNER_EMAIL };
   }
   return null;
