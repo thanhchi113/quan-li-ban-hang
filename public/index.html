@@ -1292,6 +1292,9 @@
       flex-wrap: wrap;
     }
     .chart-mode-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       padding: 5px 10px;
       border-radius: 6px;
       border: 0;
@@ -1300,6 +1303,15 @@
       font-size: 12px;
       font-weight: 500;
       cursor: pointer;
+    }
+    .chart-mode-btn svg,
+    .btn svg {
+      width: 14px;
+      height: 14px;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex: none;
     }
     .chart-mode-btn.active {
       background: var(--surface);
@@ -2477,8 +2489,14 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
               <span>Mở Google Sheet</span>
             </a>
-            <button type="button" class="btn" id="btnSyncUpcoming">Đồng bộ lịch 60 ngày</button>
-            <button type="button" class="btn primary" id="btnToggleComposer">+ Ghi đơn mới</button>
+            <button type="button" class="btn" id="btnSyncUpcoming">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              <span>Đồng bộ lịch 60 ngày</span>
+            </button>
+            <button type="button" class="btn primary" id="btnToggleComposer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+              <span>Ghi đơn mới</span>
+            </button>
           </div>
         </div>
 
@@ -2558,8 +2576,14 @@
               <p class="panel-meta" id="unsyncedBannerDesc">Tự động tạo 2 mốc nhắc hẹn trên điện thoại (trước 3 ngày &amp; đúng ngày hết hạn lúc 09:00 sáng) cho các đơn chưa đặt lịch.</p>
             </div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <button type="button" class="btn primary" onclick="triggerSync60Days()">Đồng bộ lịch 60 ngày tới</button>
-              <button type="button" class="btn accent-outline" onclick="document.getElementById('navBtnTestPhone').click()">Bắn thử báo ĐT (1 phút)</button>
+              <button type="button" class="btn primary" onclick="triggerSync60Days()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+                <span>Đồng bộ lịch 60 ngày tới</span>
+              </button>
+              <button type="button" class="btn accent-outline" onclick="document.getElementById('navBtnTestPhone').click()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                <span>Bắn thử báo ĐT (1 phút)</span>
+              </button>
             </div>
           </div>
         </section>
@@ -2684,9 +2708,18 @@
                 <p id="chartSubTitle">Di chuột hoặc bấm vào từng điểm nút trên biểu đồ để xem chi tiết số đơn, doanh thu và lợi nhuận tại mốc đó</p>
               </div>
               <div class="chart-mode-pills" role="group" aria-label="Chọn chỉ số biểu đồ">
-                <button type="button" class="chart-mode-btn active" data-chart-mode="orders">📈 Đoạn thẳng: Số đơn hàng</button>
-                <button type="button" class="chart-mode-btn" data-chart-mode="revenue">💰 Đoạn thẳng: Doanh thu &amp; Lãi</button>
-                <button type="button" class="chart-mode-btn" data-chart-mode="combo">📊 Kết hợp: Cột &amp; Đoạn thẳng</button>
+                <button type="button" class="chart-mode-btn active" data-chart-mode="orders">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                  <span>Đoạn thẳng: Số đơn hàng</span>
+                </button>
+                <button type="button" class="chart-mode-btn" data-chart-mode="revenue">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                  <span>Đoạn thẳng: Doanh thu &amp; Lãi</span>
+                </button>
+                <button type="button" class="chart-mode-btn" data-chart-mode="combo">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                  <span>Kết hợp: Cột &amp; Đoạn thẳng</span>
+                </button>
               </div>
             </div>
 
@@ -2828,11 +2861,19 @@
               </colgroup>
               <thead>
                 <tr>
-                  <th class="num" style="cursor:pointer;user-select:none;" title="Bấm để đổi chiều STT (Đầu ⇄ Cuối)" onclick="handleHeaderSort('stt')">STT ↕</th>
-                  <th style="cursor:pointer;user-select:none;" title="Bấm để sắp xếp theo tên khách (A ⇄ Z)" onclick="handleHeaderSort('name')">Khách hàng ↕</th>
+                  <th class="num" style="cursor:pointer;user-select:none;" title="Bấm để đổi chiều STT (Đầu - Cuối)" onclick="handleHeaderSort('stt')">
+                    <span style="display:inline-flex;align-items:center;gap:4px;">STT <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:12px;height:12px;stroke-width:2;opacity:0.65;"><path d="M7 15l5 5 5-5"/><path d="M7 9l5-5 5 5"/></svg></span>
+                  </th>
+                  <th style="cursor:pointer;user-select:none;" title="Bấm để sắp xếp theo tên khách (A - Z)" onclick="handleHeaderSort('name')">
+                    <span style="display:inline-flex;align-items:center;gap:4px;">Khách hàng <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:12px;height:12px;stroke-width:2;opacity:0.65;"><path d="M7 15l5 5 5-5"/><path d="M7 9l5-5 5 5"/></svg></span>
+                  </th>
                   <th>Mặt hàng</th>
-                  <th class="num hide-sm" style="cursor:pointer;user-select:none;" title="Bấm để sắp xếp theo giá bán (Cao ⇄ Thấp)" onclick="handleHeaderSort('price')">Giá bán (VNĐ) ↕</th>
-                  <th class="num" style="cursor:pointer;user-select:none;" title="Bấm để sắp xếp theo hạn dùng (Gần ⇄ Xa)" onclick="handleHeaderSort('date')">Ngày kết thúc ↕</th>
+                  <th class="num hide-sm" style="cursor:pointer;user-select:none;" title="Bấm để sắp xếp theo giá bán (Cao - Thấp)" onclick="handleHeaderSort('price')">
+                    <span style="display:inline-flex;align-items:center;gap:4px;">Giá bán (VNĐ) <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:12px;height:12px;stroke-width:2;opacity:0.65;"><path d="M7 15l5 5 5-5"/><path d="M7 9l5-5 5 5"/></svg></span>
+                  </th>
+                  <th class="num" style="cursor:pointer;user-select:none;" title="Bấm để sắp xếp theo hạn dùng (Gần - Xa)" onclick="handleHeaderSort('date')">
+                    <span style="display:inline-flex;align-items:center;gap:4px;">Ngày kết thúc <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:12px;height:12px;stroke-width:2;opacity:0.65;"><path d="M7 15l5 5 5-5"/><path d="M7 9l5-5 5 5"/></svg></span>
+                  </th>
                   <th class="hide-sm">Trạng thái hạn</th>
                   <th class="num hide-sm">Thao tác</th>
                 </tr>
@@ -3206,9 +3247,18 @@
 
       <footer class="drawer-foot">
         <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
-          <button type="button" class="btn" id="btnDrawerRenew">Gia hạn đơn mới</button>
-          <button type="button" class="btn" id="btnDrawerCopy">Copy tin nhắc</button>
-          <button type="button" class="btn" id="btnDrawerSyncCal">Đặt lịch ĐT</button>
+          <button type="button" class="btn" id="btnDrawerRenew">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+            <span>Gia hạn đơn mới</span>
+          </button>
+          <button type="button" class="btn" id="btnDrawerCopy">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span>Copy tin nhắc</span>
+          </button>
+          <button type="button" class="btn" id="btnDrawerSyncCal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <span>Đặt lịch ĐT</span>
+          </button>
           <button type="button" class="btn text-btn" id="btnDrawerDelete" style="color:var(--danger, #dc2626);border:1px solid rgba(220,38,38,0.3);background:rgba(220,38,38,0.06);gap:4px;" title="Xóa đơn hàng này">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
             <span>Xóa đơn này</span>
@@ -3216,8 +3266,9 @@
         </div>
         <div style="display:flex;gap:8px;align-items:center;margin-left:auto;">
           <button type="button" class="btn" id="btnCloseDrawerFoot">Đóng</button>
-          <button type="submit" form="editForm" class="btn primary" id="btnEditSubmit" style="padding:0 18px;font-weight:600;">
-            Lưu thay đổi lên Sheet
+          <button type="submit" form="editForm" class="btn primary" id="btnEditSubmit" style="padding:0 16px;font-weight:600;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>Lưu thay đổi</span>
           </button>
         </div>
       </footer>
@@ -3270,15 +3321,17 @@
         <div class="composer-section" style="grid-template-columns:1fr;gap:10px;border-color:var(--accent);background:var(--accent-tint);">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
             <div>
-              <div style="font-size:13.5px;font-weight:700;color:var(--text);">
-                📲 Cách 1 (Khuyên dùng cho iPhone / Android / Máy tính): Gửi 1 chạm vào ứng dụng Lịch
+              <div style="display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:700;color:var(--text);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:16px;height:16px;stroke-width:2.1;color:var(--accent);flex:none;"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+                <span>Cách 1 (Khuyên dùng cho iPhone / Android / Máy tính): Gửi 1 chạm vào ứng dụng Lịch</span>
               </div>
               <div class="panel-meta" style="margin-top:2px;">
                 Tự động nạp toàn bộ mốc nhắc kèm <strong>chuông báo trước 30 phút &amp; đúng giờ</strong> thẳng vào ứng dụng Lịch trên Điện thoại của bạn.
               </div>
             </div>
             <button type="button" class="btn primary" id="btnDownloadPhoneIcs" style="height:38px;padding:0 16px;font-weight:700;white-space:nowrap;">
-              📲 Tải lịch nhắc về Điện thoại (.ics)
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>Tải lịch nhắc về Điện thoại (.ics)</span>
             </button>
           </div>
         </div>
@@ -3287,15 +3340,17 @@
         <div class="composer-section" id="phoneCalPushBox" style="grid-template-columns:1fr;gap:8px;">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
             <div>
-              <div style="font-size:13px;font-weight:700;color:var(--text);">
-                🔔 Thông báo đẩy &amp; Chuông báo trực tiếp trên thiết bị này
+              <div style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:var(--text);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:15px;height:15px;stroke-width:2.1;color:var(--accent);flex:none;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                <span>Thông báo đẩy &amp; Chuông báo trực tiếp trên thiết bị này</span>
               </div>
               <div class="panel-meta" id="phoneCalPushStatus">
                 Bấm nút bên cạnh để bật quyền thông báo đẩy và kiểm tra chuông báo ngay trên điện thoại / trình duyệt.
               </div>
             </div>
             <button type="button" class="btn accent-outline" id="btnTriggerPushNow" style="height:34px;white-space:nowrap;">
-              🔔 Bắn thông báo &amp; Chuông thử ngay
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              <span>Bắn thông báo &amp; Chuông thử ngay</span>
             </button>
           </div>
         </div>
@@ -3303,7 +3358,10 @@
         <!-- Danh sách các mốc sự kiện Google Calendar trực tiếp -->
         <div class="composer-section" style="grid-template-columns:1fr;gap:8px;">
           <div class="composer-sec-head" style="margin-bottom:0;">
-            <span class="composer-sec-title">📅 Cách 2: Mở trực tiếp từng mốc trên Google Calendar (badaoqn132@gmail.com)</span>
+            <span class="composer-sec-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2.2;"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              <span>Cách 2: Mở trực tiếp từng mốc trên Google Calendar (badaoqn132@gmail.com)</span>
+            </span>
             <span class="panel-meta" id="phoneCalEventsMeta">0 sự kiện</span>
           </div>
           <div id="phoneCalEventsList" style="display:grid;gap:8px;max-height:290px;overflow-y:auto;padding-right:2px;"></div>
@@ -7360,7 +7418,7 @@
         const [yr, mo, da] = fromISO.split('-').map(Number);
         const lastDay = new Date(Date.UTC(yr, mo, 0)).getUTCDate();
         periodLabel = `Ngày ${String(da).padStart(2, '0')}/${String(mo).padStart(2, '0')}/${yr}`;
-        chartTitle = `Biểu đồ đoạn thẳng ngày ${String(da).padStart(2, '0')}/${String(mo).padStart(2, '0')}/${yr} (Đặt trong контекst Tháng ${String(mo).padStart(2, '0')}/${yr})`;
+        chartTitle = `Biểu đồ đoạn thẳng ngày ${String(da).padStart(2, '0')}/${String(mo).padStart(2, '0')}/${yr} (Đặt trong bối cảnh Tháng ${String(mo).padStart(2, '0')}/${yr})`;
         chartSub = `Điểm màu vàng đánh dấu ngày ${String(da).padStart(2, '0')}/${String(mo).padStart(2, '0')}/${yr} so với các ngày khác trong cùng tháng`;
 
         const map = new Map();
@@ -7667,7 +7725,7 @@
           const isSel = it.toLowerCase() === curVal;
           return `<button type="button" class="combo-item ${isSel ? 'is-selected' : ''}" data-combo-val="${esc(it)}">
             <span>${esc(it)}</span>
-            ${isSel ? '<span style="font-size:11px;">✓</span>' : ''}
+            ${isSel ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:13px;height:13px;stroke-width:2.5;"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
           </button>`;
         })
         .join('');
@@ -8053,10 +8111,15 @@
           <td class="hide-sm">${statusPillForOrder(o)}</td>
           <td class="num hide-sm">
             <div style="display:inline-flex;gap:4px;align-items:center;">
-              <button type="button" class="btn text-btn" onclick="event.stopPropagation();syncSingleOrderReminder(${o.rowNumber})" title="${o.syncedOnDay ? 'Đã đặt lịch nhắc Điện thoại (Bấm để mở lại)' : 'Đặt lịch nhắc Điện thoại cho đơn này'}" style="color:${o.syncedOnDay ? 'var(--positive)' : 'var(--accent)'};font-weight:600;padding:4px 7px;">
-                ${o.syncedOnDay ? '✓ Đã hẹn ĐT' : '📅 Đặt lịch ĐT'}
+              <button type="button" class="btn text-btn" onclick="event.stopPropagation();syncSingleOrderReminder(${o.rowNumber})" title="${o.syncedOnDay ? 'Đã đặt lịch nhắc Điện thoại (Bấm để mở lại)' : 'Đặt lịch nhắc Điện thoại cho đơn này'}" style="color:${o.syncedOnDay ? 'var(--positive)' : 'var(--accent)'};font-weight:600;padding:4px 7px;gap:4px;">
+                ${o.syncedOnDay
+                  ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:13px;height:13px;stroke-width:2.3;"><polyline points="20 6 9 17 4 12"/></svg><span>Đã hẹn ĐT</span>'
+                  : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:13px;height:13px;stroke-width:2;"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span>Đặt lịch ĐT</span>'}
               </button>
-              <button type="button" class="btn text-btn" onclick="event.stopPropagation();openDetailDrawer(${o.rowNumber})">Chi tiết &amp; Sửa</button>
+              <button type="button" class="btn text-btn" onclick="event.stopPropagation();openDetailDrawer(${o.rowNumber})" style="gap:4px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:13px;height:13px;stroke-width:2;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                <span>Chi tiết &amp; Sửa</span>
+              </button>
               <button type="button" class="btn text-btn" onclick="event.stopPropagation();deleteOrder(${o.rowNumber})" title="Xóa đơn hàng này" style="color:var(--danger,#dc2626);padding:4px 6px;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:13px;height:13px;stroke-width:2;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
               </button>
@@ -9199,7 +9262,7 @@
             tag: 'qlbh-phone-reminder-' + Date.now()
           });
           if (statusEl) {
-            statusEl.innerHTML = `<span style="color:var(--positive);font-weight:600;">✓ Đã bật &amp; gửi thông báo đẩy kèm chuông báo thành công trên thiết bị này!</span>`;
+            statusEl.innerHTML = `<span style="display:inline-flex;align-items:center;gap:5px;color:var(--positive);font-weight:600;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2.5;"><polyline points="20 6 9 17 4 12"/></svg><span>Đã bật &amp; gửi thông báo đẩy kèm chuông báo thành công trên thiết bị này!</span></span>`;
           }
           showToast('Đã bắn thông báo đẩy & chuông báo đến thiết bị của bạn!');
           return true;
@@ -9243,7 +9306,8 @@
                   </div>
                 </div>
                 <a class="btn accent-outline" href="${esc(p.htmlLink)}" target="_blank" rel="noopener" style="height:32px;padding:0 12px;font-size:12px;font-weight:600;white-space:nowrap;">
-                  📅 Mở Google Calendar
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                  <span>Mở Google Calendar</span>
                 </a>
               </div>
             `;
@@ -9277,7 +9341,7 @@
       const msg = firstPlan
         ? `${firstPlan.summary} (${firstPlan.vnDateLabel} lúc ${firstPlan.timeLabel || '08:00'})`
         : 'Kiểm tra chuông báo & thông báo đẩy Quản lí đơn hàng thành công!';
-      sendBrowserPhoneNotification('🔔 Nhắc hẹn Quản lí bán hàng', msg);
+      sendBrowserPhoneNotification('Nhắc hẹn Quản lí bán hàng', msg);
     });
 
     async function syncSingleOrderReminder(rowNumber) {
@@ -9466,7 +9530,7 @@
       });
 
       await sendBrowserPhoneNotification(
-        '🔔 Đã kích hoạt Bắn thử báo Điện thoại!',
+        'Đã kích hoạt Bắn thử báo Điện thoại!',
         `Hệ thống sẽ phát chuông & bắn thông báo nhắc hẹn thử nghiệm lúc ${vnTimeLabel} (sau 15 giây).`
       );
 
@@ -9477,17 +9541,17 @@
         secondsLeft -= 1;
         if (secondsLeft > 0) {
           if (statusEl) {
-            statusEl.innerHTML = `<span style="color:var(--accent);font-weight:700;">⏳ Đang đếm ngược bắn chuông báo thử nghiệm: còn ${secondsLeft} giây...</span>`;
+            statusEl.innerHTML = `<span style="display:inline-flex;align-items:center;gap:5px;color:var(--accent);font-weight:700;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2.2;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Đang đếm ngược bắn chuông báo thử nghiệm: còn ${secondsLeft} giây...</span></span>`;
           }
         } else {
           clearInterval(testPhoneCountdownTimer);
           testPhoneCountdownTimer = null;
           sendBrowserPhoneNotification(
-            '🚨 [TEST NHẮC HẸN ĐT] Đến giờ gia hạn đơn hàng!',
+            '[TEST NHẮC HẸN ĐT] Đến giờ gia hạn đơn hàng!',
             'Chuông báo & thông báo đẩy trên điện thoại hoạt động tốt 100%!'
           );
           if (statusEl) {
-            statusEl.innerHTML = `<span style="color:var(--positive);font-weight:700;">✓ Đã nổ chuông &amp; bắn thông báo thử nghiệm thành công!</span>`;
+            statusEl.innerHTML = `<span style="display:inline-flex;align-items:center;gap:5px;color:var(--positive);font-weight:700;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2.5;"><polyline points="20 6 9 17 4 12"/></svg><span>Đã nổ chuông &amp; bắn thông báo thử nghiệm thành công!</span></span>`;
           }
         }
       }, 1000);
