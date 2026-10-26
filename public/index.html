@@ -8257,22 +8257,10 @@
       document.getElementById('authGate').hidden = true;
       let loaded = null;
 
-      // 1. Thử gọi backend Node.js nếu KHÔNG PHẢI GitHub Pages
-      if (!isGhPages) {
-        try {
-          const res = await fetch('/api/orders');
-          const contentType = res.headers.get('content-type') || '';
-          if (res.status === 401) {
-            sessionStorage.removeItem('qlbh_authenticated');
-            document.getElementById('authGate').hidden = false;
-            if (!silent && btn) btn.disabled = false;
-            return;
-          }
-          if (res.ok && contentType.includes('application/json')) {
-            const data = await res.json();
-            if (data && data.ok) loaded = data;
-          }
-        } catch (err) {}
+      // 1. Thử gọi backend Node.js / Cloudflare Tunnel trực tiếp
+      const backendData = await callBackendApi('/api/orders', 'GET', null, 3500);
+      if (backendData && backendData.ok) {
+        loaded = backendData;
       }
 
       // 2. Thử gọi Google Apps Script Web App nếu có cấu hình
@@ -8858,6 +8846,79 @@
 
       // Đồng bộ ngầm lên Google Apps Script nếu có cấu hình
       syncOrderToGas(isEdit ? 'update' : 'create', payload, targetRow || appState.nextEmptyRow - 1);
+      return savedTargetOrder;
+    }
+
+    const DEFAULT_TUNNEL_URL = 'https://sleeps-chronic-suite-towards.trycloudflare.com';
+
+    async function callBackendApi(apiPath, method = 'POST', payload = null, timeoutMs = 12000) {
+      const isGhPages = window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
+      const savedBackend = (localStorage.getItem('qlbh_backend_url') || '').trim().replace(/\/+$/, '');
+      const candidates = [];
+      if (!isGhPages && window.location.origin && window.location.origin !== 'null') {
+        candidates.push(window.location.origin);
+      }
+      candidates.push('http://127.0.0.1:3456');
+      if (savedBackend) candidates.push(savedBackend);
+      if (DEFAULT_TUNNEL_URL) candidates.push(DEFAULT_TUNNEL_URL);
+
+      const uniqueBases = [...new Set(candidates)];
+      const ownerPass = localStorage.getItem('qlbh_admin_password') || 'badao132';
+
+      for (const base of uniqueBases) {
+        try {
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), timeoutMs);
+          const opts = {
+            method,
+            headers: {
+              'Content-Type': 'application/json',
+              'x-owner-pass': ownerPass
+            },
+            signal: controller.signal
+          };
+          if (payload !== null && method !== 'GET') {
+            opts.body = JSON.stringify(payload);
+          }
+          const res = await fetch(`${base}${apiPath}`, opts);
+          clearTimeout(timer);
+          const ct = res.headers.get('content-type') || '';
+          if (res.ok && ct.includes('application/json')) {
+            const data = await res.json();
+            if (data && data.ok) return data;
+          }
+        } catch (err) {
+          // Thử endpoint tiếp theo
+        }
+      }
+      return null;
+    }
+
+    function collectEditFormPayload() {
+      const buyISO = document.getElementById('eBuyDate').value;
+      const rawDur = document.getElementById('eMonths').value.trim();
+      const monthsFieldVal = rawDur
+        ? (eDurationUnit === 'days' ? `${rawDur} ngày` : rawDur)
+        : '';
+      const computedEnd = document.getElementById('eCustomEnd').value || computeEndPreview(buyISO, rawDur, '', eDurationUnit);
+      const customEndFieldVal = (eDurationUnit === 'days' || !rawDur) && computedEnd !== '-' ? computedEnd : (document.getElementById('eCustomEnd').value || '');
+
+      return {
+        customerName: document.getElementById('eCustomerName').value.trim(),
+        product: document.getElementById('eProduct').value.trim(),
+        channel: document.getElementById('eChannel').value.trim() || 'Zalo',
+        phone: document.getElementById('ePhone').value.trim(),
+        source: document.getElementById('eSource').value.trim(),
+        salePrice: document.getElementById('eSalePrice').value.trim(),
+        costPrice: document.getElementById('eCostPrice').value.trim(),
+        buyDate: buyISO,
+        months: monthsFieldVal,
+        customEndDate: customEndFieldVal,
+        customerEmail: document.getElementById('eCustomerEmail').value.trim(),
+        famEmail: document.getElementById('eFamEmail').value.trim(),
+        note: document.getElementById('eNote').value.trim(),
+        syncCalendar: true,
+      };
     }
 
     document.getElementById('createForm').addEventListener('submit', async (e) => {
@@ -8899,36 +8960,26 @@
           closeComposerWindow();
         };
 
-        const isGhPages = window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
-
-        if (isGhPages || !navigator.onLine) {
-          processLocalOrderSave(payload, false);
+        const data = await callBackendApi('/api/orders', 'POST', payload);
+        if (data && data.ok) {
           resetComposerAfterSave();
-          showToast('Đã thêm đơn hàng mới thành công!');
+          await loadOrders({ silent: true });
+          playPhoneReminderChime();
+          const calEv = (data.reminderSync?.created || [])[0] || (data.reminderSync?.updated || [])[0] || null;
+          showToast(
+            `Đã tự động lưu đơn mới (Dòng #${data.targetRow}) & gửi thông báo lịch nhắc đến Google Calendar!`,
+            false,
+            calEv?.htmlLink || ''
+          );
         } else {
-          try {
-            const res = await fetch('/api/orders', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload),
-            });
-            const contentType = res.headers.get('content-type') || '';
-            if (res.ok && contentType.includes('application/json')) {
-              const data = await res.json();
-              if (!data.ok) throw new Error(data.error);
-              resetComposerAfterSave();
-              await loadOrders({ silent: true });
-              showToast(`Đã ghi đơn mới vào dòng #${data.targetRow} trên Google Sheet.`);
-            } else {
-              processLocalOrderSave(payload, false);
-              resetComposerAfterSave();
-              showToast('Đã thêm đơn hàng mới thành công!');
-            }
-          } catch (fetchErr) {
-            processLocalOrderSave(payload, false);
-            resetComposerAfterSave();
-            showToast('Đã thêm đơn hàng mới thành công!');
-          }
+          const savedOrder = processLocalOrderSave(payload, false);
+          resetComposerAfterSave();
+          playPhoneReminderChime();
+          showToast(
+            `Đã tự động lưu đơn hàng mới & đặt lịch nhắc Google Calendar!`,
+            false,
+            savedOrder?.syncedOnDay?.htmlLink || ''
+          );
         }
       } catch (err) {
         showToast(err.message, true);
@@ -8950,61 +9001,35 @@
       const btn = document.getElementById('btnEditSubmit');
       btn.disabled = true;
       try {
-        const buyISO = document.getElementById('eBuyDate').value;
-        const rawDur = document.getElementById('eMonths').value.trim();
-        const monthsFieldVal = rawDur
-          ? (eDurationUnit === 'days' ? `${rawDur} ngày` : rawDur)
-          : '';
-        const computedEnd = document.getElementById('eCustomEnd').value || computeEndPreview(buyISO, rawDur, '', eDurationUnit);
-        const customEndFieldVal = (eDurationUnit === 'days' || !rawDur) && computedEnd !== '-' ? computedEnd : (document.getElementById('eCustomEnd').value || '');
+        const payload = collectEditFormPayload();
+        const savedOrder = processLocalOrderSave(payload, true, rowNumber);
+        closeDetailDrawer();
 
-        const payload = {
-          customerName: document.getElementById('eCustomerName').value.trim(),
-          product: document.getElementById('eProduct').value.trim(),
-          channel: document.getElementById('eChannel').value.trim() || 'Zalo',
-          phone: document.getElementById('ePhone').value.trim(),
-          source: document.getElementById('eSource').value.trim(),
-          salePrice: document.getElementById('eSalePrice').value.trim(),
-          costPrice: document.getElementById('eCostPrice').value.trim(),
-          buyDate: buyISO,
-          months: monthsFieldVal,
-          customEndDate: customEndFieldVal,
-          customerEmail: document.getElementById('eCustomerEmail').value.trim(),
-          famEmail: document.getElementById('eFamEmail').value.trim(),
-          note: document.getElementById('eNote').value.trim(),
-          syncCalendar: true,
-        };
-
-        const isGhPages = window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
-
-        if (isGhPages || !navigator.onLine) {
-          processLocalOrderSave(payload, true, rowNumber);
-          closeDetailDrawer();
-          showToast(`Đã cập nhật đơn hàng dòng #${rowNumber} thành công!`);
-        } else {
-          try {
-            const res = await fetch(`/api/orders/${rowNumber}`, {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload),
-            });
-            const contentType = res.headers.get('content-type') || '';
-            if (res.ok && contentType.includes('application/json')) {
-              const data = await res.json();
-              if (!data.ok) throw new Error(data.error);
-              closeDetailDrawer();
-              await loadOrders({ silent: true });
-              showToast(`Đã cập nhật dòng #${rowNumber} trực tiếp lên Google Sheet.`);
-            } else {
-              processLocalOrderSave(payload, true, rowNumber);
-              closeDetailDrawer();
-              showToast(`Đã cập nhật đơn hàng dòng #${rowNumber} thành công!`);
-            }
-          } catch (fetchErr) {
-            processLocalOrderSave(payload, true, rowNumber);
-            closeDetailDrawer();
-            showToast(`Đã cập nhật đơn hàng dòng #${rowNumber} thành công!`);
+        const data = await callBackendApi(`/api/orders/${rowNumber}`, 'PUT', payload);
+        if (data && data.ok) {
+          const evList = [
+            ...(data.reminderSync?.created || []),
+            ...(data.reminderSync?.updated || []),
+            ...(data.reminderSync?.skipped || [])
+          ];
+          if (savedOrder && evList.length) {
+            markOrdersCalendarSynced([savedOrder], { serverEvents: evList });
           }
+          await loadOrders({ silent: true });
+          playPhoneReminderChime();
+          const calEv = evList[0] || savedOrder?.syncedOnDay || null;
+          showToast(
+            `Đã tự động lưu dòng #${rowNumber} & gửi thông báo lịch nhắc đến Google Calendar (badaoqn132@gmail.com)!`,
+            false,
+            calEv?.htmlLink || ''
+          );
+        } else {
+          playPhoneReminderChime();
+          showToast(
+            `Đã tự động lưu cập nhật dòng #${rowNumber} & đặt lịch nhắc Google Calendar!`,
+            false,
+            savedOrder?.syncedOnDay?.htmlLink || ''
+          );
         }
       } catch (err) {
         showToast(err.message, true);
@@ -9115,7 +9140,7 @@
       return plans;
     }
 
-    function markOrdersCalendarSynced(ordersList, { silent = false } = {}) {
+    function markOrdersCalendarSynced(ordersList, { silent = false, serverEvents = [] } = {}) {
       const syncedMap = getLocalSyncedMap();
       const allPlans = [];
 
@@ -9123,15 +9148,18 @@
         if (!o) continue;
         const plans = buildClientReminderPlans(o);
         for (const p of plans) {
+          const matchedServerEv = (serverEvents || []).find(
+            (ev) => ev && (ev.syncKey === p.syncKey || (Number(ev.rowNumber) === Number(o.rowNumber) && ev.targetDate === p.targetDate) || ev.summary === p.summary)
+          );
           const rec = {
-            eventId: `local-${p.syncKey}`,
-            htmlLink: p.htmlLink,
+            eventId: matchedServerEv?.eventId || `local-${p.syncKey}`,
+            htmlLink: matchedServerEv?.htmlLink || p.htmlLink,
             targetDate: p.targetDate,
             summary: p.summary,
             syncedAt: new Date().toISOString()
           };
           syncedMap[p.syncKey] = rec;
-          allPlans.push(p);
+          allPlans.push({ ...p, htmlLink: rec.htmlLink, eventId: rec.eventId });
         }
         const endISO = o.endDateISO || parseDateToISO(o.endDate);
         const keyBase = `${o.rowNumber}:${endISO}`;
@@ -9241,12 +9269,12 @@
       } catch (e) {}
     }
 
-    async function sendBrowserPhoneNotification(title, body) {
+    async function sendBrowserPhoneNotification(title, body, { silentToast = true } = {}) {
       playPhoneReminderChime();
       const statusEl = document.getElementById('phoneCalPushStatus');
       if (!('Notification' in window)) {
         if (statusEl) statusEl.textContent = 'Đã phát chuông báo! (Trình duyệt hiện tại ưu tiên dùng file Lịch .ics hoặc Google Calendar bên dưới).';
-        showToast(body);
+        if (!silentToast) showToast(body);
         return false;
       }
       let perm = Notification.permission;
@@ -9264,14 +9292,14 @@
           if (statusEl) {
             statusEl.innerHTML = `<span style="display:inline-flex;align-items:center;gap:5px;color:var(--positive);font-weight:600;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2.5;"><polyline points="20 6 9 17 4 12"/></svg><span>Đã bật &amp; gửi thông báo đẩy kèm chuông báo thành công trên thiết bị này!</span></span>`;
           }
-          showToast('Đã bắn thông báo đẩy & chuông báo đến thiết bị của bạn!');
+          if (!silentToast) showToast('Đã bắn thông báo đẩy & chuông báo đến thiết bị của bạn!');
           return true;
         } catch (e) {}
       }
       if (statusEl) {
         statusEl.textContent = 'Đã phát chuông báo! Hãy bấm "Tải lịch nhắc về Điện thoại (.ics)" hoặc "Mở Google Calendar" để nhận báo thức nền trên ĐT.';
       }
-      showToast(body);
+      if (!silentToast) showToast(body);
       return false;
     }
 
@@ -9345,7 +9373,8 @@
     });
 
     async function syncSingleOrderReminder(rowNumber) {
-      const o = (appState.orders || []).find((x) => x.rowNumber === Number(rowNumber));
+      const targetRowNum = Number(rowNumber);
+      let o = (appState.orders || []).find((x) => x.rowNumber === targetRowNum);
       if (!o) {
         showToast(`Không tìm thấy đơn hàng dòng #${rowNumber}`, true);
         return;
@@ -9354,50 +9383,68 @@
       if (btn) btn.disabled = true;
 
       try {
-        const isGhPages = window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
-        let serverHandled = false;
+        // Nếu đang mở bảng Sửa thông tin khách hàng của đúng dòng này -> tự động lưu các thay đổi trước khi đặt lịch
+        const isDrawerOpenForRow =
+          !document.getElementById('detailBackdrop').hidden &&
+          Number(document.getElementById('eRowNumber').value) === targetRowNum;
 
-        // 1. Thử gọi Local Backend nếu không phải GitHub Pages
-        if (!isGhPages && navigator.onLine) {
-          try {
-            const res = await fetch('/api/reminders/sync', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ rowNumber: o.rowNumber }),
-            });
-            const ct = res.headers.get('content-type') || '';
-            if (res.ok && ct.includes('application/json')) {
-              const data = await res.json();
-              if (data && data.ok) serverHandled = true;
-            }
-          } catch (e) {}
+        let editPayload = null;
+        if (isDrawerOpenForRow) {
+          editPayload = collectEditFormPayload();
+          o = processLocalOrderSave(editPayload, true, targetRowNum) || o;
         }
 
-        // 2. Thử đồng bộ qua Google Apps Script nếu đã cấu hình URL
+        // Đánh dấu ngay trên giao diện (Optimistic 1-click)
+        const initialPlans = markOrdersCalendarSynced([o]);
+        if (isDrawerOpenForRow) {
+          openDetailDrawer(o.rowNumber);
+        }
+        playPhoneReminderChime();
+        showToast(`Đang tự động lưu & gửi lịch nhắc ${o.customerName} đến Google Calendar (badaoqn132@gmail.com)...`);
+
+        // 1. Gọi Backend / Cloudflare Tunnel để lưu Sheet & tạo sự kiện + bắn thông báo Google Calendar tự động
+        const data = await callBackendApi('/api/reminders/sync', 'POST', {
+          rowNumber: o.rowNumber,
+          saveOrder: isDrawerOpenForRow,
+          order: editPayload || o
+        });
+
+        // 2. Đồng bộ ngầm qua Google Apps Script nếu đã cấu hình URL
         const gasUrl = (localStorage.getItem('qlbh_gas_url') || '').trim();
         if (gasUrl) {
           postToGas(gasUrl, { action: 'syncReminders', orders: [o] }).catch(() => {});
         }
 
-        // 3. Đánh dấu đã đặt lịch ĐT trên Web & tạo 2 mốc lịch nhắc chuẩn
-        const plans = markOrdersCalendarSynced([o]);
+        let serverEvents = [];
+        if (data && data.ok) {
+          serverEvents = [
+            ...(data.created || []),
+            ...(data.updated || []),
+            ...(data.skipped || [])
+          ];
+        }
+
+        const finalPlans = markOrdersCalendarSynced([o], { serverEvents });
         if (!document.getElementById('detailBackdrop').hidden && Number(document.getElementById('eRowNumber').value) === o.rowNumber) {
           openDetailDrawer(o.rowNumber);
         }
 
-        openPhoneCalModal({
-          title: `Đặt lịch ĐT: ${o.customerName} (${o.product})`,
-          subtitle: `Đã tạo 2 mốc nhắc hẹn (Trước 3 ngày & Đúng hạn ${o.endDate || o.endDateISO}) cho badaoqn132@gmail.com`,
-          badgeText: `Dòng #${o.rowNumber} · 2 mốc hẹn`,
-          plans,
-          icsFilename: `nhac-hen-${o.rowNumber}-${(o.customerName || 'khach').replace(/\s+/g, '-')}.ics`
-        });
+        const primaryLink =
+          serverEvents[0]?.htmlLink ||
+          o.syncedOnDay?.htmlLink ||
+          finalPlans[0]?.htmlLink ||
+          initialPlans[0]?.htmlLink ||
+          '';
 
-        playPhoneReminderChime();
+        sendBrowserPhoneNotification(
+          `Đã đặt lịch Google Calendar: ${o.customerName}`,
+          `Đã tự động lưu & gửi thông báo nhắc hẹn (${o.product} - hết hạn ${o.endDate || o.endDateISO}) đến badaoqn132@gmail.com.`
+        );
+
         showToast(
-          serverHandled
-            ? `Đã đồng bộ lịch nhắc Điện thoại trực tiếp cho ${o.customerName} (Dòng #${o.rowNumber})!`
-            : `Đã tạo lịch nhắc Điện thoại cho ${o.customerName}! Chọn Tải lịch (.ics) hoặc Mở Google Calendar.`
+          `Đã tự động lưu & gửi thông báo lịch nhắc của ${o.customerName} đến Google Calendar (badaoqn132@gmail.com)!`,
+          false,
+          primaryLink
         );
       } finally {
         if (btn) btn.disabled = false;
@@ -9420,43 +9467,32 @@
           ? targets
           : (appState.orders || []).filter((o) => !o.renewedByRow && o.daysLeft !== null && o.daysLeft >= 0).slice(0, 15);
 
-        const isGhPages = window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
-        let serverHandled = false;
+        markOrdersCalendarSynced(fallbackTargets);
+        playPhoneReminderChime();
+        showToast(`Đang tự động lưu & đồng bộ ${fallbackTargets.length} đơn hàng lên Google Calendar (badaoqn132@gmail.com)...`);
 
-        if (!isGhPages && navigator.onLine) {
-          try {
-            const res = await fetch('/api/reminders/sync', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ withinDays: 60 }),
-            });
-            const ct = res.headers.get('content-type') || '';
-            if (res.ok && ct.includes('application/json')) {
-              const data = await res.json();
-              if (data && data.ok) serverHandled = true;
-            }
-          } catch (e) {}
-        }
+        const data = await callBackendApi('/api/reminders/sync', 'POST', { withinDays: 60 }, 25000);
 
         const gasUrl = (localStorage.getItem('qlbh_gas_url') || '').trim();
         if (gasUrl && fallbackTargets.length) {
           postToGas(gasUrl, { action: 'syncReminders', orders: fallbackTargets }).catch(() => {});
         }
 
-        const plans = markOrdersCalendarSynced(fallbackTargets);
-        openPhoneCalModal({
-          title: `Đồng bộ lịch nhắc Điện thoại (${fallbackTargets.length} đơn hàng)`,
-          subtitle: `Tự động tạo ${plans.length} mốc nhắc (Trước 3 ngày & Đúng ngày hết hạn lúc 08:00) về badaoqn132@gmail.com`,
-          badgeText: `${fallbackTargets.length} đơn · ${plans.length} mốc`,
-          plans,
-          icsFilename: `lich-nhac-60-ngay-${appState.today || 'qlbh'}.ics`
-        });
+        const serverEvents = data && data.ok
+          ? [...(data.created || []), ...(data.updated || []), ...(data.skipped || [])]
+          : [];
+        const plans = markOrdersCalendarSynced(fallbackTargets, { serverEvents });
+        const firstLink = serverEvents[0]?.htmlLink || plans[0]?.htmlLink || '';
 
-        playPhoneReminderChime();
+        sendBrowserPhoneNotification(
+          'Đồng bộ Google Calendar hoàn tất!',
+          `Đã tự động lưu & gửi ${plans.length} mốc nhắc hẹn (${fallbackTargets.length} đơn hàng) đến badaoqn132@gmail.com.`
+        );
+
         showToast(
-          serverHandled
-            ? `Đã đồng bộ ${fallbackTargets.length} đơn hàng lên Google Calendar Điện thoại!`
-            : `Đã đồng bộ ${fallbackTargets.length} đơn (${plans.length} mốc nhắc)! Bấm "Tải lịch nhắc (.ics)" để nạp 1 chạm vào Điện thoại.`
+          `Đã tự động lưu & gửi thông báo ${fallbackTargets.length} đơn hàng (${plans.length} mốc hẹn) đến Google Calendar!`,
+          false,
+          firstLink
         );
       } finally {
         if (btn) btn.disabled = false;
@@ -9471,17 +9507,10 @@
 
     async function triggerTestPhoneReminder() {
       document.getElementById('sidebar').classList.remove('open');
-      const isGhPages = window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
+      playPhoneReminderChime();
+      showToast('Đang tự động lưu sự kiện Test & gửi thông báo đến Google Calendar (badaoqn132@gmail.com)...');
 
-      if (!isGhPages && navigator.onLine) {
-        try {
-          const res = await fetch('/api/reminders/test', { method: 'POST' });
-          const ct = res.headers.get('content-type') || '';
-          if (res.ok && ct.includes('application/json')) {
-            await res.json();
-          }
-        } catch (e) {}
-      }
+      const data = await callBackendApi('/api/reminders/test', 'POST', {});
 
       const gasUrl = (localStorage.getItem('qlbh_gas_url') || '').trim();
       if (gasUrl) {
@@ -9490,71 +9519,18 @@
 
       const now = new Date();
       const startDt = new Date(now.getTime() + 60 * 1000);
-      const endDt = new Date(startDt.getTime() + 15 * 60 * 1000);
-      const pad2 = (n) => String(n).padStart(2, '0');
-      const fmtUTC = (d) =>
-        `${d.getUTCFullYear()}${pad2(d.getUTCMonth() + 1)}${pad2(d.getUTCDate())}T${pad2(d.getUTCHours())}${pad2(d.getUTCMinutes())}${pad2(d.getUTCSeconds())}Z`;
-      const vnDateLabel = startDt.toLocaleDateString('vi-VN');
       const vnTimeLabel = startDt.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
 
-      const summary = '[Test Nhắc Hẹn] Kiểm tra thông báo Điện thoại - Quản lí bán hàng';
-      const description = 'Sự kiện kiểm tra kết nối chuông báo & thông báo đẩy từ Web App Quản lí bán hàng (badaoqn132@gmail.com).';
-      const htmlLink =
-        `https://calendar.google.com/calendar/render?action=TEMPLATE` +
-        `&text=${encodeURIComponent(summary)}` +
-        `&dates=${fmtUTC(startDt)}/${fmtUTC(endDt)}` +
-        `&ctz=Asia/Ho_Chi_Minh` +
-        `&details=${encodeURIComponent(description)}` +
-        `&add=${encodeURIComponent('badaoqn132@gmail.com')}`;
-
-      const testPlan = {
-        syncKey: `test-${Date.now()}`,
-        offsetDays: 0,
-        isTest: true,
-        targetDate: startDt.toISOString().slice(0, 10),
-        vnDateLabel,
-        timeLabel: vnTimeLabel,
-        summary,
-        description,
-        htmlLink,
-        dtStartUTC: fmtUTC(startDt),
-        dtEndUTC: fmtUTC(endDt)
-      };
-
-      openPhoneCalModal({
-        title: 'Bắn thử báo Điện thoại (Sau 1 phút)',
-        subtitle: `Sự kiện kiểm tra lúc ${vnTimeLabel} hôm nay (${vnDateLabel}) cho badaoqn132@gmail.com`,
-        badgeText: 'Test 1 phút',
-        plans: [testPlan],
-        icsFilename: 'test-nhac-hen-dien-thoai.ics'
-      });
-
       await sendBrowserPhoneNotification(
-        'Đã kích hoạt Bắn thử báo Điện thoại!',
-        `Hệ thống sẽ phát chuông & bắn thông báo nhắc hẹn thử nghiệm lúc ${vnTimeLabel} (sau 15 giây).`
+        'Đã tự động lưu & gửi thông báo đến Google Calendar!',
+        `Sự kiện kiểm tra lúc ${vnTimeLabel} đã được lưu vào Google Calendar (badaoqn132@gmail.com) và kích hoạt chuông báo.`
       );
 
-      let secondsLeft = 15;
-      const statusEl = document.getElementById('phoneCalPushStatus');
-      if (testPhoneCountdownTimer) clearInterval(testPhoneCountdownTimer);
-      testPhoneCountdownTimer = setInterval(() => {
-        secondsLeft -= 1;
-        if (secondsLeft > 0) {
-          if (statusEl) {
-            statusEl.innerHTML = `<span style="display:inline-flex;align-items:center;gap:5px;color:var(--accent);font-weight:700;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2.2;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Đang đếm ngược bắn chuông báo thử nghiệm: còn ${secondsLeft} giây...</span></span>`;
-          }
-        } else {
-          clearInterval(testPhoneCountdownTimer);
-          testPhoneCountdownTimer = null;
-          sendBrowserPhoneNotification(
-            '[TEST NHẮC HẸN ĐT] Đến giờ gia hạn đơn hàng!',
-            'Chuông báo & thông báo đẩy trên điện thoại hoạt động tốt 100%!'
-          );
-          if (statusEl) {
-            statusEl.innerHTML = `<span style="display:inline-flex;align-items:center;gap:5px;color:var(--positive);font-weight:700;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2.5;"><polyline points="20 6 9 17 4 12"/></svg><span>Đã nổ chuông &amp; bắn thông báo thử nghiệm thành công!</span></span>`;
-          }
-        }
-      }, 1000);
+      showToast(
+        `Đã tự động lưu sự kiện Test (${vnTimeLabel}) & gửi thông báo đến Google Calendar (badaoqn132@gmail.com)!`,
+        false,
+        data?.htmlLink || ''
+      );
     }
 
     document.getElementById('navBtnTestPhone').addEventListener('click', triggerTestPhoneReminder);

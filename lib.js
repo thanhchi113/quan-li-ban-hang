@@ -238,12 +238,12 @@ function buildBatchRowWrite(rowNumber, input) {
   };
 }
 
-function buildReminderPlans(order, todayISO = todayVN()) {
+function buildReminderPlans(order, todayISO = todayVN(), { forceSingle = false } = {}) {
   if (!order.endDateISO) return [];
   const plans = [];
   for (const offsetDays of [3, 0]) {
     const targetDate = addDaysISO(order.endDateISO, -offsetDays);
-    if (diffDaysISO(targetDate, todayISO) < 0) continue;
+    if (!forceSingle && diffDaysISO(targetDate, todayISO) < 0) continue;
     const syncKey = `${order.rowNumber}:${order.endDateISO}:${offsetDays}`;
     const prefix = offsetDays === 3 ? '[Còn 3 ngày]' : '[HẾT HẠN HÔM NAY]';
     const summary = `${prefix} ${order.customerName} - ${order.product}`;
