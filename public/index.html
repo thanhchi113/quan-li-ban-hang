@@ -345,8 +345,10 @@
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      height: 36px;
-      padding: 0 10px;
+      min-height: 36px;
+      height: auto;
+      padding: 6px 10px;
+      line-height: 1.3;
       border-radius: 8px;
       border: 0;
       background: transparent;
@@ -427,7 +429,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      flex-wrap: wrap;
+      gap: 8px 10px;
       background: var(--ground);
       border-bottom: 1px solid var(--border);
       box-shadow: 0 3px 12px rgba(15, 23, 42, 0.06); /* taste-skill-ignore */
@@ -437,8 +440,8 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      flex: 1;
-      min-width: 130px;
+      flex: 1 1 240px;
+      min-width: 180px;
     }
 
     .btn.menu-btn, .win-btn.menu-btn {
@@ -447,9 +450,9 @@
 
     .search-wrap {
       position: relative;
-      flex: 1;
-      max-width: 340px;
-      min-width: 110px;
+      flex: 1 1 180px;
+      max-width: 360px;
+      min-width: 150px;
     }
     .search-wrap svg {
       position: absolute;
@@ -480,8 +483,13 @@
     .topbar-right {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+      flex-wrap: wrap;
       flex-shrink: 0;
+    }
+    .topbar-right .btn {
+      padding: 0 10px;
+      font-size: 12.5px;
     }
 
     .sync-indicator {
@@ -1144,6 +1152,7 @@
       justify-content: space-between;
       min-width: 0;
       position: relative;
+      overflow: hidden;
     }
     .stat-metric-cell::before {
       content: "";
@@ -1153,11 +1162,12 @@
       right: 0;
       height: 3px;
       background: var(--chart-2);
-      border-radius: var(--radius-card) var(--radius-card) 0 0;
     }
     .stat-metric-cell.s-rev::before { background: var(--chart-1); }
+    .stat-metric-cell.s-cost::before { background: var(--warning); }
     .stat-metric-cell.s-profit::before { background: var(--positive); }
     .stat-metric-cell.s-avg::before { background: var(--chart-3); }
+    .stat-metric-cell.s-peak::before { background: var(--accent); }
 
     .stat-m-label {
       font-size: 12px;
@@ -1183,7 +1193,7 @@
     }
     .stat-details-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       gap: 12px;
     }
     .stat-subpanel {
@@ -1191,11 +1201,14 @@
       border-radius: var(--radius-card);
       background: var(--raised);
       border: 1px solid var(--border);
+      min-width: 0;
+      overflow: hidden;
     }
     .stat-quick-rows {
       max-height: 190px;
       overflow-y: auto;
       display: grid;
+      grid-template-columns: minmax(0, 1fr);
       gap: 6px;
       padding-right: 4px;
     }
@@ -1203,7 +1216,9 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 7px 10px;
+      gap: 8px;
+      min-width: 0;
+      padding: 7px 9px;
       border-radius: 6px;
       background: var(--surface);
       font-size: 12px;
@@ -1371,29 +1386,36 @@
     .stat-table-wrap {
       max-height: 340px;
       overflow-y: auto;
+      overflow-x: auto;
       border: 1px solid var(--border);
       border-radius: 8px;
       background: var(--surface);
     }
     .stat-mini-table {
       width: 100%;
+      table-layout: auto;
       border-collapse: collapse;
-      font-size: 12.5px;
+      font-size: 12px;
     }
     .stat-mini-table th {
       position: sticky;
       top: 0;
       background: var(--raised);
-      padding: 8px 10px;
+      padding: 7px 6px;
       text-align: left;
       font-weight: 600;
       color: var(--muted);
       border-bottom: 1px solid var(--border);
+      white-space: nowrap;
       z-index: 2;
     }
+    .stat-mini-table th.num {
+      text-align: right;
+    }
     .stat-mini-table td {
-      padding: 8px 10px;
+      padding: 7px 6px;
       border-bottom: 1px solid var(--border);
+      white-space: nowrap;
     }
     .stat-mini-table tr:hover td {
       background: var(--active);
@@ -1957,6 +1979,15 @@
       color: var(--faint);
       border: 1px solid var(--border); /* taste-skill-ignore */
     }
+    .preset-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--accent-tint);
+      color: var(--accent);
+      white-space: nowrap;
+    }
 
     /* Preset Palettes Grid */
     .tc-preset-grid {
@@ -2200,12 +2231,17 @@
     }
 
     /* Responsive Tablet & Phone Rules */
+    @media (max-width: 1380px) {
+      #btnHeaderHome { display: none; }
+    }
+
     @media (max-width: 1060px) {
       .pair-grid { grid-template-columns: minmax(0, 1fr); }
       .filter-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
 
     @media (max-width: 860px) {
+      #btnHeaderHome, #btnPushToSheet, .sync-indicator, #btnOpenSecurity { display: none; }
       .shell { grid-template-columns: minmax(0, 1fr); }
       .sidebar {
         position: fixed;
@@ -2241,9 +2277,14 @@
     }
 
     @media (max-width: 640px) {
-      .topbar { padding: 0 12px; gap: 8px; }
-      .topbar-left { flex: 1; }
-      .search-wrap { width: 100%; }
+      .topbar { padding: 6px 12px; gap: 6px; flex-wrap: nowrap; }
+      .topbar-left { flex: 1 1 auto; min-width: 0; }
+      .search-wrap { flex: 1 1 auto; min-width: 0; width: 100%; max-width: none; }
+      .topbar-right { flex-wrap: nowrap; gap: 4px; }
+      .topbar-right .btn { padding: 0 9px; }
+      #btnTheme #themeBtnLabel,
+      #btnOpenPalette span:not(#headerThemeDot),
+      #btnQuickLock span { display: none; }
       .sync-indicator, #btnOpenSecurity { display: none; }
       .kpi-cell { padding: 12px 14px; }
       .kpi-val, .kpi-cell.lead .kpi-val {
@@ -2280,7 +2321,7 @@
         <div class="brand-mark" style="width:36px;height:36px;font-size:14px;">QL</div>
         <div>
           <h2 style="font-size:18px;font-weight:600;">Quản lí Đơn hàng &amp; Nhắc hẹn</h2>
-          <p class="panel-meta">Cổng truy cập cá nhân bảo mật 2 chiều</p>
+          <p class="panel-meta">Cổng truy cập cá nhân bảo mật</p>
         </div>
       </div>
 
@@ -2295,7 +2336,7 @@
         <div class="field">
           <label for="loginPassword">Mật khẩu truy cập *</label>
             <div id="authPasswordHint" style="font-size:12px;color:var(--muted);margin-bottom:6px;line-height:1.4;">
-              Mật khẩu mặc định: <strong style="color:var(--accent,#0969da);background:var(--subtle,#f0f7ff);padding:2px 6px;border-radius:4px;user-select:all;">badao132</strong> (hoặc mật khẩu bạn đã đổi)
+              Mật khẩu mặc định: <strong style="color:var(--accent,#0969da);background:var(--accent-tint);padding:2px 6px;border-radius:4px;user-select:all;">badao132</strong> (hoặc mật khẩu bạn đã đổi)
             </div>
           <input id="loginPassword" type="password" required placeholder="Nhập mật khẩu của bạn..." autocomplete="current-password" />
         </div>
@@ -2472,9 +2513,9 @@
         </div>
 
         <div class="topbar-right">
-          <button type="button" class="sync-indicator" id="btnSyncIndicator" title="Bấm để đồng bộ 2 chiều ngay với Google Sheet">
+          <button type="button" class="sync-indicator" id="btnSyncIndicator" title="Bấm để đẩy dữ liệu từ Web lên Google Sheet">
             <span class="sync-dot" id="syncDot"></span>
-            <span id="syncStamp">Đã kết nối Google Sheet (2 chiều)</span>
+            <span id="syncStamp">Web → Google Sheet</span>
           </button>
           <button type="button" class="btn" id="btnHeaderHome" title="Cuộn lên trang đầu">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -2491,7 +2532,7 @@
           </button>
           <button type="button" class="btn" id="btnPushToSheet" title="Đẩy toàn bộ đơn hàng từ Web lên Google Sheet">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            <span>Đẩy lên Google Sheet</span>
+            <span>Đẩy lên Sheet</span>
           </button>
           <button type="button" class="btn text-btn" id="btnQuickLock" title="Khóa Web / Đăng xuất ngay" style="gap:5px;">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -2499,7 +2540,7 @@
             </button>
             <button type="button" class="btn accent-outline" id="btnOpenSecurity" title="Bảo mật &amp; Link Web trực tiếp">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            <span>Web &amp; Bảo mật</span>
+            <span>Bảo mật</span>
           </button>
         </div>
       </header>
@@ -2510,7 +2551,7 @@
           <div>
             <h1>Quản lí đơn hàng &amp; nhắc hẹn</h1>
             <p class="title-sub" id="findingLine">
-              Đang đồng bộ dữ liệu 2 chiều với Trang tính1...
+              Đang tải dữ liệu sổ đơn hàng...
             </p>
           </div>
           <div class="title-actions">
@@ -2715,7 +2756,7 @@
               <div class="stat-m-val mono" id="statRevVal">0<small>đ</small></div>
               <span class="stat-m-sub" id="statRevSub">Tổng giá bán trong kỳ</span>
             </div>
-            <div class="stat-metric-cell" style="border-top:3px solid var(--warning);">
+            <div class="stat-metric-cell s-cost">
               <span class="stat-m-label">Tổng chi phí vốn</span>
               <div class="stat-m-val mono" id="statCostVal">0<small>đ</small></div>
               <span class="stat-m-sub" id="statCostSub">Tổng giá nhập</span>
@@ -2730,7 +2771,7 @@
               <div class="stat-m-val mono" id="statAvgVal">0<small>đ</small></div>
               <span class="stat-m-sub" id="statCostTotal">Lãi TB: 0 đ/đơn</span>
             </div>
-            <div class="stat-metric-cell" style="border-top:3px solid var(--accent);">
+            <div class="stat-metric-cell s-peak">
               <span class="stat-m-label">Mốc cao điểm nhất</span>
               <div class="stat-m-val mono" id="statPeakVal" style="font-size:16px;">—</div>
               <span class="stat-m-sub" id="statPeakSub">Chưa có dữ liệu</span>
@@ -2832,7 +2873,7 @@
         <!-- Full Order Ledger with Sticky Header & Scrollable Body -->
         <section class="panel" id="orderLedgerSection">
           <div class="panel-head">
-            <h2>Sổ đơn hàng đồng bộ 2 chiều (Trang tính1)</h2>
+            <h2>Sổ quản lí đơn hàng (Web → Trang tính1)</h2>
             <span class="panel-meta" id="tableSummaryMeta">Hiển thị 0 đơn hàng</span>
           </div>
 
@@ -2940,7 +2981,7 @@
             <span id="composerTitleText">+ Ghi đơn mới (Dòng #142)</span>
             <span class="pill pos mono" id="cHeaderProfitBadge" style="font-size:11px;padding:2px 8px;">Lãi: 0 đ</span>
           </div>
-          <div class="composer-subtitle">Đồng bộ 2 chiều Google Sheet &amp; tự tính hạn theo Tháng hoặc Ngày</div>
+          <div class="composer-subtitle">Lưu trên Web, tự đẩy lên Google Sheet &amp; tự tính hạn theo Tháng hoặc Ngày</div>
         </div>
       </div>
       <div class="win-controls">
@@ -3151,7 +3192,7 @@
         <div class="composer-section">
           <div class="composer-sec-head">
             <span class="composer-sec-title">1. Khách hàng &amp; Sản phẩm</span>
-            <span class="panel-meta" style="font-size:11.5px;">Chỉnh sửa trực tiếp &amp; đồng bộ 2 chiều</span>
+            <span class="panel-meta" style="font-size:11.5px;">Chỉnh sửa trực tiếp &amp; đẩy lên Google Sheet</span>
           </div>
 
           <div class="field">
@@ -3443,10 +3484,10 @@
 
         
           <!-- MỤC ĐỒNG BỘ GOOGLE SHEET CHO GITHUB PAGES -->
-          <div class="kv-well" style="border:1px solid var(--accent);background:var(--subtle, #f0f7ff);">
-            <div style="font-weight:600;color:var(--accent);">2. Đồng bộ 2 chiều với Google Sheets (Google Apps Script)</div>
+          <div class="kv-well" style="border:1px solid var(--accent);background:var(--accent-tint);">
+            <div style="font-weight:600;color:var(--accent);">2. Đồng bộ 1 chiều Web → Google Sheets (Google Apps Script)</div>
             <p class="panel-meta" style="margin-top:4px;">
-              Dán URL Google Apps Script Web App (kết thúc bằng <code>/exec</code>) để Web trên GitHub Pages tự động đọc &amp; ghi 2 chiều thẳng vào Google Sheets!
+              Dán URL Google Apps Script Web App (kết thúc bằng <code>/exec</code>) để Web tự động đẩy dữ liệu đơn hàng lên Google Sheets!
             </p>
             <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
               <input id="gasUrlInput" class="mono" placeholder="https://script.google.com/macros/s/.../exec" style="flex:1;height:34px;padding:0 10px;border:1px solid var(--control);border-radius:6px;background:var(--surface);font-size:12px;" />
@@ -8873,7 +8914,7 @@
         if (ledgerSec) ledgerSec.style.display = '';
         setFilterMode('all');
       } else if (viewName === 'orders') {
-        if (titleH1) titleH1.textContent = 'Tổng quan & Sổ đơn hàng (Đồng bộ 2 chiều)';
+        if (titleH1) titleH1.textContent = 'Tổng quan & Sổ đơn hàng';
         if (kpiSec) kpiSec.style.display = '';
         if (remBanner) remBanner.style.display = 'none';
         if (unsyncedBanner) unsyncedBanner.style.display = 'none';
@@ -9045,14 +9086,15 @@
       }
 
       const n = buckets.length;
-      const svgW = Math.max(660, n * 34 + 90);
+      const svgW = Math.max(680, n * 35 + 116);
       const svgH = 285;
-      const padL = 56;
+      const padL = 58;
       const padR = 26;
       const padT = 32;
       const padB = 46;
       const plotW = svgW - padL - padR;
       const plotH = svgH - padT - padB;
+      const xInset = 20;
 
       const maxOrders = Math.max(1, ...buckets.map(b => b.count));
       const maxRev = Math.max(100000, ...buckets.map(b => b.revVnd));
@@ -9062,7 +9104,7 @@
       const maxVal = isRevMode ? maxRev : maxOrders;
       const gridSteps = 4;
 
-      const getX = (i) => (n === 1 ? padL + plotW / 2 : padL + (i / (n - 1)) * plotW);
+      const getX = (i) => (n === 1 ? padL + plotW / 2 : padL + xInset + (i / (n - 1)) * (plotW - xInset * 2));
       const getYOrders = (cnt) => padT + plotH - (cnt / maxOrders) * plotH;
       const getYRev = (val) => padT + plotH - (val / maxRev) * plotH;
 
@@ -9122,9 +9164,43 @@
         `;
       }
 
-      // Vẽ các nút điểm (nodes) và nhãn trục hoành (X-axis)
+      // Vẽ các nút điểm (nodes) và nhãn trục hoành (X-axis) chống đè chữ
       const activePts = isRevMode ? revPoints : orderPoints;
-      const showEveryX = n > 24 ? 2 : 1;
+      const minXGap = 48;
+      const showXSet = new Set();
+      const placedX = [];
+      const tryPlaceX = (idx) => {
+        if (idx < 0 || idx >= n || showXSet.has(idx)) return;
+        const x = activePts[idx].x;
+        if (placedX.every((px) => Math.abs(x - px) >= minXGap)) {
+          showXSet.add(idx);
+          placedX.push(x);
+        }
+      };
+      activePts.forEach((pt, i) => {
+        if (highlightKey === pt.b.key || selectedChartBucketKey === pt.b.key) tryPlaceX(i);
+      });
+      tryPlaceX(0);
+      tryPlaceX(n - 1);
+      activePts.forEach((pt, i) => { if (pt.b.count > 0) tryPlaceX(i); });
+      activePts.forEach((_, i) => tryPlaceX(i));
+
+      const showBadgeSet = new Set();
+      if (!isRevMode) {
+        activePts.forEach((pt, i) => { if (pt.b.count > 0) showBadgeSet.add(i); });
+      } else {
+        const placedBadges = [];
+        const badgeOrder = activePts
+          .map((pt, i) => ({ pt, i, high: highlightKey === pt.b.key || selectedChartBucketKey === pt.b.key }))
+          .filter((item) => item.pt.b.revVnd > 0)
+          .sort((a, b) => (Number(b.high) - Number(a.high)) || (b.pt.b.revVnd - a.pt.b.revVnd));
+        for (const item of badgeOrder) {
+          if (placedBadges.every((pb) => Math.abs(item.pt.x - pb.x) >= 46 || Math.abs(item.pt.y - pb.y) >= 15)) {
+            showBadgeSet.add(item.i);
+            placedBadges.push({ x: item.pt.x, y: item.pt.y });
+          }
+        }
+      }
 
       nodesHtml = activePts
         .map((pt, i) => {
@@ -9134,11 +9210,10 @@
           const circleR = isHigh ? 6.5 : hasData ? 4.5 : 3;
           const fillCol = isHigh ? 'var(--warning)' : hasData ? 'var(--accent)' : 'var(--surface)';
           const strokeCol = isHigh ? 'var(--text)' : 'var(--accent)';
-          const valBadge = isRevMode
-            ? (b.revVnd > 0 ? Math.round(b.revVnd / 1000).toLocaleString('vi-VN') + 'k' : '')
-            : (b.count > 0 ? String(b.count) : '');
-
-          const showXLabel = (i % showEveryX === 0) || i === n - 1 || isHigh || hasData;
+          const valBadge = showBadgeSet.has(i)
+            ? (isRevMode ? Math.round(b.revVnd / 1000).toLocaleString('vi-VN') + 'k' : String(b.count))
+            : '';
+          const showXLabel = showXSet.has(i);
 
           return `
             <g class="chart-node-group" onclick="selectChartBucket('${esc(b.key)}')">
@@ -9548,12 +9623,12 @@
               const pVnd = (parseToVndAmount(o.salePrice) - parseToVndAmount(o.costPrice)).toLocaleString('vi-VN');
               return `
           <div class="stat-q-row" onclick="openDetailDrawer(${o.rowNumber})">
-            <div style="display:flex;align-items:center;gap:8px;min-width:0;">
-              <span class="avatar" style="${avatarStyle(o.customerName)};width:22px;height:22px;font-size:11px;">${esc(initials(o.customerName))}</span>
-              <span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">#${esc(o.stt)} · ${esc(o.customerName)}</span>
-              <span class="mono" style="font-size:11px;color:var(--muted);">${esc(o.buyDateISO || o.buyDate)}</span>
+            <div style="display:flex;align-items:center;gap:6px;min-width:0;flex:1;">
+              <span class="avatar" style="${avatarStyle(o.customerName)};width:22px;height:22px;font-size:11px;flex-shrink:0;">${esc(initials(o.customerName))}</span>
+              <span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">#${esc(o.stt)} · ${esc(o.customerName)}</span>
+              <span class="mono" style="font-size:11px;color:var(--muted);white-space:nowrap;flex-shrink:0;">${esc(o.buyDateISO || o.buyDate)}</span>
             </div>
-            <div style="display:flex;align-items:center;gap:8px;flex:none;">
+            <div style="display:flex;align-items:center;gap:6px;flex:none;white-space:nowrap;">
               ${productTagHtml(o.product, o.months)}
               <span class="mono" style="font-weight:600;color:var(--text);">${sVnd} đ</span>
               <span class="pill pos" style="font-size:10.5px;">Lãi ${pVnd} đ</span>
@@ -9901,7 +9976,7 @@
       const confirmed = await showAppConfirm({
         title: `Xóa đơn hàng #${o.stt} (${o.customerName})`,
         subtitle: `Dòng Sheet #${o.rowNumber} · Mặt hàng: ${o.product}`,
-        message: `Bạn có chắc chắn muốn xóa đơn hàng của khách "${o.customerName}" (Mặt hàng: ${o.product}) không?\n\nThao tác này sẽ xóa đơn trên Web và tự động đồng bộ 2 chiều lên Google Sheet.`,
+        message: `Bạn có chắc chắn muốn xóa đơn hàng của khách "${o.customerName}" (Mặt hàng: ${o.product}) không?\n\nThao tác này sẽ xóa đơn trên Web và tự động cập nhật lên Google Sheet.`,
         confirmText: 'Xác nhận xóa đơn',
         cancelText: 'Giữ lại'
       });
@@ -10208,7 +10283,7 @@
         saveLocalOrders(appState);
 
         const timeStr = new Date(loaded.syncedAt || Date.now()).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        document.getElementById('syncStamp').textContent = `Đồng bộ 2 chiều: ${timeStr}`;
+        document.getElementById('syncStamp').textContent = `Web → Sheet: ${timeStr}`;
         document.getElementById('sidebarNextRow').textContent = `Dòng trống kế: #${loaded.nextEmptyRow || (normalizedOrders.length + 8)}`;
         document.getElementById('composerTitleText').textContent = `+ Ghi đơn mới (Dòng #${loaded.nextEmptyRow || (normalizedOrders.length + 8)})`;
 
@@ -10330,7 +10405,7 @@
       if (customPass && customPass !== 'badao132') {
         hint.innerHTML = 'Nhập mật khẩu bạn đã đổi để truy cập Web (mật khẩu mặc định cũ không còn hiệu lực).';
       } else {
-        hint.innerHTML = 'Mật khẩu mặc định ban đầu: <strong style="color:var(--accent,#0969da);background:var(--subtle,#f0f7ff);padding:2px 6px;border-radius:4px;user-select:all;">badao132</strong>';
+        hint.innerHTML = 'Mật khẩu mặc định ban đầu: <strong style="color:var(--accent,#0969da);background:var(--accent-tint);padding:2px 6px;border-radius:4px;user-select:all;">badao132</strong>';
       }
     }
     updateAuthGatePrompt();
