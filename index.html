@@ -8503,7 +8503,7 @@
       if (!targetISO) return { endDate: '', endDateISO: '', daysLeft: null };
       const [ty, tm, td] = targetISO.split('-');
       const targetVN = `${td}-${tm}-${ty}`;
-      const todayStr = (appState && appState.today) || new Date().toISOString().slice(0, 10);
+      const todayStr = getTodayISO();
       const diffDays = calculateDaysDiff(targetISO, todayStr);
       return { endDate: targetVN, endDateISO: targetISO, daysLeft: diffDays };
     }
@@ -8532,6 +8532,14 @@
       }
     }
 
+    function getTodayISO() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
     function parseDateToISO(dStr) {
       if (!dStr) return '';
       const s = String(dStr).trim();
@@ -8554,6 +8562,35 @@
       const utct = Date.UTC(tParts[0], tParts[1] - 1, tParts[2]);
       const utcb = Date.UTC(bParts[0], bParts[1] - 1, bParts[2]);
       return Math.round((utct - utcb) / 86400000);
+    }
+
+    function refreshOrderDaysLeft(orders, todayISO = getTodayISO()) {
+      if (!orders || !orders.length) return;
+      for (const o of orders) {
+        const endISO = o.endDateISO || parseDateToISO(o.endDate);
+        o.daysLeft = endISO ? calculateDaysDiff(endISO, todayISO) : null;
+      }
+    }
+
+    function refreshOrderRenewals(orders) {
+      if (!orders || !orders.length) return;
+      const activeKeyMap = new Map();
+      for (const o of orders) {
+        if (o.daysLeft !== null && o.daysLeft >= 0) {
+          const k = ((o.phone || o.customerName || '') + '|' + (o.product || '')).toLowerCase();
+          if (k) activeKeyMap.set(k, o.rowNumber);
+        }
+      }
+      for (const o of orders) {
+        if (o.daysLeft !== null && o.daysLeft < 0) {
+          const k = ((o.phone || o.customerName || '') + '|' + (o.product || '')).toLowerCase();
+          const newer = activeKeyMap.get(k);
+          if (newer && newer !== o.rowNumber) o.renewedByRow = newer;
+          else if (!newer && o.renewedByRow && !orders.some(x => x.rowNumber === o.renewedByRow && x.daysLeft >= 0)) {
+            o.renewedByRow = null;
+          }
+        }
+      }
     }
 
     async function postToGas(gasUrl, payload) {
@@ -8958,7 +8995,7 @@
 
     function populateStatsSelectors() {
       const orders = appState.orders || [];
-      const todayISO = appState.today || new Date().toISOString().slice(0, 10);
+      const todayISO = appState.today || getTodayISO();
       const curYear = todayISO.slice(0, 4) || '2026';
 
       const monthCounts = new Map();
@@ -9030,7 +9067,7 @@
     }
 
     function getPresetRange(preset, todayISO) {
-      if (!todayISO) todayISO = new Date().toISOString().slice(0, 10);
+      if (!todayISO) todayISO = getTodayISO();
       const [y, m] = todayISO.split('-').map(Number);
       if (preset === 'today') return { from: todayISO, to: todayISO };
       if (preset === 'yesterday') {
@@ -9246,7 +9283,7 @@
     function renderOrderStats() { updateSalesStats(); }
     function updateSalesStats() {
       const orders = appState.orders || [];
-      const todayISO = appState.today || new Date().toISOString().slice(0, 10);
+      const todayISO = appState.today || getTodayISO();
 
       let fromISO = '';
       let toISO = '';
@@ -9752,8 +9789,15 @@
     }
 
     function renderAll() {
+      const curToday = getTodayISO();
+      if (!appState) appState = {};
+      appState.today = curToday;
+      if (appState.orders && appState.orders.length) {
+        refreshOrderDaysLeft(appState.orders, curToday);
+        refreshOrderRenewals(appState.orders);
+      }
       if (!appState.kpis || !appState.kpis.revenue) { appState.kpis = recalculateKPIs(appState.orders || []); }
-      const orders = appState.orders;
+      const orders = appState.orders || [];
       const soon30 = orders.filter((o) => !o.renewedByRow && o.daysLeft !== null && o.daysLeft >= 0 && o.daysLeft <= 30);
       const soon60 = orders.filter((o) => !o.renewedByRow && o.daysLeft !== null && o.daysLeft >= 0 && o.daysLeft <= 60);
       const soon7 = orders.filter((o) => !o.renewedByRow && o.daysLeft !== null && o.daysLeft >= 0 && o.daysLeft <= 7);
@@ -10117,7 +10161,7 @@
       document.getElementById('eSource').value = o.source;
       document.getElementById('eSalePrice').value = o.salePrice.replace(/\./g, '');
       document.getElementById('eCostPrice').value = o.costPrice.replace(/\./g, '');
-      document.getElementById('eBuyDate').value = o.buyDateISO || appState.today;
+      document.getElementById('eBuyDate').value = o.buyDateISO || appState.today || getTodayISO();
       const durSpec = parseDurationSpec(o.months);
       setEditDurationUnit(durSpec.unit, durSpec.value || '');
       document.getElementById('eCustomEnd').value = o.endDateISO || '';
@@ -10164,7 +10208,7 @@
         document.getElementById('cChannel').value = prefillOrder.channel || 'Zalo';
         document.getElementById('cSalePrice').value = String(prefillOrder.salePrice || '').replace(/\./g, '');
         document.getElementById('cCostPrice').value = String(prefillOrder.costPrice || '').replace(/\./g, '');
-        document.getElementById('cBuyDate').value = appState.today || new Date().toISOString().slice(0, 10);
+        document.getElementById('cBuyDate').value = appState.today || getTodayISO();
         const spec = parseDurationSpec(prefillOrder.months || '12');
         setCreateDurationUnit(spec.unit, spec.value || 12);
         document.getElementById('cPhone').value = prefillOrder.phone || '';
@@ -10175,7 +10219,7 @@
         document.getElementById('cNote').value = prefillOrder.note || '';
       } else {
         if (!document.getElementById('cBuyDate').value) {
-          document.getElementById('cBuyDate').value = appState.today || new Date().toISOString().slice(0, 10);
+          document.getElementById('cBuyDate').value = appState.today || getTodayISO();
         }
         document.getElementById('cSource').value = '';
         document.getElementById('cFamEmail').value = '';
@@ -10222,7 +10266,8 @@
       }
 
       if (loaded) {
-        const todayStr = loaded.today || new Date().toISOString().slice(0, 10);
+        const todayStr = getTodayISO();
+        loaded.today = todayStr;
         const rawOrders = Array.isArray(loaded.orders) ? loaded.orders : [];
 
         // Chuẩn hóa toàn bộ orders và khôi phục trạng thái lịch nhắc ĐT đã lưu
@@ -10230,9 +10275,7 @@
         const normalizedOrders = rawOrders.map((o, idx) => {
           const buyISO = o.buyDateISO || parseDateToISO(o.buyDate);
           const endISO = o.endDateISO || parseDateToISO(o.endDate);
-          const dLeft = o.daysLeft !== undefined && o.daysLeft !== null
-            ? Number(o.daysLeft)
-            : (endISO ? calculateDaysDiff(endISO, todayStr) : null);
+          const dLeft = endISO ? calculateDaysDiff(endISO, todayStr) : null;
           const syncKeyBase = `${o.rowNumber}:${endISO || ''}`;
           return {
             ...o,
@@ -10258,21 +10301,7 @@
           };
         }).filter(o => o.customerName || o.product);
 
-        // Tự động phát hiện nối gói cho đơn hết hạn
-        const activeKeyMap = new Map();
-        for (const o of normalizedOrders) {
-          if (o.daysLeft !== null && o.daysLeft >= 0) {
-            const k = ((o.phone || o.customerName || '') + '|' + (o.product || '')).toLowerCase();
-            if (k) activeKeyMap.set(k, o.rowNumber);
-          }
-        }
-        for (const o of normalizedOrders) {
-          if (o.daysLeft !== null && o.daysLeft < 0) {
-            const k = ((o.phone || o.customerName || '') + '|' + (o.product || '')).toLowerCase();
-            const newer = activeKeyMap.get(k);
-            if (newer && newer !== o.rowNumber) o.renewedByRow = newer;
-          }
-        }
+        refreshOrderRenewals(normalizedOrders);
 
         loaded.orders = normalizedOrders;
         if (!loaded.kpis || !loaded.kpis.revenue) {
@@ -10280,6 +10309,7 @@
         }
 
         appState = loaded;
+        appState.today = todayStr;
         saveLocalOrders(appState);
 
         const timeStr = new Date(loaded.syncedAt || Date.now()).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -10287,7 +10317,7 @@
         document.getElementById('sidebarNextRow').textContent = `Dòng trống kế: #${loaded.nextEmptyRow || (normalizedOrders.length + 8)}`;
         document.getElementById('composerTitleText').textContent = `+ Ghi đơn mới (Dòng #${loaded.nextEmptyRow || (normalizedOrders.length + 8)})`;
 
-        const todayStrVal = loaded.today || new Date().toISOString().slice(0, 10);
+        const todayStrVal = appState.today || getTodayISO();
         if (!document.getElementById('cBuyDate').value) {
           document.getElementById('cBuyDate').value = todayStrVal;
           updateCreatePreview();
@@ -10806,13 +10836,13 @@
 
     document.getElementById('btnCreateClear').addEventListener('click', () => {
       document.getElementById('createForm').reset();
-      document.getElementById('cBuyDate').value = appState.today || new Date().toISOString().slice(0, 10);
+      document.getElementById('cBuyDate').value = appState.today || getTodayISO();
       setCreateDurationUnit('months', 12);
     });
 
 
     function processLocalOrderSave(payload, isEdit = false, targetRow = null) {
-      const todayStr = appState.today || new Date().toISOString().slice(0, 10);
+      const todayStr = appState.today || getTodayISO();
       const calc = calculateEndDate(payload.buyDate || todayStr, payload.months || 1, payload.customEndDate || '');
 
       let savedTargetOrder = null;
@@ -10988,7 +11018,7 @@
 
         const resetComposerAfterSave = () => {
           document.getElementById('createForm').reset();
-          document.getElementById('cBuyDate').value = appState.today || new Date().toISOString().slice(0, 10);
+          document.getElementById('cBuyDate').value = appState.today || getTodayISO();
           setCreateDurationUnit('months', 12);
           document.getElementById('cSource').value = '';
           document.getElementById('cFamEmail').value = '';
@@ -11661,7 +11691,7 @@
           fromISO = document.getElementById('statFromDate').value;
           toISO = document.getElementById('statToDate').value;
         } else {
-          const rng = getPresetRange(currentPreset, appState.today);
+          const rng = getPresetRange(currentPreset, appState.today || getTodayISO());
           fromISO = rng.from;
           toISO = rng.to;
         }
