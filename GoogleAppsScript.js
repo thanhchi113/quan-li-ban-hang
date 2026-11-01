@@ -1,6 +1,6 @@
 /**
  * =========================================================================
- * GOOGLE APPS SCRIPT - BACKEND ĐỒNG BỘ 2 CHIỀU CHO WEB QUẢN LÝ BÁN HÀNG
+ * GOOGLE APPS SCRIPT - BACKEND ĐỒNG BỘ 1 CHIỀU & 2 CHIỀU CHO WEB QUẢN LÝ BÁN HÀNG
  * Tác giả: Thanh Chí
  * =========================================================================
  * Hướng dẫn cài đặt trong 1 phút:
@@ -27,6 +27,9 @@ function getSpreadsheet() {
 function doGet(e) {
   try {
     const action = (e && e.parameter && e.parameter.action) || 'read';
+    if (action === 'ping' || action === 'test') {
+      return jsonResponse({ ok: true, message: 'Google Apps Script Web App hoạt động tốt!' });
+    }
     if (action === 'read' || action === 'getAll') {
       const data = readSheetData();
       return jsonResponse({ ok: true, ...data });
@@ -50,6 +53,12 @@ function doPost(e) {
       return jsonResponse({ ok: true, ...data });
     }
 
+    if (action === 'syncAllOrders') {
+      const orders = Array.isArray(payload.orders) ? payload.orders : [];
+      const result = syncAllOrders(orders);
+      return jsonResponse({ ok: true, ...result });
+    }
+
     if (action === 'create') {
       const order = payload.order || payload;
       const result = createOrder(order);
@@ -57,7 +66,7 @@ function doPost(e) {
     }
 
     if (action === 'update') {
-      const rowNumber = Number(payload.rowNumber);
+      const rowNumber = Number(payload.rowNumber || (payload.order && payload.order.rowNumber));
       const order = payload.order || payload;
       const result = updateOrder(rowNumber, order);
       return jsonResponse({ ok: true, ...result });
@@ -197,80 +206,127 @@ function diffDays(isoA, isoB) {
   return Math.round((utcA - utcB) / 86400000);
 }
 
-function createOrder(order) {
-  const ss = getSpreadsheet();
-  const sheet = ss.getSheetByName(SHEET_NAME) || ss.getSheets()[0];
-  const lastRow = sheet.getLastRow();
-  const values = sheet.getRange(8, 3, Math.max(lastRow - 7, 1), 2).getValues();
-
-  let targetRow = 8;
-  for (let i = 0; i < values.length; i++) {
-    const c = String(values[i][0] || '').trim();
-    const p = String(values[i][1] || '').trim();
-    if (!c && !p) {
-      targetRow = 8 + i;
-      break;
-    }
-    targetRow = 8 + i + 1;
+function buildRowArray(order, rowNum, fallbackIdx) {
+  const isDayUnit = String(order.months || '').match(/ngày|day|d/i);
+  const isPureNumber = /^\d+$/.test(String(order.months || '').trim());
+  let endFormulaOrVal = '';
+  if (order.customEndDate || isDayUnit || !isPureNumber) {
+    endFormulaOrVal = formatDateVN(order.endDateISO || order.endDate || order.customEndDate);
+  } else {
+    endFormulaOrVal = `=IF(AND(ISNUMBER(I${rowNum}), ISNUMBER(J${rowNum})), EDATE(I${rowNum}, J${rowNum}), "${formatDateVN(order.endDateISO || order.endDate)}")`;
   }
 
-  const endFormula = order.customEndDate ? formatDateVN(order.customEndDate) : `=EDATE(I${targetRow},J${targetRow})`;
+  const sttVal = String(order.stt || (fallbackIdx !== undefined ? fallbackIdx + 1 : (rowNum - 7)));
+  const phoneRaw = String(order.phone || '').trim();
+  const phoneVal = phoneRaw ? (/^[0+=]/.test(phoneRaw) ? "'" + phoneRaw : phoneRaw) : '';
+  const saleVal = order.salePrice ? String(order.salePrice).replace(/\./g, '') : '';
+  const costVal = order.costPrice ? String(order.costPrice).replace(/\./g, '') : '';
 
-  const rowData = [
+  return [
+    sttVal,
     order.customerName || '',
     order.product || '',
-    order.phone ? "'" + order.phone : '',
+    phoneVal,
     order.channel || 'Zalo',
-    order.salePrice || '',
-    order.costPrice || '',
-    formatDateVN(order.buyDate),
+    saleVal,
+    costVal,
+    formatDateVN(order.buyDateISO || order.buyDate),
     order.months || '1',
-    endFormula,
+    endFormulaOrVal,
     order.source || '',
     order.customerEmail || '',
     order.famEmail || '',
     order.note || ''
   ];
+}
 
-  sheet.getRange(targetRow, 3, 1, rowData.length).setValues([rowData]);
+function syncAllOrders(orders) {
+  if (!Array.isArray(orders) || !orders.length) {
+    return { ok: false, error: 'Danh sách đơn hàng trống' };
+  }
+  const ss = getSpreadsheet();
+  const sheet = ss.getSheetByName(SHEET_NAME) || ss.getSheets()[0];
 
-  return { targetRow: targetRow, message: 'Đã thêm đơn hàng thành công!' };
+  const validOrders = orders
+    .filter(o => o && (o.customerName || o.product))
+    .sort((a, b) => (Number(a.rowNumber) || 0) - (Number(b.rowNumber) || 0));
+
+  if (!validOrders.length) {
+    return { ok: false, error: 'Không có đơn hàng hợp lệ để đẩy lên Sheet' };
+  }
+
+  const matrix = [];
+  for (let i = 0; i < validOrders.length; i++) {
+    const o = validOrders[i];
+    const rowNum = 8 + i;
+    matrix.push(buildRowArray(o, rowNum, i));
+  }
+
+  // Ghi toàn bộ dữ liệu 1 lần duy nhất từ ô B8 đến O...
+  sheet.getRange(8, 2, matrix.length, 14).setValues(matrix);
+
+  // Xóa dòng thừa phía dưới nếu có
+  const lastRow = sheet.getLastRow();
+  const writtenEndRow = 7 + matrix.length;
+  if (lastRow > writtenEndRow) {
+    sheet.getRange(writtenEndRow + 1, 2, lastRow - writtenEndRow, 14).clearContent();
+  }
+
+  return {
+    totalSynced: matrix.length,
+    nextEmptyRow: writtenEndRow + 1,
+    message: 'Đã đẩy thành công ' + matrix.length + ' đơn hàng lên Google Sheet!'
+  };
+}
+
+function createOrder(order) {
+  const ss = getSpreadsheet();
+  const sheet = ss.getSheetByName(SHEET_NAME) || ss.getSheets()[0];
+  const lastRow = sheet.getLastRow();
+
+  let targetRow = Number(order.rowNumber);
+  if (!targetRow || targetRow < 8) {
+    const values = sheet.getRange(8, 3, Math.max(lastRow - 7, 1), 2).getValues();
+    targetRow = 8;
+    for (let i = 0; i < values.length; i++) {
+      const c = String(values[i][0] || '').trim();
+      const p = String(values[i][1] || '').trim();
+      if (!c && !p) {
+        targetRow = 8 + i;
+        break;
+      }
+      targetRow = 8 + i + 1;
+    }
+  }
+
+  const rowData = buildRowArray(order, targetRow);
+  sheet.getRange(targetRow, 2, 1, rowData.length).setValues([rowData]);
+
+  return { targetRow: targetRow, message: 'Đã thêm đơn hàng vào dòng #' + targetRow + ' trên Google Sheet!' };
 }
 
 function updateOrder(rowNumber, order) {
   const ss = getSpreadsheet();
   const sheet = ss.getSheetByName(SHEET_NAME) || ss.getSheets()[0];
+  const targetRow = Number(rowNumber);
+  if (!targetRow || targetRow < 8) {
+    return { ok: false, error: 'Dòng cập nhật không hợp lệ: ' + rowNumber };
+  }
 
-  const endFormula = order.customEndDate ? formatDateVN(order.customEndDate) : `=EDATE(I${rowNumber},J${rowNumber})`;
+  const rowData = buildRowArray(order, targetRow);
+  sheet.getRange(targetRow, 2, 1, rowData.length).setValues([rowData]);
 
-  const rowData = [
-    order.customerName || '',
-    order.product || '',
-    order.phone ? "'" + order.phone : '',
-    order.channel || 'Zalo',
-    order.salePrice || '',
-    order.costPrice || '',
-    formatDateVN(order.buyDate),
-    order.months || '1',
-    endFormula,
-    order.source || '',
-    order.customerEmail || '',
-    order.famEmail || '',
-    order.note || ''
-  ];
-
-  sheet.getRange(rowNumber, 3, 1, rowData.length).setValues([rowData]);
-
-  return { rowNumber: rowNumber, message: 'Đã cập nhật đơn hàng thành công!' };
+  return { rowNumber: targetRow, message: 'Đã cập nhật dòng #' + targetRow + ' trên Google Sheet!' };
 }
 
 function deleteOrder(rowNumber) {
   const ss = getSpreadsheet();
   const sheet = ss.getSheetByName(SHEET_NAME) || ss.getSheets()[0];
-  if (rowNumber && rowNumber >= 8) {
-    sheet.getRange(rowNumber, 2, 1, 14).clearContent();
+  const targetRow = Number(rowNumber);
+  if (targetRow && targetRow >= 8) {
+    sheet.getRange(targetRow, 2, 1, 14).clearContent();
   }
-  return { rowNumber: rowNumber, message: 'Đã xóa đơn hàng trên Google Sheet thành công!' };
+  return { rowNumber: targetRow, message: 'Đã xóa dữ liệu dòng #' + targetRow + ' trên Google Sheet!' };
 }
 
 function formatDateISO(val, disp) {
@@ -288,14 +344,15 @@ function formatDateISO(val, disp) {
 
 function formatDateVN(iso) {
   if (!iso) return '';
-  const parts = String(iso).split(/[-\/]/);
+  const s = String(iso).trim();
+  const parts = s.split(/[-\/]/);
   if (parts.length === 3) {
     if (parts[0].length === 4) {
-      return `${parts[2]}-${parts[1]}-${parts[0]}`;
+      return `${parts[2].padStart(2, '0')}-${parts[1].padStart(2, '0')}-${parts[0]}`;
     }
-    return `${parts[0]}-${parts[1]}-${parts[2]}`;
+    return `${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}-${parts[2]}`;
   }
-  return iso;
+  return s;
 }
 
 function syncCalendarReminders(orders) {

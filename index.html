@@ -8602,17 +8602,33 @@
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(payload)
         });
-        return await res.json();
+        const text = await res.text();
+        try {
+          return JSON.parse(text);
+        } catch (e) {
+          return { ok: false, error: 'Phản hồi từ Google Apps Script không phải JSON hợp lệ: ' + text.slice(0, 100) };
+        }
       } catch (err) {
         console.warn('Lỗi gọi Google Apps Script POST:', err);
-        return null;
+        return { ok: false, error: err.message || 'Lỗi mạng kết nối Google Apps Script' };
       }
     }
 
     async function syncOrderToGas(action, order, rowNumber) {
       const gasUrl = (localStorage.getItem('qlbh_gas_url') || '').trim();
       if (!gasUrl) return null;
-      return await postToGas(gasUrl, { action, order, rowNumber });
+      try {
+        const res = await postToGas(gasUrl, { action, order, rowNumber });
+        if (res && res.ok) {
+          const timeStr = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          const syncStamp = document.getElementById('syncStamp');
+          if (syncStamp) syncStamp.textContent = `Web → Sheet: ${timeStr}`;
+        }
+        return res;
+      } catch (e) {
+        console.warn('Lỗi syncOrderToGas:', e);
+        return null;
+      }
     }
     let activeFilter = 'all';
     let selectedRowNumber = null;
@@ -10342,31 +10358,62 @@
 
     async function pushAllOrdersToSheet() {
       const btn = document.getElementById('btnPushToSheet');
+      const navBtn = document.getElementById('navBtnPushToSheet');
       if (btn) btn.disabled = true;
+      if (navBtn) navBtn.disabled = true;
+
+      const orders = (appState && appState.orders) || [];
+      const gasUrl = (localStorage.getItem('qlbh_gas_url') || '').trim();
+
       try {
         playPhoneReminderChime();
-        showToast(`Đang đẩy toàn bộ ${appState.orders.length} đơn hàng từ Web lên Google Sheet...`);
+        showToast(`Đang đẩy toàn bộ ${orders.length} đơn hàng lên Google Sheet...`);
 
-        // Gửi batch ops lên backend
-        const res = await callBackendApi('/api/orders/sync-all', 'POST', {
-          orders: appState.orders
-        }, 35000);
-
-        const gasUrl = (localStorage.getItem('qlbh_gas_url') || '').trim();
+        // 1. Ưu tiên hàng đầu: Google Apps Script Web App (chạy độc lập trực tiếp trên trình duyệt/điện thoại)
         if (gasUrl) {
-          postToGas(gasUrl, { action: 'syncAllOrders', orders: appState.orders }).catch(() => {});
+          const gasRes = await postToGas(gasUrl, { action: 'syncAllOrders', orders });
+          if (gasRes && gasRes.ok) {
+            const timeStr = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const syncStamp = document.getElementById('syncStamp');
+            if (syncStamp) syncStamp.textContent = `Web → Sheet: ${timeStr}`;
+            showToast(`Đã đẩy toàn bộ ${gasRes.totalSynced || orders.length} đơn hàng lên Google Sheet thành công!`, false);
+            return;
+          } else {
+            const errDetail = (gasRes && gasRes.error) ? gasRes.error : 'Không thể kết nối đến Apps Script';
+            showToast(`Lỗi đẩy Google Sheet qua Apps Script: ${errDetail}`, true);
+            return;
+          }
         }
 
-        if (res && res.ok) {
-          showToast(`Đã đẩy toàn bộ ${res.totalSynced || appState.orders.length} đơn hàng lên Google Sheet thành công!`, false);
-        } else {
-          showToast(`Đã lưu toàn bộ dữ liệu trên Web & đẩy cập nhật lên Google Sheet!`, false);
+        // 2. Thử tiếp qua Node.js backend (nếu đang chạy localhost hoặc có cấu hình custom backend)
+        const isGhPages = window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
+        if (!isGhPages || localStorage.getItem('qlbh_backend_url')) {
+          try {
+            const res = await callBackendApi('/api/orders/sync-all', 'POST', { orders }, 10000);
+            if (res && res.ok) {
+              const timeStr = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+              const syncStamp = document.getElementById('syncStamp');
+              if (syncStamp) syncStamp.textContent = `Web → Sheet: ${timeStr}`;
+              showToast(`Đã đẩy toàn bộ ${res.totalSynced || orders.length} đơn hàng lên Google Sheet thành công!`, false);
+              return;
+            }
+          } catch (e) {}
+        }
+
+        // 3. Nếu chưa cấu hình Google Apps Script URL
+        showToast('Chưa cấu hình Google Apps Script URL. Vui lòng dán link Web App để đẩy dữ liệu lên Google Sheet!', true);
+        openSecurityDrawer();
+        const gasInput = document.getElementById('gasUrlInput');
+        if (gasInput) {
+          gasInput.focus();
+          gasInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
       } catch (err) {
         console.warn('Lỗi pushAllOrdersToSheet:', err);
-        showToast(`Đã lưu cục bộ. Lỗi kết nối Google Sheet: ${err.message}`, true);
+        showToast(`Lỗi kết nối Google Sheet: ${err.message}`, true);
       } finally {
         if (btn) btn.disabled = false;
+        if (navBtn) navBtn.disabled = false;
       }
     }
 
@@ -10616,8 +10663,12 @@
         btnSaveGas.addEventListener('click', async () => {
           const val = (document.getElementById('gasUrlInput').value || '').trim();
           localStorage.setItem('qlbh_gas_url', val);
-          showToast(val ? 'Đã lưu Google Apps Script URL! Đang đồng bộ...' : 'Đã xóa Google Apps Script URL.');
-          if (val) await loadOrders({ silent: false });
+          if (!val) {
+            showToast('Đã xóa Google Apps Script URL.');
+            return;
+          }
+          showToast('Đã lưu Google Apps Script URL! Đang kiểm tra kết nối & đẩy dữ liệu lên Google Sheet...');
+          await pushAllOrdersToSheet();
         });
       }
 
@@ -10910,11 +10961,11 @@
       renderAll();
 
       // Đồng bộ ngầm lên Google Apps Script nếu có cấu hình
-      syncOrderToGas(isEdit ? 'update' : 'create', payload, targetRow || appState.nextEmptyRow - 1);
+      syncOrderToGas(isEdit ? 'update' : 'create', savedTargetOrder || payload, targetRow || appState.nextEmptyRow - 1);
       return savedTargetOrder;
     }
 
-    const DEFAULT_TUNNEL_URL = 'https://sleeps-chronic-suite-towards.trycloudflare.com';
+    const DEFAULT_TUNNEL_URL = '';
 
     async function callBackendApi(apiPath, method = 'POST', payload = null, timeoutMs = 12000) {
       const isGhPages = window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
@@ -10923,7 +10974,9 @@
       if (!isGhPages && window.location.origin && window.location.origin !== 'null') {
         candidates.push(window.location.origin);
       }
-      candidates.push('http://127.0.0.1:3456');
+      if (!isGhPages) {
+        candidates.push('http://127.0.0.1:3456');
+      }
       if (savedBackend) candidates.push(savedBackend);
       if (DEFAULT_TUNNEL_URL) candidates.push(DEFAULT_TUNNEL_URL);
 
