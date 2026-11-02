@@ -1038,16 +1038,216 @@
     :root[data-theme="dark"][data-contrast="high"] .select-control {
       border-color: #ffffff;
     }
-    input[type="date"]::-webkit-calendar-picker-indicator {
+    /* Custom Themed Datepicker Dialog (Hộp thoại lựa chọn ngày đồng bộ giao diện) */
+    .custom-datepicker {
+      position: fixed;
+      z-index: 99999;
+      width: 284px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 16px 36px rgba(15, 23, 42, 0.24);
+      padding: 12px;
+      user-select: none;
+      font-family: var(--font);
+      color: var(--text);
+      animation: fadeSlideUp 130ms ease;
+    }
+    .custom-datepicker[hidden] {
+      display: none !important;
+    }
+    .dp-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      gap: 6px;
+    }
+    .dp-nav-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-      opacity: 0.75;
-      transition: opacity 140ms ease;
+      transition: all 130ms ease;
+      padding: 0;
     }
-    input[type="date"]:hover::-webkit-calendar-picker-indicator {
-      opacity: 1;
+    .dp-nav-btn:hover {
+      border-color: var(--accent);
+      background: var(--raised);
+      color: var(--accent);
     }
-    :root[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator {
-      filter: invert(0.85);
+    .dp-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .dp-select {
+      height: 28px;
+      padding: 0 20px 0 7px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background-color: var(--surface);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 5px center;
+      background-size: 10px 10px;
+      transition: all 130ms ease;
+    }
+    .dp-select:hover {
+      border-color: var(--accent);
+      background-color: var(--raised);
+    }
+    .dp-select:focus {
+      border-color: var(--accent);
+      outline: none;
+      box-shadow: 0 0 0 2px var(--accent-tint);
+    }
+    .dp-select option {
+      background: var(--surface);
+      color: var(--text);
+      padding: 6px 10px;
+    }
+    :root[data-theme="dark"] .dp-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    }
+    :root[data-theme="dark"] .dp-select option {
+      background: #1e293b;
+      color: #f8fafc;
+    }
+
+    .dp-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .dp-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 3px;
+    }
+    .dp-day {
+      height: 31px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text);
+      font-size: 12.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 120ms ease;
+      position: relative;
+      padding: 0;
+    }
+    .dp-day:hover {
+      background: var(--accent-tint);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+    .dp-day.is-other-month {
+      color: var(--faint);
+      opacity: 0.4;
+    }
+    .dp-day.is-today {
+      font-weight: 700;
+      border-color: var(--accent);
+    }
+    .dp-day.is-today::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+    .dp-day.is-selected {
+      background: var(--accent) !important;
+      color: var(--primary-ink, #ffffff) !important;
+      font-weight: 700;
+      border-color: var(--accent) !important;
+    }
+    .dp-day.is-selected::after {
+      background: var(--primary-ink, #ffffff);
+    }
+    .dp-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+    .dp-btn {
+      height: 27px;
+      padding: 0 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 120ms ease;
+    }
+    .dp-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--raised);
+    }
+    .dp-btn.dp-btn-today {
+      background: var(--accent);
+      color: var(--primary-ink, #ffffff);
+      border-color: var(--accent);
+    }
+    .dp-btn.dp-btn-today:hover {
+      opacity: 0.9;
+    }
+    .dp-btn.dp-btn-clear {
+      color: var(--negative, #be123c);
+    }
+    .dp-btn.dp-btn-clear:hover {
+      border-color: var(--negative, #be123c);
+      background: var(--pill-negative-bg, #ffe4e6);
+    }
+
+    /* Hide native browser date picker indicator so only our custom themed popup appears */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      display: none !important;
+      -webkit-appearance: none;
+    }
+    input[type="date"] {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E") !important;
+      background-repeat: no-repeat !important;
+      background-position: right 9px center !important;
+      background-size: 14px 14px !important;
+      padding-right: 28px !important;
+      cursor: pointer;
+    }
+    :root[data-theme="dark"] input[type="date"] {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E") !important;
+      background-repeat: no-repeat !important;
+      background-position: right 9px center !important;
+      background-size: 14px 14px !important;
     }
 
     /* Sticky Header Scrollable Table Container */
@@ -3772,6 +3972,33 @@
         <button type="button" class="btn" id="btnResetPalette">Khôi phục mặc định</button>
         <button type="button" class="btn primary" id="btnSavePaletteClose">Hoàn tất</button>
       </footer>
+    </div>
+  </div>
+
+  <!-- CUSTOM THEME-SYNCHRONIZED DATEPICKER POPUP DIALOG (Hộp thoại chọn ngày đồng bộ giao diện) -->
+  <div class="custom-datepicker" id="customDatePicker" hidden role="dialog" aria-modal="true" aria-label="Hộp thoại chọn ngày">
+    <div class="dp-header">
+      <button type="button" class="dp-nav-btn" id="dpPrevMonth" title="Tháng trước" aria-label="Tháng trước">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2.5;"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="dp-title-wrap">
+        <select id="dpMonthSelect" class="dp-select" aria-label="Chọn tháng"></select>
+        <select id="dpYearSelect" class="dp-select" aria-label="Chọn năm"></select>
+      </div>
+      <button type="button" class="dp-nav-btn" id="dpNextMonth" title="Tháng sau" aria-label="Tháng sau">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2.5;"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+    <div class="dp-weekdays">
+      <span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span><span>CN</span>
+    </div>
+    <div class="dp-grid" id="dpDaysGrid"></div>
+    <div class="dp-footer">
+      <button type="button" class="dp-btn dp-btn-clear" id="dpBtnClear">Xóa</button>
+      <div style="display:flex;gap:6px;">
+        <button type="button" class="dp-btn" id="dpBtnClose">Đóng</button>
+        <button type="button" class="dp-btn dp-btn-today" id="dpBtnToday">Hôm nay</button>
+      </div>
     </div>
   </div>
 
@@ -12500,6 +12727,273 @@
       }
     }, 60000);
 
+    // ==========================================
+    // CUSTOM THEME-SYNCHRONIZED DATEPICKER LOGIC
+    // ==========================================
+    let activeDatePickerInput = null;
+    let dpCurrentYear = new Date().getFullYear();
+    let dpCurrentMonth = new Date().getMonth() + 1;
+
+    function initCustomDatePicker() {
+      const dp = document.getElementById('customDatePicker');
+      const mSel = document.getElementById('dpMonthSelect');
+      const ySel = document.getElementById('dpYearSelect');
+      if (!dp || !mSel || !ySel) return;
+
+      mSel.innerHTML = [
+        'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4',
+        'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8',
+        'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
+      ].map((m, idx) => `<option value="${idx + 1}">${m}</option>`).join('');
+
+      const curY = new Date().getFullYear();
+      const years = [];
+      for (let y = curY - 5; y <= curY + 9; y++) years.push(y);
+      ySel.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
+
+      mSel.addEventListener('change', () => {
+        dpCurrentMonth = Number(mSel.value);
+        renderCustomDatePickerGrid();
+      });
+      ySel.addEventListener('change', () => {
+        dpCurrentYear = Number(ySel.value);
+        renderCustomDatePickerGrid();
+      });
+
+      document.getElementById('dpPrevMonth').addEventListener('click', (e) => {
+        e.stopPropagation();
+        dpCurrentMonth--;
+        if (dpCurrentMonth < 1) {
+          dpCurrentMonth = 12;
+          dpCurrentYear--;
+        }
+        mSel.value = dpCurrentMonth;
+        ySel.value = dpCurrentYear;
+        renderCustomDatePickerGrid();
+      });
+
+      document.getElementById('dpNextMonth').addEventListener('click', (e) => {
+        e.stopPropagation();
+        dpCurrentMonth++;
+        if (dpCurrentMonth > 12) {
+          dpCurrentMonth = 1;
+          dpCurrentYear++;
+        }
+        mSel.value = dpCurrentMonth;
+        ySel.value = dpCurrentYear;
+        renderCustomDatePickerGrid();
+      });
+
+      document.getElementById('dpBtnClear').addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (activeDatePickerInput) {
+          activeDatePickerInput.value = '';
+          activeDatePickerInput.dispatchEvent(new Event('input', { bubbles: true }));
+          activeDatePickerInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        closeCustomDatePicker();
+      });
+
+      document.getElementById('dpBtnClose').addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeCustomDatePicker();
+      });
+
+      document.getElementById('dpBtnToday').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const todayISO = appState?.today || getTodayISO();
+        if (activeDatePickerInput) {
+          activeDatePickerInput.value = todayISO;
+          activeDatePickerInput.dispatchEvent(new Event('input', { bubbles: true }));
+          activeDatePickerInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        closeCustomDatePicker();
+      });
+
+      document.addEventListener('mousedown', (e) => {
+        if (dp.hidden) return;
+        if (!dp.contains(e.target) && activeDatePickerInput !== e.target) {
+          closeCustomDatePicker();
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (!dp.hidden && e.key === 'Escape') {
+          closeCustomDatePicker();
+        }
+      });
+
+      window.addEventListener('resize', () => {
+        if (!dp.hidden && activeDatePickerInput) positionCustomDatePicker(activeDatePickerInput);
+      });
+      window.addEventListener('scroll', () => {
+        if (!dp.hidden && activeDatePickerInput) positionCustomDatePicker(activeDatePickerInput);
+      }, true);
+
+      bindDateInputsForCustomPicker();
+    }
+
+    function bindDateInputsForCustomPicker() {
+      const targetIds = [
+        'statSingleDate',
+        'statFromDate',
+        'statToDate',
+        'cBuyDate',
+        'cCustomEnd',
+        'eBuyDate',
+        'eCustomEnd'
+      ];
+
+      targetIds.forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.add('date-picker-input');
+
+        const trigger = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          openCustomDatePicker(el);
+        };
+
+        el.addEventListener('click', trigger);
+        el.addEventListener('focus', () => {
+          if (activeDatePickerInput !== el) openCustomDatePicker(el);
+        });
+        el.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            openCustomDatePicker(el);
+          }
+        });
+      });
+    }
+
+    function openCustomDatePicker(input) {
+      if (!input) return;
+      activeDatePickerInput = input;
+      const dp = document.getElementById('customDatePicker');
+      const mSel = document.getElementById('dpMonthSelect');
+      const ySel = document.getElementById('dpYearSelect');
+      if (!dp) return;
+
+      const val = String(input.value || '').trim();
+      let initDate = new Date();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(val)) {
+        const [y, m, d] = val.split('-').map(Number);
+        initDate = new Date(y, m - 1, d);
+      } else {
+        const todayISO = appState?.today || getTodayISO();
+        const [y, m, d] = todayISO.split('-').map(Number);
+        initDate = new Date(y, m - 1, d);
+      }
+
+      dpCurrentYear = initDate.getFullYear();
+      dpCurrentMonth = initDate.getMonth() + 1;
+
+      if (mSel) mSel.value = dpCurrentMonth;
+      if (ySel) {
+        if (![...ySel.options].some(opt => Number(opt.value) === dpCurrentYear)) {
+          const opt = document.createElement('option');
+          opt.value = dpCurrentYear;
+          opt.textContent = dpCurrentYear;
+          ySel.appendChild(opt);
+        }
+        ySel.value = dpCurrentYear;
+      }
+
+      renderCustomDatePickerGrid();
+      dp.hidden = false;
+      positionCustomDatePicker(input);
+    }
+
+    function closeCustomDatePicker() {
+      const dp = document.getElementById('customDatePicker');
+      if (dp) dp.hidden = true;
+      activeDatePickerInput = null;
+    }
+
+    function positionCustomDatePicker(input) {
+      const dp = document.getElementById('customDatePicker');
+      if (!dp || !input) return;
+      const rect = input.getBoundingClientRect();
+      const dpHeight = dp.offsetHeight || 310;
+      const dpWidth = dp.offsetWidth || 284;
+
+      let top = rect.bottom + 6;
+      if (top + dpHeight > window.innerHeight && rect.top - dpHeight - 6 > 0) {
+        top = rect.top - dpHeight - 6;
+      }
+
+      let left = rect.left;
+      if (left + dpWidth > window.innerWidth - 12) {
+        left = window.innerWidth - dpWidth - 12;
+      }
+      if (left < 12) left = 12;
+
+      dp.style.position = 'fixed';
+      dp.style.top = `${Math.round(top)}px`;
+      dp.style.left = `${Math.round(left)}px`;
+    }
+
+    function renderCustomDatePickerGrid() {
+      const grid = document.getElementById('dpDaysGrid');
+      if (!grid) return;
+
+      const selectedVal = activeDatePickerInput ? String(activeDatePickerInput.value || '').trim() : '';
+      const todayISO = appState?.today || getTodayISO();
+
+      const firstDay = new Date(dpCurrentYear, dpCurrentMonth - 1, 1);
+      const startOffset = (firstDay.getDay() + 6) % 7; // Monday = 0
+      const daysInMonth = new Date(dpCurrentYear, dpCurrentMonth, 0).getDate();
+      const daysInPrevMonth = new Date(dpCurrentYear, dpCurrentMonth - 1, 0).getDate();
+
+      const cells = [];
+
+      for (let i = startOffset - 1; i >= 0; i--) {
+        const d = daysInPrevMonth - i;
+        const pm = dpCurrentMonth === 1 ? 12 : dpCurrentMonth - 1;
+        const py = dpCurrentMonth === 1 ? dpCurrentYear - 1 : dpCurrentYear;
+        cells.push({ day: d, month: pm, year: py, isOther: true });
+      }
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        cells.push({ day: d, month: dpCurrentMonth, year: dpCurrentYear, isOther: false });
+      }
+
+      const remaining = 42 - cells.length;
+      for (let d = 1; d <= remaining; d++) {
+        const nm = dpCurrentMonth === 12 ? 1 : dpCurrentMonth + 1;
+        const ny = dpCurrentMonth === 12 ? dpCurrentYear + 1 : dpCurrentYear;
+        cells.push({ day: d, month: nm, year: ny, isOther: true });
+      }
+
+      grid.innerHTML = cells.map(cell => {
+        const iso = `${cell.year}-${String(cell.month).padStart(2, '0')}-${String(cell.day).padStart(2, '0')}`;
+        const isSelected = selectedVal === iso;
+        const isToday = todayISO === iso;
+        let cls = 'dp-day';
+        if (cell.isOther) cls += ' is-other-month';
+        if (isToday) cls += ' is-today';
+        if (isSelected) cls += ' is-selected';
+
+        return `<button type="button" class="${cls}" data-dp-date="${iso}" title="${iso}${isToday ? ' (Hôm nay)' : ''}">${cell.day}</button>`;
+      }).join('');
+
+      grid.querySelectorAll('.dp-day').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const dateIso = btn.dataset.dpDate;
+          if (activeDatePickerInput && dateIso) {
+            activeDatePickerInput.value = dateIso;
+            activeDatePickerInput.dispatchEvent(new Event('input', { bubbles: true }));
+            activeDatePickerInput.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+          closeCustomDatePicker();
+        });
+      });
+    }
+
+    initCustomDatePicker();
     loadOrders();
   </script>
 </body>
