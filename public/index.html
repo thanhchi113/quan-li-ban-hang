@@ -1571,6 +1571,7 @@
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px 14px;
+      align-content: start;
     }
     .composer-sec-head {
       grid-column: 1 / -1;
@@ -2194,10 +2195,11 @@
       gap: 5px;
       margin-top: 6px;
       flex-wrap: wrap;
+      align-items: center;
     }
     .mini-chip {
       height: 24px;
-      padding: 0 9px;
+      padding: 0 7.5px;
       border-radius: 6px;
       border: 1px solid var(--border);
       background: var(--surface);
@@ -2205,13 +2207,21 @@
       font-weight: 500;
       color: var(--muted);
       cursor: pointer;
-      transition: all 130ms ease;
+      white-space: nowrap;
+      user-select: none;
+      transition: border-color 120ms ease, background-color 120ms ease, color 120ms ease, box-shadow 120ms ease;
     }
-    .mini-chip:hover, .mini-chip.active {
+    .mini-chip:hover {
+      border-color: var(--accent);
+      background: var(--accent-tint);
+      color: var(--accent);
+    }
+    .mini-chip.active {
       border-color: var(--accent);
       background: var(--accent-tint);
       color: var(--accent);
       font-weight: 600;
+      box-shadow: 0 0 0 1px var(--accent);
     }
 
     .kv-well {
@@ -3007,8 +3017,11 @@
           </div>
 
           <div class="field">
-            <label for="cPhone"><span>Số điện thoại</span></label>
-            <input id="cPhone" class="mono" placeholder="090... (Tùy chọn)" autocomplete="off" />
+            <label for="cPhone" style="display:flex;justify-content:space-between;align-items:center;">
+              <span>Số điện thoại / Link FB</span>
+              <a id="cPhoneOpenLink" href="#" target="_blank" rel="noopener" style="display:none;font-size:11px;font-weight:600;color:var(--accent);text-decoration:underline;">Mở link ↗</a>
+            </label>
+            <input id="cPhone" class="mono" placeholder="090... hoặc link FB, Zalo..." autocomplete="off" />
           </div>
 
           <div class="field">
@@ -3201,8 +3214,11 @@
           </div>
 
           <div class="field">
-            <label for="ePhone"><span>Số điện thoại</span></label>
-            <input id="ePhone" class="mono" placeholder="Chưa có SĐT" autocomplete="off" />
+            <label for="ePhone" style="display:flex;justify-content:space-between;align-items:center;">
+              <span>Số điện thoại / Link FB</span>
+              <a id="ePhoneOpenLink" href="#" target="_blank" rel="noopener" style="display:none;font-size:11px;font-weight:600;color:var(--accent);text-decoration:underline;">Mở link ↗</a>
+            </label>
+            <input id="ePhone" class="mono" placeholder="090... hoặc link FB, Zalo..." autocomplete="off" />
           </div>
 
           <div class="field">
@@ -8689,10 +8705,33 @@
       return `<span class="prod-tag ${cls}">${esc(p || '-')}${mText}</span>`;
     }
 
-    function channelBadgeHtml(channel) {
+    function normalizeContactUrl(str) {
+      if (!str) return '';
+      const s = String(str).trim();
+      if (/^https?:\/\//i.test(s)) return s;
+      if (/^(www\.)?(facebook\.com|fb\.com|fb\.me|m\.me|zalo\.me|t\.me|instagram\.com|threads\.net)\//i.test(s)) {
+        return 'https://' + s;
+      }
+      return '';
+    }
+
+    function channelBadgeHtml(channel, phone = '') {
       const c = String(channel || '').trim();
+      const normPhone = normalizeContactUrl(phone);
+      const isFbChan = c.toLowerCase() === 'facebook';
+      const isFbLink = Boolean(normPhone && /facebook\.com|fb\.com|fb\.me|m\.me/i.test(normPhone));
+      const extIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:10px;height:10px;stroke-width:2.4;margin-left:3px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
+
+      if (normPhone) {
+        if (isFbChan || !c) {
+          return `<a href="${esc(normPhone)}" target="_blank" rel="noopener" onclick="event.stopPropagation();" class="chan-badge chan-fb" title="Mở Facebook / liên kết: ${esc(normPhone)}" style="text-decoration:none;cursor:pointer;"><span>${esc(c || (isFbLink ? 'Facebook' : 'Link FB'))}</span>${extIcon}</a>`;
+        }
+        const chanCls = isFbChan ? 'chan-fb' : 'chan-zalo';
+        return `<span class="chan-badge ${chanCls}">${esc(c)}</span><a href="${esc(normPhone)}" target="_blank" rel="noopener" onclick="event.stopPropagation();" class="chan-badge ${isFbLink ? 'chan-fb' : 'chan-zalo'}" title="Mở link liên hệ: ${esc(normPhone)}" style="text-decoration:none;cursor:pointer;margin-left:4px;"><span>${isFbLink ? 'FB' : 'Link'}</span>${extIcon}</a>`;
+      }
+
       if (!c) return '';
-      const cls = c.toLowerCase() === 'facebook' ? 'chan-fb' : 'chan-zalo';
+      const cls = isFbChan ? 'chan-fb' : 'chan-zalo';
       return `<span class="chan-badge ${cls}">${esc(c)}</span>`;
     }
 
@@ -10101,10 +10140,10 @@
         <tr onclick="openDetailDrawer(${o.rowNumber})" aria-selected="${o.rowNumber === selectedRowNumber}">
           <td class="c-center mono" style="color:var(--muted);font-weight:600;">${esc(o.stt)}</td>
           <td>
-            <div class="cust-cell">
+            <div class="cust-cell" title="${esc(o.customerName)}${o.phone ? ' · ' + esc(o.phone) : ''}">
               <span class="avatar" style="${avatarStyle(o.customerName)}">${esc(initials(o.customerName))}</span>
               <span class="cust-name">${esc(o.customerName)}</span>
-              ${channelBadgeHtml(o.channel)}
+              ${channelBadgeHtml(o.channel, o.phone)}
             </div>
           </td>
           <td>${productTagHtml(o.product, o.months)}</td>
@@ -10157,7 +10196,12 @@
       renderTable();
 
       document.getElementById('drawerTitle').textContent = o.customerName;
-      document.getElementById('drawerMeta').textContent = `STT #${o.stt} · Dòng Sheet #${o.rowNumber}`;
+      const contactMeta = o.phone
+        ? (normalizeContactUrl(o.phone)
+            ? ` · <a href="${esc(normalizeContactUrl(o.phone))}" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;text-decoration:underline;">Mở link FB ↗</a>`
+            : ` · <a href="tel:${esc(o.phone)}" style="color:var(--accent);font-weight:600;text-decoration:none;">SĐT: ${esc(o.phone)}</a>`)
+        : '';
+      document.getElementById('drawerMeta').innerHTML = `STT #${esc(o.stt)} · Dòng Sheet #${o.rowNumber}${contactMeta}`;
       document.getElementById('drawerStatusPill').innerHTML = statusPillForOrder(o);
 
       const calParts = [];
@@ -10173,7 +10217,17 @@
       document.getElementById('eCustomerName').value = o.customerName;
       document.getElementById('eProduct').value = o.product;
       document.getElementById('eChannel').value = o.channel || 'Zalo';
-      document.getElementById('ePhone').value = o.phone;
+      document.getElementById('ePhone').value = o.phone || '';
+      const eNorm = normalizeContactUrl(o.phone);
+      const eOpen = document.getElementById('ePhoneOpenLink');
+      if (eOpen) {
+        if (eNorm) {
+          eOpen.href = eNorm;
+          eOpen.style.display = 'inline-flex';
+        } else {
+          eOpen.style.display = 'none';
+        }
+      }
       document.getElementById('eSource').value = o.source;
       document.getElementById('eSalePrice').value = o.salePrice.replace(/\./g, '');
       document.getElementById('eCostPrice').value = o.costPrice.replace(/\./g, '');
@@ -10239,6 +10293,16 @@
         }
         document.getElementById('cSource').value = '';
         document.getElementById('cFamEmail').value = '';
+      }
+      const cNorm = normalizeContactUrl(document.getElementById('cPhone').value);
+      const cOpen = document.getElementById('cPhoneOpenLink');
+      if (cOpen) {
+        if (cNorm) {
+          cOpen.href = cNorm;
+          cOpen.style.display = 'inline-flex';
+        } else {
+          cOpen.style.display = 'none';
+        }
       }
       updateCreatePreview();
       document.getElementById('cCustomerName').focus();
@@ -10795,6 +10859,25 @@
     bindCustomCombobox('eProdComboWrap', 'eProduct', 'eProdComboMenu', () => currentProductsList);
     bindCustomCombobox('eChanComboWrap', 'eChannel', 'eChanComboMenu', () => currentChannelsList);
 
+    function wirePhoneInputLink(inputId, linkId) {
+      const input = document.getElementById(inputId);
+      const link = document.getElementById(linkId);
+      if (!input || !link) return;
+      const update = () => {
+        const norm = normalizeContactUrl(input.value);
+        if (norm) {
+          link.href = norm;
+          link.style.display = 'inline-flex';
+        } else {
+          link.style.display = 'none';
+        }
+      };
+      input.addEventListener('input', update);
+      input.addEventListener('change', update);
+    }
+    wirePhoneInputLink('cPhone', 'cPhoneOpenLink');
+    wirePhoneInputLink('ePhone', 'ePhoneOpenLink');
+
     document.querySelectorAll('.mini-chip[data-cchan]').forEach((b) => {
       b.addEventListener('click', () => {
         document.getElementById('cChannel').value = b.dataset.cchan;
@@ -11219,7 +11302,7 @@
           `Mặt hàng: ${order.product}`,
           `Ngày hết hạn: ${order.endDate || endISO}`,
           order.channel ? `Kênh mua: ${order.channel}` : '',
-          order.phone ? `SĐT: ${order.phone}` : '',
+          order.phone ? (normalizeContactUrl(order.phone) ? `Liên hệ (FB): ${order.phone}` : `SĐT: ${order.phone}`) : '',
           order.salePrice ? `Giá bán: ${formatMoneyVND(order.salePrice)} đ` : '',
           order.customerEmail ? `Email khách: ${order.customerEmail}` : '',
           order.famEmail ? `Mail Fam: ${order.famEmail}` : '',

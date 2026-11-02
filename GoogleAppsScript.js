@@ -193,7 +193,9 @@ function readSheetData() {
 
 function normalizeKey(o) {
   const item = (o.product || '').trim().toLowerCase();
-  const id = (o.phone || '').replace(/\D/g, '') || (o.customerEmail || '').trim().toLowerCase() || (o.customerName || '').trim().toLowerCase();
+  const rawContact = String(o.phone || '').trim().toLowerCase();
+  const isUrl = /^https?:\/\/|facebook\.com|fb\.com|zalo\.me/i.test(rawContact);
+  const id = isUrl ? rawContact : (rawContact.replace(/\D/g, '') || rawContact || (o.customerEmail || '').trim().toLowerCase() || (o.customerName || '').trim().toLowerCase());
   return id && item ? id + '|' + item : '';
 }
 
@@ -373,7 +375,7 @@ function syncCalendarReminders(orders) {
         'Khách hàng: ' + (o.customerName || ''),
         'Mặt hàng: ' + (o.product || ''),
         'Ngày hết hạn: ' + (o.endDate || o.endDateISO),
-        o.phone ? 'SĐT: ' + o.phone : '',
+        o.phone ? (/^https?:\/\/|facebook\.com|fb\.com/i.test(o.phone) ? 'Liên hệ (FB): ' + o.phone : 'SĐT: ' + o.phone) : '',
         o.channel ? 'Kênh: ' + o.channel : '',
         o.note ? 'Ghi chú: ' + o.note : ''
       ].filter(Boolean).join('\n');

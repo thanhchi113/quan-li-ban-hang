@@ -76,6 +76,29 @@ const plansOnlyEnd = buildReminderPlans(parsed.orders[1], '2026-11-01');
 assert.equal(plansOnlyEnd.length, 1);
 assert.equal(plansOnlyEnd[0].targetDate, '2026-11-03');
 
+// 5b. FB link in phone field
+const fbBatch = buildBatchRowWrite(143, {
+  customerName: 'Khách FB',
+  product: 'canva',
+  phone: 'https://facebook.com/khachhang.fb',
+  channel: 'Facebook',
+  salePrice: '300',
+  costPrice: '',
+  buyDate: '2026-10-24',
+  months: '12',
+});
+assert.equal(fbBatch.ops[0].data[0][2], 'https://facebook.com/khachhang.fb');
+const fbPlans = buildReminderPlans({
+  rowNumber: 143,
+  stt: 136,
+  customerName: 'Khách FB',
+  product: 'canva',
+  phone: 'https://facebook.com/khachhang.fb',
+  channel: 'Facebook',
+  endDateISO: '2026-11-10',
+}, '2026-10-24');
+assert.ok(fbPlans[0].description.includes('Liên hệ (FB): https://facebook.com/khachhang.fb'));
+
 // 6. Password hashing & signed session tokens
 const { salt, hash } = hashPassword('badao132');
 assert.equal(verifyPassword('badao132', hash, salt), true);

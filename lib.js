@@ -253,7 +253,7 @@ function buildReminderPlans(order, todayISO = todayVN(), { forceSingle = false }
       `Mặt hàng: ${order.product}`,
       `Ngày kết thúc: ${formatISOToVN(order.endDateISO)}`,
       order.channel ? `Kênh mua: ${order.channel}` : '',
-      order.phone ? `SĐT: ${order.phone}` : '',
+      order.phone ? (/^https?:\/\/|facebook\.com|fb\.com/i.test(order.phone) ? `Liên hệ (FB): ${order.phone}` : `SĐT: ${order.phone}`) : '',
       order.salePrice ? `Giá bán: ${order.salePrice}k` : '',
       order.customerEmail ? `Mail khách: ${order.customerEmail}` : '',
       order.famEmail ? `Mail Fam: ${order.famEmail}` : '',
