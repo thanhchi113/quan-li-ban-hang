@@ -37,6 +37,9 @@
       --border: #dde3ea;
       --rule: #edf1f5;
       --control: #c5ced8;
+      --scrollbar-thumb: #b8c4d1;
+      --scrollbar-thumb-hover: var(--accent);
+      --scrollbar-track: transparent;
       --text: #0f172a;
       --muted: #475569;
       --faint: #64748b;
@@ -92,6 +95,9 @@
       --border: #293548;
       --rule: #1e293b;
       --control: #475569;
+      --scrollbar-thumb: #334155;
+      --scrollbar-thumb-hover: var(--accent);
+      --scrollbar-track: transparent;
       --text: #f8fafc;
       --muted: #94a3b8;
       --faint: #64748b;
@@ -131,6 +137,9 @@
       --border: #000000;
       --rule: #000000;
       --control: #000000;
+      --scrollbar-thumb: #000000;
+      --scrollbar-thumb-hover: #000000;
+      --scrollbar-track: transparent;
       --text: #000000;
       --muted: #0f172a;
       --faint: #334155;
@@ -168,6 +177,9 @@
       --border: #ffffff;
       --rule: #ffffff;
       --control: #ffffff;
+      --scrollbar-thumb: #ffffff;
+      --scrollbar-thumb-hover: #ffffff;
+      --scrollbar-track: transparent;
       --text: #ffffff;
       --muted: #f1f5f9;
       --faint: #cbd5e1;
@@ -201,25 +213,28 @@
       box-sizing: border-box;
     }
 
-    /* Custom Theme-Synchronized Scrollbars (Thanh kéo đồng bộ giao diện) */
+    /* Custom Theme-Synchronized Scrollbars (Thanh cuộn đồng bộ giao diện) */
     * {
       scrollbar-width: thin;
-      scrollbar-color: var(--control) transparent;
+      scrollbar-color: var(--scrollbar-thumb, var(--control)) var(--scrollbar-track, transparent);
     }
     ::-webkit-scrollbar {
-      width: 7px;
-      height: 7px;
+      width: 8px;
+      height: 8px;
     }
     ::-webkit-scrollbar-track {
-      background: transparent;
+      background: var(--scrollbar-track, transparent);
     }
     ::-webkit-scrollbar-thumb {
-      background: var(--control);
-      border-radius: 4px;
-      transition: background-color 150ms ease;
+      background-color: var(--scrollbar-thumb, var(--control));
+      border-radius: 999px;
+      border: 2px solid transparent;
+      background-clip: content-box;
+      transition: background-color 140ms ease;
     }
-    ::-webkit-scrollbar-thumb:hover {
-      background: var(--accent);
+    ::-webkit-scrollbar-thumb:hover,
+    ::-webkit-scrollbar-thumb:active {
+      background-color: var(--scrollbar-thumb-hover, var(--accent));
     }
     ::-webkit-scrollbar-corner {
       background: transparent;
@@ -934,13 +949,105 @@
       gap: 8px;
       flex-wrap: wrap;
     }
+    /* Theme-Synchronized Select & Date Controls (Hộp lựa chọn đồng bộ giao diện) */
     .select-control {
       height: var(--control-height);
       padding: 0 10px;
-      border: 1px solid var(--control);
+      border: 1px solid var(--border);
       border-radius: var(--radius-control);
-      background: var(--surface);
+      background-color: var(--surface);
+      color: var(--text);
+      font-family: var(--font);
       font-size: 13px;
+      font-weight: 500;
+      transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+    }
+    .select-control:hover {
+      border-color: var(--accent);
+      background-color: var(--raised);
+    }
+    .select-control:focus {
+      border-color: var(--accent);
+      background-color: var(--surface);
+      box-shadow: 0 0 0 3px var(--accent-tint);
+      outline: none;
+    }
+
+    select.select-control,
+    .field select,
+    select {
+      height: var(--control-height);
+      padding: 0 28px 0 11px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-control);
+      background-color: var(--surface);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 9px center;
+      background-size: 12px 12px;
+      transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+    }
+    .table-toolbar select.select-control {
+      height: 34px;
+    }
+    select.select-control:hover,
+    .field select:hover,
+    select:hover {
+      border-color: var(--accent);
+      background-color: var(--raised);
+    }
+    select.select-control:focus,
+    .field select:focus,
+    select:focus {
+      border-color: var(--accent);
+      background-color: var(--surface);
+      box-shadow: 0 0 0 3px var(--accent-tint);
+      outline: none;
+    }
+    select.select-control option,
+    .field select option,
+    select option {
+      background-color: var(--surface);
+      color: var(--text);
+      padding: 7px 10px;
+      font-family: var(--font);
+    }
+    :root[data-theme="dark"] select.select-control,
+    :root[data-theme="dark"] .field select,
+    :root[data-theme="dark"] select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      color-scheme: dark;
+    }
+    :root[data-theme="dark"] select.select-control option,
+    :root[data-theme="dark"] .field select option,
+    :root[data-theme="dark"] select option {
+      background-color: #1e293b;
+      color: #f8fafc;
+    }
+    :root[data-contrast="high"] .select-control {
+      border-color: #000000;
+    }
+    :root[data-theme="dark"][data-contrast="high"] .select-control {
+      border-color: #ffffff;
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      cursor: pointer;
+      opacity: 0.75;
+      transition: opacity 140ms ease;
+    }
+    input[type="date"]:hover::-webkit-calendar-picker-indicator {
+      opacity: 1;
+    }
+    :root[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(0.85);
     }
 
     /* Sticky Header Scrollable Table Container */
@@ -2175,14 +2282,20 @@
       width: 100%;
       height: 38px;
       padding: 0 11px;
-      border: 1px solid var(--control);
+      border: 1px solid var(--border);
       border-radius: 8px;
       background: var(--surface);
+      color: var(--text);
       font-size: 13px;
       transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
     }
+    .field input:hover, .field select:hover, .field textarea:hover {
+      border-color: var(--accent);
+      background-color: var(--raised);
+    }
     .field input:focus, .field select:focus, .field textarea:focus {
       border-color: var(--accent);
+      background-color: var(--surface);
       box-shadow: 0 0 0 3px var(--accent-tint); /* taste-skill-ignore */
       outline: none;
     }
